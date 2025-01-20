@@ -25,20 +25,20 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#0F172A",
+          DEFAULT: "#E31837", // Max Granite vermelho
           foreground: "#FFFFFF",
-          100: "#EFF6FF",
-          200: "#BFDBFE",
-          300: "#93C5FD",
-          400: "#60A5FA",
-          500: "#3B82F6",
-          600: "#2563EB",
-          700: "#1D4ED8",
-          800: "#1E40AF",
-          900: "#1E3A8A",
+          100: "#FFE5E9",
+          200: "#FFB8C2",
+          300: "#FF8A9B",
+          400: "#FF5C74",
+          500: "#FF2E4D",
+          600: "#E31837",
+          700: "#B31029",
+          800: "#82081C",
+          900: "#51040E",
         },
         secondary: {
-          DEFAULT: "#0EA5E9",
+          DEFAULT: "#1A1A1A", // Preto do logo
           foreground: "#FFFFFF",
         },
         success: {
@@ -50,12 +50,12 @@ export default {
           foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#F3F4F6",
+          foreground: "#6B7280",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#F9FAFB",
+          foreground: "#111827",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
