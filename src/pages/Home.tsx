@@ -67,8 +67,8 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Right Image */}
-            <div className="flex-1 relative">
+            {/* Right Image - Hidden on mobile, visible on lg screens */}
+            <div className="flex-1 relative hidden lg:block">
               <div className="relative w-full aspect-square rounded-full overflow-hidden border-8 border-white shadow-xl">
                 <img
                   src="/lovable-uploads/245cbed9-98b3-4196-a222-f311fc385aa2.png"
