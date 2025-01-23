@@ -1,8 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Header = () => {
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    checkUserRole();
+  }, []);
+
+  const checkUserRole = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
+
+      setIsAdmin(roles?.role === "dev");
+    }
+  };
 
   return (
     <header className="border-b bg-white">
@@ -27,6 +47,14 @@ export const Header = () => {
             >
               Solicitar Serviço
             </Button>
+            {isAdmin && (
+              <Button 
+                variant="ghost"
+                onClick={() => navigate("/admin")}
+              >
+                Admin
+              </Button>
+            )}
           </nav>
         </div>
         <div className="flex items-center space-x-4">

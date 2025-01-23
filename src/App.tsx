@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Warranties from "./pages/Warranties";
 import Services from "./pages/Services";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
               <Route path="/register" element={<Register />} />
               <Route path="/warranties" element={<Warranties />} />
               <Route path="/services" element={<Services />} />
+              <Route path="/admin" element={<Admin />} />
             </Routes>
           </main>
         </div>
