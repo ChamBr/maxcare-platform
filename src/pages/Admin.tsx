@@ -1,39 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-
-type UserRole = "dev" | "admin" | "user" | "customer";
-
-type UserWithRole = {
-  id: string;
-  email: string;
-  full_name: string | null;
-  role: UserRole;
-};
+import { UsersTable, User, UserRole } from "@/components/admin/UsersTable";
 
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [users, setUsers] = useState<UserWithRole[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     checkAccess();
@@ -62,8 +37,6 @@ const Admin = () => {
       navigate("/");
       return;
     }
-
-    setCurrentUserRole(roles.role);
   };
 
   const fetchUsers = async () => {
@@ -102,7 +75,7 @@ const Admin = () => {
     setIsLoading(false);
   };
 
-  const updateUserRole = async (userId: string, newRole: UserRole) => {
+  const handleRoleChange = async (userId: string, newRole: UserRole) => {
     const { error } = await supabase
       .from("user_roles")
       .upsert({ 
@@ -136,43 +109,7 @@ const Admin = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Gerenciamento de Usuários</h1>
-      <div className="bg-white rounded-lg shadow">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.full_name || "N/A"}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.role}</TableCell>
-                <TableCell>
-                  <Select
-                    defaultValue={user.role}
-                    onValueChange={(value: UserRole) => updateUserRole(user.id, value)}
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="dev">Dev</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="customer">Customer</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <UsersTable users={users} onRoleChange={handleRoleChange} />
     </div>
   );
 };
