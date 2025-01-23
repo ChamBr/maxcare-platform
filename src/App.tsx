@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import EmailConfirmation from "./pages/EmailConfirmation";
 import Warranties from "./pages/Warranties";
 import Services from "./pages/Services";
 import Admin from "./pages/Admin";
@@ -27,6 +28,7 @@ const App = () => (
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/email-confirmation" element={<EmailConfirmation />} />
               <Route 
                 path="/warranties" 
                 element={
