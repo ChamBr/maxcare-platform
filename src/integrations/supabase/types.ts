@@ -9,7 +9,190 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          completed_date: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          scheduled_date: string | null
+          service_type: string
+          status: string
+          updated_at: string
+          user_id: string
+          warranty_id: string
+        }
+        Insert: {
+          completed_date?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          scheduled_date?: string | null
+          service_type: string
+          status: string
+          updated_at?: string
+          user_id: string
+          warranty_id: string
+        }
+        Update: {
+          completed_date?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          scheduled_date?: string | null
+          service_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          warranty_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_warranty_id_fkey"
+            columns: ["warranty_id"]
+            isOneToOne: false
+            referencedRelation: "warranties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      warranties: {
+        Row: {
+          created_at: string
+          id: string
+          product_name: string
+          purchase_date: string
+          status: string
+          updated_at: string
+          user_id: string
+          warranty_end: string
+          warranty_start: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_name: string
+          purchase_date: string
+          status: string
+          updated_at?: string
+          user_id: string
+          warranty_end: string
+          warranty_start: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_name?: string
+          purchase_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          warranty_end?: string
+          warranty_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warranties_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
