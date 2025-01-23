@@ -15,7 +15,6 @@ const Register = () => {
     email: "",
     phone: "",
     password: "",
-    address: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +22,7 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      // Registrar o usuário com Supabase Auth
+      // Register user with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -37,7 +36,7 @@ const Register = () => {
       if (authError) throw authError;
 
       if (authData.user) {
-        // Inserir dados adicionais do usuário na tabela users
+        // Insert additional user data into users table
         const { error: profileError } = await supabase
           .from("users")
           .insert({
@@ -50,18 +49,18 @@ const Register = () => {
         if (profileError) throw profileError;
 
         toast({
-          title: "Conta criada com sucesso!",
-          description: "Você será redirecionado para a página inicial.",
+          title: "Account created successfully!",
+          description: "You will be redirected to the home page.",
         });
 
-        // Redirecionar para a página inicial após o registro bem-sucedido
+        // Redirect to home page after successful registration
         navigate("/");
       }
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Erro ao criar conta",
-        description: error.message || "Por favor, tente novamente.",
+        title: "Error creating account",
+        description: error.message || "Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -80,15 +79,15 @@ const Register = () => {
     <div className="container mx-auto px-4 py-12">
       <Card className="max-w-md mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Criar Conta MaxCare</CardTitle>
+          <CardTitle className="text-2xl text-center">Create MaxCare Account</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Nome Completo</label>
+              <label className="text-sm font-medium">Full Name</label>
               <Input
                 name="name"
-                placeholder="João Silva"
+                placeholder="John Smith"
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -100,7 +99,7 @@ const Register = () => {
               <Input
                 name="email"
                 type="email"
-                placeholder="seu@email.com"
+                placeholder="your@email.com"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -108,11 +107,11 @@ const Register = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Telefone</label>
+              <label className="text-sm font-medium">Phone</label>
               <Input
                 name="phone"
                 type="tel"
-                placeholder="(11) 99999-9999"
+                placeholder="(123) 456-7890"
                 value={formData.phone}
                 onChange={handleChange}
                 required
@@ -120,7 +119,7 @@ const Register = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Senha</label>
+              <label className="text-sm font-medium">Password</label>
               <Input
                 name="password"
                 type="password"
@@ -133,17 +132,17 @@ const Register = () => {
               />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Criando conta..." : "Cadastrar"}
+              {isLoading ? "Creating account..." : "Sign up"}
             </Button>
             <p className="text-center text-sm text-gray-600">
-              Já tem uma conta?{" "}
+              Already have an account?{" "}
               <button
                 type="button"
                 onClick={() => navigate("/login")}
                 className="text-primary hover:underline"
                 disabled={isLoading}
               >
-                Entrar
+                Sign in
               </button>
             </p>
           </form>
