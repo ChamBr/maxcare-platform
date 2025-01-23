@@ -6,6 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { UserRoleSelect } from "./UserRoleSelect";
 
 export type UserRole = "dev" | "admin" | "user" | "customer";
@@ -21,6 +22,19 @@ interface UsersTableProps {
   users: User[];
   onRoleChange: (userId: string, role: UserRole) => void;
 }
+
+const getRoleBadgeVariant = (role: UserRole) => {
+  switch (role) {
+    case "dev":
+      return "purple";
+    case "admin":
+      return "red";
+    case "user":
+      return "blue";
+    default:
+      return "default";
+  }
+};
 
 export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
   return (
@@ -39,7 +53,9 @@ export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
             <TableRow key={user.id}>
               <TableCell>{user.full_name || "N/A"}</TableCell>
               <TableCell>{user.email}</TableCell>
-              <TableCell>{user.role}</TableCell>
+              <TableCell>
+                <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
+              </TableCell>
               <TableCell>
                 <UserRoleSelect
                   defaultValue={user.role}
