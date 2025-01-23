@@ -10,8 +10,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false
   },
   global: {
-    fetch: (...args) => {
-      return fetch(...args).catch(err => {
+    fetch: (input: RequestInfo | URL, init?: RequestInit) => {
+      return fetch(input, init).catch(err => {
         console.error('Supabase fetch error:', err);
         throw err;
       });
