@@ -26,12 +26,14 @@ const Login = () => {
       if (error) {
         let errorMessage = "Ocorreu um erro ao fazer login. Tente novamente.";
         
+        // Parse the error body if it exists
         try {
           const errorBody = JSON.parse(error.message);
           if (errorBody.code === "email_not_confirmed") {
             errorMessage = "Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada.";
           }
         } catch {
+          // If we can't parse the error body, use the error message directly
           errorMessage = error.message;
         }
         
@@ -77,16 +79,7 @@ const Login = () => {
               />
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Senha</label>
-                <button
-                  type="button"
-                  onClick={() => navigate("/reset-password")}
-                  className="text-sm text-primary hover:underline"
-                >
-                  Esqueceu a senha?
-                </button>
-              </div>
+              <label className="text-sm font-medium">Senha</label>
               <Input
                 type="password"
                 placeholder="••••••••"

@@ -1,32 +1,62 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Header } from "@/components/layout/Header";
-import Home from "@/pages/Home";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import ResetPassword from "@/pages/ResetPassword";
-import UpdatePassword from "@/pages/UpdatePassword";
-import Admin from "@/pages/Admin";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Header } from "@/components/layout/Header";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Warranties from "./pages/Warranties";
+import Services from "./pages/Services";
+import Admin from "./pages/Admin";
 
-function App() {
-  return (
-    <Router>
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/update-password" element={<UpdatePassword />} />
-            <Route path="/admin" element={<Admin />} />
-          </Routes>
-        </main>
-      </div>
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
       <Toaster />
-    </Router>
-  );
-}
+      <Sonner />
+      <BrowserRouter>
+        <div className="min-h-screen bg-gray-50">
+          <Header />
+          <main>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route 
+                path="/warranties" 
+                element={
+                  <ProtectedRoute>
+                    <Warranties />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/services" 
+                element={
+                  <ProtectedRoute>
+                    <Services />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute>
+                    <Admin />
+                  </ProtectedRoute>
+                } 
+              />
+            </Routes>
+          </main>
+        </div>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
