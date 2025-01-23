@@ -19,11 +19,13 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 
+type UserRole = "dev" | "admin" | "user" | "customer";
+
 type UserWithRole = {
   id: string;
   email: string;
   full_name: string | null;
-  role: "dev" | "admin" | "user" | "customer";
+  role: UserRole;
 };
 
 const Admin = () => {
@@ -93,17 +95,22 @@ const Admin = () => {
 
     const usersWithRoles = usersData.map((user) => ({
       ...user,
-      role: rolesData.find((role) => role.user_id === user.id)?.role || "customer",
+      role: (rolesData.find((role) => role.user_id === user.id)?.role || "customer") as UserRole,
     }));
 
     setUsers(usersWithRoles);
     setIsLoading(false);
   };
 
-  const updateUserRole = async (userId: string, newRole: string) => {
+  const updateUserRole = async (userId: string, newRole: UserRole) => {
     const { error } = await supabase
       .from("user_roles")
-      .upsert({ user_id: userId, role: newRole }, { onConflict: "user_id" });
+      .upsert({ 
+        user_id: userId, 
+        role: newRole 
+      }, { 
+        onConflict: "user_id" 
+      });
 
     if (error) {
       toast({
@@ -148,7 +155,7 @@ const Admin = () => {
                 <TableCell>
                   <Select
                     defaultValue={user.role}
-                    onValueChange={(value) => updateUserRole(user.id, value)}
+                    onValueChange={(value: UserRole) => updateUserRole(user.id, value)}
                   >
                     <SelectTrigger className="w-32">
                       <SelectValue />
