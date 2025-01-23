@@ -36,19 +36,6 @@ const getRoleBadgeVariant = (role: UserRole) => {
   }
 };
 
-const getRoleTextColor = (role: UserRole) => {
-  switch (role) {
-    case "dev":
-      return "text-purple-500";
-    case "admin":
-      return "text-red-500";
-    case "user":
-      return "text-blue-500";
-    default:
-      return "text-gray-500";
-  }
-};
-
 export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
   return (
     <div className="bg-white rounded-lg shadow">
@@ -65,14 +52,7 @@ export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
           {users.map((user) => (
             <TableRow key={user.id}>
               <TableCell>{user.full_name || "N/A"}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  {user.email}
-                  <span className={`font-medium ${getRoleTextColor(user.role)}`}>
-                    ({user.role})
-                  </span>
-                </div>
-              </TableCell>
+              <TableCell>{user.email}</TableCell>
               <TableCell>
                 <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
               </TableCell>
