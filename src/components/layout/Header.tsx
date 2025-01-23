@@ -2,14 +2,24 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Menu, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export const Header = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isAdmin, setIsAdmin] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [userRole, setUserRole] = useState<string>("customer");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -48,8 +58,37 @@ export const Header = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    toast({
+      title: "Logged out successfully",
+      description: "You have been signed out of your account",
+    });
     navigate("/login");
   };
+
+  const NavigationLinks = () => (
+    <>
+      <Button 
+        variant="ghost"
+        onClick={() => navigate("/warranties")}
+      >
+        My Warranties
+      </Button>
+      <Button 
+        variant="ghost"
+        onClick={() => navigate("/services")}
+      >
+        Request Service
+      </Button>
+      {isAdmin && (
+        <Button 
+          variant="ghost"
+          onClick={() => navigate("/admin")}
+        >
+          Admin
+        </Button>
+      )}
+    </>
+  );
 
   return (
     <header className="border-b bg-white">
@@ -62,39 +101,37 @@ export const Header = () => {
             MaxCare
           </h1>
           {session ? (
-            <nav className="hidden md:flex items-center space-x-6">
-              <Button 
-                variant="ghost"
-                onClick={() => navigate("/warranties")}
-              >
-                My Warranties
-              </Button>
-              <Button 
-                variant="ghost"
-                onClick={() => navigate("/services")}
-              >
-                Request Service
-              </Button>
-              {isAdmin && (
-                <Button 
-                  variant="ghost"
-                  onClick={() => navigate("/admin")}
-                >
-                  Admin
-                </Button>
-              )}
-            </nav>
+            <>
+              <nav className="hidden md:flex items-center space-x-6">
+                <NavigationLinks />
+              </nav>
+              <Sheet>
+                <SheetTrigger asChild className="md:hidden">
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left">
+                  <SheetHeader>
+                    <SheetTitle>Menu</SheetTitle>
+                  </SheetHeader>
+                  <nav className="flex flex-col space-y-4 mt-6">
+                    <NavigationLinks />
+                  </nav>
+                </SheetContent>
+              </Sheet>
+            </>
           ) : null}
         </div>
         <div className="flex items-center space-x-4">
           {session ? (
             <>
               <div className="flex items-center gap-3">
-                <Badge variant="outline" className="capitalize">
+                <Badge variant="outline" className="capitalize hidden sm:flex">
                   <User className="w-3 h-3 mr-1" />
                   {userRole}
                 </Badge>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 hidden sm:block">
                   {session.user.email}
                 </span>
                 <Button
