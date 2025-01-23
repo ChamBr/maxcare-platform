@@ -7,16 +7,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false,
+    detectSessionInUrl: true,
     flowType: 'pkce'
-  },
-  global: {
-    fetch: (input: RequestInfo | URL, init?: RequestInit) => {
-      return fetch(input, init).catch(err => {
-        console.error('Supabase fetch error:', err);
-        throw err;
-      });
-    }
   }
 });
 
