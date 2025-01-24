@@ -12,7 +12,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Warranties from "./pages/Warranties";
 import Services from "./pages/Services";
-import Admin from "./pages/Admin";
+import Dashboard from "./pages/Dashboard";
+import AdminLayout from "./components/admin/AdminLayout";
 
 const queryClient = new QueryClient();
 
@@ -62,10 +63,17 @@ const App = () => (
                   } 
                 />
                 <Route 
-                  path="/admin" 
+                  path="/admin/*" 
                   element={
                     <ProtectedRoute>
-                      <PageWrapper><Admin /></PageWrapper>
+                      <PageWrapper>
+                        <AdminLayout>
+                          <Routes>
+                            <Route index element={<Dashboard />} />
+                            {/* Adicionar mais rotas administrativas aqui */}
+                          </Routes>
+                        </AdminLayout>
+                      </PageWrapper>
                     </ProtectedRoute>
                   } 
                 />
