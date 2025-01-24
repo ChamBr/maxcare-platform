@@ -9,6 +9,56 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          address_type: string | null
+          apt_suite_unit: string | null
+          city: string
+          created_at: string
+          id: string
+          is_primary: boolean | null
+          state_code: string
+          street_address: string
+          updated_at: string
+          user_id: string
+          zip_code: string
+        }
+        Insert: {
+          address_type?: string | null
+          apt_suite_unit?: string | null
+          city: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          state_code: string
+          street_address: string
+          updated_at?: string
+          user_id: string
+          zip_code: string
+        }
+        Update: {
+          address_type?: string | null
+          apt_suite_unit?: string | null
+          city?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          state_code?: string
+          street_address?: string
+          updated_at?: string
+          user_id?: string
+          zip_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "addresses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
