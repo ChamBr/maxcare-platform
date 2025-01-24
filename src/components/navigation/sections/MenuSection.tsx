@@ -47,8 +47,16 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
         )}
       </Button>
       
-      {isOpen && (
-        <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-background border rounded-md shadow-lg">
+      <div 
+        className={cn(
+          "absolute left-0 right-0 top-full mt-1 z-50",
+          "transform transition-all duration-200 ease-out",
+          isOpen 
+            ? "opacity-100 translate-y-0" 
+            : "opacity-0 translate-y-[-10px] pointer-events-none"
+        )}
+      >
+        <div className="bg-background border rounded-md shadow-lg">
           {items.map((item) => {
             const isActive = location.pathname.startsWith(item.to);
             return (
@@ -70,7 +78,7 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
             );
           })}
         </div>
-      )}
+      </div>
     </div>
   );
 };
