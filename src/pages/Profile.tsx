@@ -16,6 +16,7 @@ import type { Address } from "@/types/address";
 const Profile = () => {
   const { toast } = useToast();
   const [showAddressForm, setShowAddressForm] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState<Address | undefined>();
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ["user-profile"],
@@ -65,14 +66,14 @@ const Profile = () => {
     },
     onSuccess: () => {
       toast({
-        title: "Perfil atualizado",
-        description: "Suas informações foram atualizadas com sucesso.",
+        title: "Profile updated",
+        description: "Your information has been updated successfully.",
       });
     },
     onError: (error: Error) => {
       toast({
         variant: "destructive",
-        title: "Erro ao atualizar perfil",
+        title: "Error updating profile",
         description: error.message,
       });
     },
@@ -97,41 +98,47 @@ const Profile = () => {
     },
     onSuccess: () => {
       toast({
-        title: "Endereço atualizado",
-        description: "O endereço principal foi atualizado com sucesso.",
+        title: "Address updated",
+        description: "Primary address has been updated successfully.",
       });
       refetchAddresses();
     },
     onError: (error: Error) => {
       toast({
         variant: "destructive",
-        title: "Erro ao atualizar endereço",
+        title: "Error updating address",
         description: error.message,
       });
     },
   });
 
   const handleEditAddress = (address: Address) => {
-    // TODO: Implementar edição de endereço
-    console.log("Edit address:", address);
+    setSelectedAddress(address);
+    setShowAddressForm(true);
   };
 
   const handleAddressFormSuccess = () => {
     setShowAddressForm(false);
+    setSelectedAddress(undefined);
     refetchAddresses();
+  };
+
+  const handleAddressFormCancel = () => {
+    setShowAddressForm(false);
+    setSelectedAddress(undefined);
   };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold flex items-center gap-2">
         <UserCircle className="h-8 w-8" />
-        Meu Perfil
+        My Profile
       </h1>
       
       <div className="grid gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Informações Pessoais</CardTitle>
+            <CardTitle>Personal Information</CardTitle>
           </CardHeader>
           <CardContent>
             <ProfileInfo
@@ -146,7 +153,7 @@ const Profile = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
-              Endereços
+              Addresses
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -168,7 +175,7 @@ const Profile = () => {
                 ))}
                 <div className="pt-4">
                   <Button variant="outline" onClick={() => setShowAddressForm(true)}>
-                    Adicionar Novo Endereço
+                    Add New Address
                   </Button>
                 </div>
               </div>
@@ -176,10 +183,10 @@ const Profile = () => {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Você ainda não cadastrou um endereço. O cadastro de endereço é importante para o gerenciamento das suas garantias.
+                  You haven't added any addresses yet. Adding an address is important for managing your warranties.
                 </AlertDescription>
                 <Button variant="outline" className="mt-4" onClick={() => setShowAddressForm(true)}>
-                  Cadastrar Endereço
+                  Add Address
                 </Button>
               </Alert>
             )}
@@ -190,11 +197,12 @@ const Profile = () => {
       <Dialog open={showAddressForm} onOpenChange={setShowAddressForm}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Novo Endereço</DialogTitle>
+            <DialogTitle>{selectedAddress ? "Edit Address" : "New Address"}</DialogTitle>
           </DialogHeader>
           <AddressForm
+            address={selectedAddress}
             onSuccess={handleAddressFormSuccess}
-            onCancel={() => setShowAddressForm(false)}
+            onCancel={handleAddressFormCancel}
           />
         </DialogContent>
       </Dialog>
