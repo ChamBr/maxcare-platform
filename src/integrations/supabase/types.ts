@@ -44,6 +44,48 @@ export type Database = {
           },
         ]
       }
+      role_change_logs: {
+        Row: {
+          changed_by_id: string
+          created_at: string
+          id: string
+          new_role: Database["public"]["Enums"]["user_role"]
+          old_role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          changed_by_id: string
+          created_at?: string
+          id?: string
+          new_role: Database["public"]["Enums"]["user_role"]
+          old_role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          changed_by_id?: string
+          created_at?: string
+          id?: string
+          new_role?: Database["public"]["Enums"]["user_role"]
+          old_role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_change_logs_changed_by_id_fkey"
+            columns: ["changed_by_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_change_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           completed_date: string | null

@@ -4,14 +4,17 @@ import { UsersTable, type User } from "@/components/admin/UsersTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuthState } from "@/hooks/useAuthState";
+import { UsersFilter } from "@/components/admin/UsersFilter";
+import { useState } from "react";
 
 const Users = () => {
-  const { userRole } = useAuthState();
+  const { userRole, session } = useAuthState();
+  const [nameFilter, setNameFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
 
   const { data: users, isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      // Primeiro, buscamos os usuários
       const { data: usersData, error: usersError } = await supabase
         .from("users")
         .select("id, email, full_name");
@@ -21,7 +24,6 @@ const Users = () => {
         throw usersError;
       }
 
-      // Depois, buscamos os roles separadamente
       const { data: rolesData, error: rolesError } = await supabase
         .from("user_roles")
         .select("user_id, role");
@@ -31,7 +33,6 @@ const Users = () => {
         throw rolesError;
       }
 
-      // Combinamos os dados
       const usersWithRoles = usersData.map((user) => {
         const userRole = rolesData.find(role => role.user_id === user.id);
         return {
@@ -42,23 +43,44 @@ const Users = () => {
         };
       });
 
-      console.log("Usuários carregados:", usersWithRoles);
       return usersWithRoles as User[];
     },
   });
 
-  const handleRoleChange = async (userId: string, role: User["role"]) => {
+  const handleRoleChange = async (userId: string, newRole: User["role"]) => {
     try {
+      // Buscar a role atual do usuário
+      const { data: currentRoleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .single();
+
+      const oldRole = currentRoleData?.role || "customer";
+
+      // Atualizar a role
       const { error } = await supabase
         .from("user_roles")
         .upsert({ 
           user_id: userId, 
-          role 
+          role: newRole 
         }, { 
           onConflict: "user_id" 
         });
 
       if (error) throw error;
+
+      // Registrar a mudança no log
+      const { error: logError } = await supabase
+        .from("role_change_logs")
+        .insert({
+          user_id: userId,
+          changed_by_id: session?.user.id,
+          old_role: oldRole,
+          new_role: newRole,
+        });
+
+      if (logError) throw logError;
 
       toast.success("Papel do usuário atualizado com sucesso");
     } catch (error) {
@@ -66,6 +88,13 @@ const Users = () => {
       toast.error("Erro ao atualizar papel do usuário");
     }
   };
+
+  const filteredUsers = users?.filter(user => {
+    const matchesName = user.full_name?.toLowerCase().includes(nameFilter.toLowerCase()) ||
+                       user.email.toLowerCase().includes(nameFilter.toLowerCase());
+    const matchesRole = roleFilter ? user.role === roleFilter : true;
+    return matchesName && matchesRole;
+  });
 
   if (!["dev", "admin"].includes(userRole)) {
     return (
@@ -86,6 +115,13 @@ const Users = () => {
         <h1 className="text-3xl font-bold">Usuários</h1>
       </div>
       
+      <UsersFilter
+        nameFilter={nameFilter}
+        roleFilter={roleFilter}
+        onNameFilterChange={setNameFilter}
+        onRoleFilterChange={setRoleFilter}
+      />
+
       {isLoading ? (
         <div className="space-y-4">
           <Skeleton className="h-12 w-full" />
@@ -93,7 +129,7 @@ const Users = () => {
           <Skeleton className="h-12 w-full" />
         </div>
       ) : (
-        <UsersTable users={users || []} onRoleChange={handleRoleChange} />
+        <UsersTable users={filteredUsers || []} onRoleChange={handleRoleChange} />
       )}
     </div>
   );
