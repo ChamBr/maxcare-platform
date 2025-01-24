@@ -62,28 +62,22 @@ const getNoPermissionReason = (
     }
   }
 
-  if (currentUserRole === "user" || currentUserRole === "customer") {
-    return "Você não tem permissão para alterar níveis de acesso";
-  }
-
   return "Você não tem permissão para alterar níveis de acesso";
 };
 
 export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
   const { session, userRole } = useAuthState();
 
-  const canChangeRole = (targetUserId: string, targetRole: UserRole) => {
+  const canChangeRole = (targetUserId: string, targetRole: UserRole): boolean => {
     // Não pode alterar o próprio role
     if (session?.user.id === targetUserId) return false;
 
     // Dev pode alterar qualquer role
-    if (userRole === 'dev') return true;
+    if (userRole === "dev") return true;
 
-    // Admin pode alterar roles abaixo do seu nível
-    if (userRole === 'admin') {
-      // Admin não pode alterar roles de dev ou outros admin
-      if (targetRole === 'dev' || targetRole === 'admin') return false;
-      return true;
+    // Admin só pode alterar roles de user e customer
+    if (userRole === "admin") {
+      return targetRole !== "dev" && targetRole !== "admin";
     }
 
     // Outros usuários não podem alterar roles
