@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { UserRoleSelect } from "./UserRoleSelect";
+import { useAuthState } from "@/hooks/useAuthState";
 
 export type UserRole = "dev" | "admin" | "user" | "customer";
 
@@ -37,14 +38,32 @@ const getRoleBadgeVariant = (role: UserRole) => {
 };
 
 export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
+  const { session, userRole } = useAuthState();
+
+  const canChangeRole = (currentUserRole: string, targetUserId: string, newRole: UserRole) => {
+    // Não pode alterar o próprio role
+    if (session?.user.id === targetUserId) return false;
+
+    // Dev pode alterar qualquer role
+    if (userRole === 'dev') return true;
+
+    // Admin só pode alterar roles abaixo do seu nível
+    if (userRole === 'admin') {
+      return ['user', 'customer'].includes(newRole);
+    }
+
+    // Outros usuários não podem alterar roles
+    return false;
+  };
+
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
+            <TableHead className="w-[200px]">Nome</TableHead>
+            <TableHead className="w-[250px]">Email</TableHead>
+            <TableHead className="w-[120px]">Role</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -64,6 +83,7 @@ export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
                 <UserRoleSelect
                   defaultValue={user.role}
                   onRoleChange={(role) => onRoleChange(user.id, role)}
+                  disabled={!canChangeRole(userRole, user.id, user.role)}
                 />
               </TableCell>
             </TableRow>

@@ -3,8 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { UsersTable, type User } from "@/components/admin/UsersTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { useAuthState } from "@/hooks/useAuthState";
 
 const Users = () => {
+  const { userRole } = useAuthState();
+
   const { data: users, isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
@@ -37,8 +40,12 @@ const Users = () => {
     try {
       const { error } = await supabase
         .from("user_roles")
-        .update({ role })
-        .eq("user_id", userId);
+        .upsert({ 
+          user_id: userId, 
+          role 
+        }, { 
+          onConflict: "user_id" 
+        });
 
       if (error) throw error;
 
@@ -49,9 +56,24 @@ const Users = () => {
     }
   };
 
+  if (!["dev", "admin"].includes(userRole)) {
+    return (
+      <div className="container mx-auto p-6">
+        <h1 className="text-2xl font-bold text-red-600">
+          Acesso Negado
+        </h1>
+        <p className="mt-2 text-gray-600">
+          Você não tem permissão para acessar esta página.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Usuários</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Usuários</h1>
+      </div>
       
       {isLoading ? (
         <div className="space-y-4">
