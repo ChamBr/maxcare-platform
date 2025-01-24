@@ -272,6 +272,9 @@ export type Database = {
       }
       warranties: {
         Row: {
+          approval_status: string
+          approved_at: string | null
+          approved_by_id: string | null
           created_at: string
           id: string
           product_name: string
@@ -283,6 +286,9 @@ export type Database = {
           warranty_start: string
         }
         Insert: {
+          approval_status?: string
+          approved_at?: string | null
+          approved_by_id?: string | null
           created_at?: string
           id?: string
           product_name: string
@@ -294,6 +300,9 @@ export type Database = {
           warranty_start: string
         }
         Update: {
+          approval_status?: string
+          approved_at?: string | null
+          approved_by_id?: string | null
           created_at?: string
           id?: string
           product_name?: string
@@ -305,6 +314,13 @@ export type Database = {
           warranty_start?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "warranties_approved_by_id_fkey"
+            columns: ["approved_by_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "warranties_user_id_fkey"
             columns: ["user_id"]
@@ -320,6 +336,12 @@ export type Database = {
     }
     Functions: {
       is_admin: {
+        Args: {
+          user_uuid: string
+        }
+        Returns: boolean
+      }
+      is_customer: {
         Args: {
           user_uuid: string
         }
