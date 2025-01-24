@@ -1,17 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserCircle, MapPin, AlertCircle } from "lucide-react";
+import { UserCircle, MapPin } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { AddressListItem } from "@/components/profile/AddressListItem";
-import { ProfileInfo } from "@/components/profile/ProfileInfo";
-import { AddressForm } from "@/components/profile/AddressForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import type { Address } from "@/types/address";
+import { ProfileSection } from "@/components/profile/ProfileSection";
+import { AddressSection } from "@/components/profile/AddressSection";
+import { ProfileInfo } from "@/components/profile/ProfileInfo";
+import { AddressForm } from "@/components/profile/AddressForm";
 
 const Profile = () => {
   const { toast } = useToast();
@@ -136,62 +133,23 @@ const Profile = () => {
       </h1>
       
       <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ProfileInfo
-              profile={profile}
-              isLoading={isLoadingProfile}
-              onUpdate={(data) => updateProfile.mutate(data)}
-            />
-          </CardContent>
-        </Card>
+        <ProfileSection title="Personal Information" icon={<UserCircle className="h-5 w-5" />}>
+          <ProfileInfo
+            profile={profile}
+            isLoading={isLoadingProfile}
+            onUpdate={(data) => updateProfile.mutate(data)}
+          />
+        </ProfileSection>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Addresses
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoadingAddress ? (
-              <div className="space-y-4">
-                <Skeleton className="h-4 w-[200px]" />
-                <Skeleton className="h-4 w-[150px]" />
-              </div>
-            ) : addresses && addresses.length > 0 ? (
-              <div className="space-y-2 divide-y">
-                {addresses.map((address) => (
-                  <AddressListItem
-                    key={address.id}
-                    address={address}
-                    isPrimary={address.is_primary}
-                    onEdit={handleEditAddress}
-                    onSetPrimary={(address) => setPrimaryAddress.mutate(address.id)}
-                  />
-                ))}
-                <div className="pt-4">
-                  <Button variant="outline" onClick={() => setShowAddressForm(true)}>
-                    Add New Address
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  You haven't added any addresses yet. Adding an address is important for managing your warranties.
-                </AlertDescription>
-                <Button variant="outline" className="mt-4" onClick={() => setShowAddressForm(true)}>
-                  Add Address
-                </Button>
-              </Alert>
-            )}
-          </CardContent>
-        </Card>
+        <ProfileSection title="Addresses" icon={<MapPin className="h-5 w-5" />}>
+          <AddressSection
+            addresses={addresses}
+            isLoading={isLoadingAddress}
+            onEdit={handleEditAddress}
+            onSetPrimary={(address) => setPrimaryAddress.mutate(address.id)}
+            onAddNew={() => setShowAddressForm(true)}
+          />
+        </ProfileSection>
       </div>
 
       <Dialog open={showAddressForm} onOpenChange={setShowAddressForm}>
