@@ -1,3 +1,4 @@
+import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import { UsersTable, User, UserRole } from "../UsersTable";
 import { useAuthState } from "@/hooks/useAuthState";
