@@ -22,7 +22,7 @@ const WarrantyApprovals = () => {
           id,
           created_at,
           approval_status,
-          users (
+          users!warranties_user_id_fkey (
             full_name,
             email
           ),
