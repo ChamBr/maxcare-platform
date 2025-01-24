@@ -1,13 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { Clock, Plus, ShieldCheck } from "lucide-react";
+import { Clock, Plus, ShieldCheck, Wrench } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { isAfter, parseISO } from "date-fns";
+import { isAfter, parseISO, format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ServiceRequestForm } from "@/components/services/ServiceRequestForm";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const Services = () => {
   const { toast } = useToast();
@@ -31,13 +33,50 @@ const Services = () => {
 
       if (error) throw error;
 
-      // Filtrar apenas garantias que ainda não venceram
       return data.filter(warranty => {
         const endDate = parseISO(warranty.warranty_end);
         return isAfter(endDate, new Date());
       });
     },
   });
+
+  const { data: services } = useQuery({
+    queryKey: ["warranty-services"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("services")
+        .select(`
+          *,
+          warranties (
+            id,
+            warranty_types (
+              name
+            )
+          ),
+          warranty_services (
+            name,
+            description
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      pending: { label: "Aguardando", variant: "secondary" },
+      scheduled: { label: "Agendado", variant: "blue" },
+      in_progress: { label: "Em Andamento", variant: "yellow" },
+      completed: { label: "Concluído", variant: "green" },
+      cancelled: { label: "Cancelado", variant: "destructive" },
+    };
+
+    const config = statusConfig[status] || statusConfig.pending;
+    return <Badge variant={config.variant as any}>{config.label}</Badge>;
+  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -72,6 +111,50 @@ const Services = () => {
                     {warranty.addresses?.street_address}, {warranty.addresses?.city}, {warranty.addresses?.state_code}
                   </CardDescription>
                 </CardHeader>
+
+                {/* Lista de Serviços da Garantia */}
+                <CardContent>
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+                      <Wrench className="h-4 w-4" />
+                      Serviços Solicitados
+                    </h3>
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Serviço</TableHead>
+                            <TableHead>Data</TableHead>
+                            <TableHead>Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {services
+                            ?.filter(service => service.warranty_id === warranty.id)
+                            .map(service => (
+                              <TableRow key={service.id}>
+                                <TableCell>{service.warranty_services?.name}</TableCell>
+                                <TableCell>
+                                  {service.scheduled_date 
+                                    ? format(parseISO(service.scheduled_date), "dd/MM/yyyy")
+                                    : format(parseISO(service.created_at), "dd/MM/yyyy")}
+                                </TableCell>
+                                <TableCell>{getStatusBadge(service.status)}</TableCell>
+                              </TableRow>
+                            ))}
+                          {!services?.some(service => service.warranty_id === warranty.id) && (
+                            <TableRow>
+                              <TableCell colSpan={3} className="text-center text-muted-foreground">
+                                Nenhum serviço solicitado
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                </CardContent>
+
                 <CardFooter>
                   <Dialog>
                     <DialogTrigger asChild>
