@@ -42,11 +42,18 @@ const Warranties = () => {
     }
 
     try {
+      // Define datas iniciais que serão atualizadas na aprovação
+      const currentDate = new Date();
+      const oneYearFromNow = new Date();
+      oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+
       const { error } = await supabase.from("warranties").insert({
         ...data,
         user_id: session.user.id,
         status: "active",
-        approval_status: "pending"
+        approval_status: "pending",
+        warranty_start: currentDate.toISOString(),
+        warranty_end: oneYearFromNow.toISOString()
       });
 
       if (error) throw error;
