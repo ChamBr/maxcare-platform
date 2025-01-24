@@ -17,7 +17,9 @@ import AdminUsers from "./pages/admin/Users";
 import AdminServices from "./pages/admin/Services";
 import AdminNotifications from "./pages/admin/Notifications";
 import AdminSettings from "./pages/admin/Settings";
-import RoleHistory from "./pages/admin/RoleHistory";
+import Logs from "./pages/admin/Logs";
+import Subscriptions from "./pages/admin/Subscriptions";
+import ServiceRequests from "./pages/admin/ServiceRequests";
 
 const queryClient = new QueryClient();
 
@@ -77,7 +79,9 @@ const App = () => (
                           <Route path="services" element={<AdminServices />} />
                           <Route path="notifications" element={<AdminNotifications />} />
                           <Route path="settings" element={<AdminSettings />} />
-                          <Route path="role-history" element={<RoleHistory />} />
+                          <Route path="logs" element={<Logs />} />
+                          <Route path="subscriptions" element={<Subscriptions />} />
+                          <Route path="service-requests" element={<ServiceRequests />} />
                         </Routes>
                       </PageWrapper>
                     </ProtectedRoute>

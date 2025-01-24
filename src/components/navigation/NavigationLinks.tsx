@@ -5,9 +5,10 @@ import {
   Wrench, 
   Bell, 
   Settings,
-  History,
+  FileText,
   ShieldCheck,
-  FileSpreadsheet,
+  CreditCard,
+  Clipboard,
   UserCircle
 } from "lucide-react";
 
@@ -26,7 +27,9 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
           <NavigationButton to="/admin/services" icon={Wrench}>Serviços</NavigationButton>
           <NavigationButton to="/admin/notifications" icon={Bell}>Notificações</NavigationButton>
           <NavigationButton to="/admin/settings" icon={Settings}>Configurações</NavigationButton>
-          <NavigationButton to="/admin/role-history" icon={History}>Histórico de Roles</NavigationButton>
+          <NavigationButton to="/admin/logs" icon={FileText}>Logs</NavigationButton>
+          <NavigationButton to="/admin/subscriptions" icon={CreditCard}>Assinaturas</NavigationButton>
+          <NavigationButton to="/admin/service-requests" icon={Clipboard}>Solicitações</NavigationButton>
         </div>
       </div>
     );
@@ -41,6 +44,9 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
           <NavigationButton to="/admin/services" icon={Wrench}>Serviços</NavigationButton>
           <NavigationButton to="/admin/notifications" icon={Bell}>Notificações</NavigationButton>
           <NavigationButton to="/admin/settings" icon={Settings}>Configurações</NavigationButton>
+          <NavigationButton to="/admin/logs" icon={FileText}>Logs</NavigationButton>
+          <NavigationButton to="/admin/subscriptions" icon={CreditCard}>Assinaturas</NavigationButton>
+          <NavigationButton to="/admin/service-requests" icon={Clipboard}>Solicitações</NavigationButton>
         </div>
       </div>
     );
@@ -51,7 +57,6 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
       <div className="flex md:flex-row flex-col md:space-x-4 space-y-2 md:space-y-0">
         <NavigationButton to="/warranties" icon={ShieldCheck}>Minhas Garantias</NavigationButton>
         <NavigationButton to="/services" icon={Wrench}>Solicitar Serviço</NavigationButton>
-        <NavigationButton to="/history" icon={History}>Histórico</NavigationButton>
         <NavigationButton to="/profile" icon={UserCircle}>Meu Perfil</NavigationButton>
       </div>
     </div>
