@@ -9,7 +9,7 @@ interface WarrantyTypeSelectProps {
 }
 
 export const WarrantyTypeSelect = ({ value, onValueChange }: WarrantyTypeSelectProps) => {
-  const { data: warrantyTypes } = useQuery({
+  const { data: warrantyTypes, isLoading } = useQuery({
     queryKey: ["warranty-types"],
     queryFn: async () => {
       console.log("Buscando tipos de garantia...");
@@ -38,10 +38,10 @@ export const WarrantyTypeSelect = ({ value, onValueChange }: WarrantyTypeSelectP
             <SelectValue placeholder="Selecione o tipo de garantia" />
           </SelectTrigger>
           <SelectContent>
-            {warrantyTypes?.length === 0 && (
-              <SelectItem value="" disabled>
+            {!isLoading && warrantyTypes?.length === 0 && (
+              <div className="p-2 text-sm text-muted-foreground text-center">
                 Nenhuma garantia disponível
-              </SelectItem>
+              </div>
             )}
             {warrantyTypes?.map((type) => (
               <SelectItem key={type.id} value={type.id}>
