@@ -13,6 +13,10 @@ import Register from "./pages/Register";
 import Warranties from "./pages/Warranties";
 import Services from "./pages/Services";
 import Dashboard from "./pages/Dashboard";
+import AdminUsers from "./pages/admin/Users";
+import AdminServices from "./pages/admin/Services";
+import AdminNotifications from "./pages/admin/Notifications";
+import AdminSettings from "./pages/admin/Settings";
 
 const queryClient = new QueryClient();
 
@@ -68,7 +72,10 @@ const App = () => (
                       <PageWrapper>
                         <Routes>
                           <Route index element={<Dashboard />} />
-                          {/* Adicionar mais rotas administrativas aqui */}
+                          <Route path="users" element={<AdminUsers />} />
+                          <Route path="services" element={<AdminServices />} />
+                          <Route path="notifications" element={<AdminNotifications />} />
+                          <Route path="settings" element={<AdminSettings />} />
                         </Routes>
                       </PageWrapper>
                     </ProtectedRoute>
