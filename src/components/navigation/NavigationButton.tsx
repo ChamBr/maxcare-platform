@@ -25,7 +25,7 @@ export const NavigationButton = ({ to, children, icon: Icon }: NavigationButtonP
       )}
     >
       {Icon && <Icon className="h-4 w-4" />}
-      {children}
+      <span>{children}</span>
     </Button>
   );
 };

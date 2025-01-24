@@ -19,15 +19,17 @@ export const Header = () => {
   const { isStaff, session, userRole, clearUserState } = useAuthState();
 
   const getPortalName = () => {
-    if (isStaff && userRole === "dev") return "MaxCare Panel";
-    if (userRole === "admin") return "MaxCare Services";
-    return "MaxCare Customer";
+    if (!session) return "MaxCare";
+    if (isStaff && userRole === "dev") return ["MaxCare", "Panel"];
+    if (userRole === "admin") return ["MaxCare", "Services"];
+    return ["MaxCare", "Customer"];
   };
 
   const getPortalColor = () => {
-    if (isStaff && userRole === "dev") return "text-primary";
-    if (userRole === "admin") return "text-blue-500";
-    return "text-green-500";
+    if (!session) return "text-primary";
+    if (isStaff && userRole === "dev") return "text-[#1A1F2C]"; // Roxo escuro
+    if (userRole === "admin") return "text-blue-900"; // Azul escuro
+    return "text-black"; // Preto
   };
 
   return (
@@ -37,18 +39,19 @@ export const Header = () => {
           <div className="flex items-center space-x-2">
             <h1 
               onClick={() => navigate("/")}
-              className={cn(
-                "text-xl font-bold cursor-pointer transition-colors",
-                getPortalColor(),
-                "hover:opacity-90"
-              )}
+              className="text-xl font-bold cursor-pointer transition-colors flex items-center"
             >
-              {getPortalName()}
+              <span className="text-primary">MaxCare</span>
+              {session && Array.isArray(getPortalName()) && (
+                <span className={cn("ml-1", getPortalColor())}>
+                  {getPortalName()[1]}
+                </span>
+              )}
             </h1>
           </div>
           {session && (
             <>
-              <nav className="hidden md:flex items-center space-x-2">
+              <nav className="hidden md:flex items-center space-x-4">
                 <NavigationLinks isStaff={isStaff} userRole={userRole} />
               </nav>
               <Sheet>
@@ -61,7 +64,7 @@ export const Header = () => {
                   <SheetHeader>
                     <SheetTitle>Menu</SheetTitle>
                   </SheetHeader>
-                  <nav className="flex flex-col space-y-2 mt-6">
+                  <nav className="flex flex-col space-y-4 mt-6">
                     <NavigationLinks isStaff={isStaff} userRole={userRole} />
                   </nav>
                 </SheetContent>
