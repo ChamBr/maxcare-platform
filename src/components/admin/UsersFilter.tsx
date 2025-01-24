@@ -5,6 +5,7 @@ import { UserRole } from "./UsersTable";
 interface UsersFilterProps {
   nameFilter: string;
   roleFilter: string;
+  excludeCustomers?: boolean;
   onNameFilterChange: (value: string) => void;
   onRoleFilterChange: (value: string) => void;
 }
@@ -12,6 +13,7 @@ interface UsersFilterProps {
 export const UsersFilter = ({
   nameFilter,
   roleFilter,
+  excludeCustomers = false,
   onNameFilterChange,
   onRoleFilterChange,
 }: UsersFilterProps) => {
@@ -35,7 +37,7 @@ export const UsersFilter = ({
             <SelectItem value="dev">Dev</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
             <SelectItem value="user">User</SelectItem>
-            <SelectItem value="customer">Customer</SelectItem>
+            {!excludeCustomers && <SelectItem value="customer">Customer</SelectItem>}
           </SelectContent>
         </Select>
       </div>

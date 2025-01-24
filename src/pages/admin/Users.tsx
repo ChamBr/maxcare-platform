@@ -6,11 +6,15 @@ import { toast } from "sonner";
 import { useAuthState } from "@/hooks/useAuthState";
 import { UsersFilter } from "@/components/admin/UsersFilter";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const Users = () => {
   const { userRole, session } = useAuthState();
   const [nameFilter, setNameFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [searchParams] = useSearchParams();
+  const type = searchParams.get("type");
+  const excludeCustomers = type === "customer";
 
   const { data: users, isLoading } = useQuery({
     queryKey: ["users"],
@@ -90,9 +94,14 @@ const Users = () => {
   };
 
   const filteredUsers = users?.filter(user => {
+    // Se estamos na página de clientes, excluir usuários que não são customers
+    if (excludeCustomers && user.role !== "customer") return false;
+    // Se estamos na página de usuários, excluir customers
+    if (!excludeCustomers && user.role === "customer") return false;
+
     const matchesName = user.full_name?.toLowerCase().includes(nameFilter.toLowerCase()) ||
                        user.email.toLowerCase().includes(nameFilter.toLowerCase());
-    const matchesRole = roleFilter ? user.role === roleFilter : true;
+    const matchesRole = roleFilter === "all" || !roleFilter ? true : user.role === roleFilter;
     return matchesName && matchesRole;
   });
 
@@ -112,12 +121,15 @@ const Users = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Usuários</h1>
+        <h1 className="text-3xl font-bold">
+          {excludeCustomers ? "Clientes" : "Usuários do Sistema"}
+        </h1>
       </div>
       
       <UsersFilter
         nameFilter={nameFilter}
         roleFilter={roleFilter}
+        excludeCustomers={excludeCustomers}
         onNameFilterChange={setNameFilter}
         onRoleFilterChange={setRoleFilter}
       />
