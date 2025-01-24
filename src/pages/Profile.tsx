@@ -9,6 +9,7 @@ import { AddressListItem } from "@/components/profile/AddressListItem";
 import { ProfileInfo } from "@/components/profile/ProfileInfo";
 import { AddressForm } from "@/components/profile/AddressForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import type { Address } from "@/types/address";
 
