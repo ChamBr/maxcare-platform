@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { AnimatePresence, motion } from "framer-motion";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -23,7 +24,7 @@ import ServiceRequests from "./pages/admin/ServiceRequests";
 
 const queryClient = new QueryClient();
 
-const PageWrapper = ({ children }: { children: React.ReactNode }) => {
+const PageWrapper = ({ children, showBreadcrumbs = false }: { children: React.ReactNode, showBreadcrumbs?: boolean }) => {
   const location = useLocation();
   return (
     <motion.div
@@ -32,7 +33,9 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
+      className="container mx-auto px-4 py-6"
     >
+      {showBreadcrumbs && <Breadcrumbs />}
       {children}
     </motion.div>
   );
@@ -56,7 +59,7 @@ const App = () => (
                   path="/warranties" 
                   element={
                     <ProtectedRoute>
-                      <PageWrapper><Warranties /></PageWrapper>
+                      <PageWrapper showBreadcrumbs><Warranties /></PageWrapper>
                     </ProtectedRoute>
                   } 
                 />
@@ -64,7 +67,7 @@ const App = () => (
                   path="/services" 
                   element={
                     <ProtectedRoute>
-                      <PageWrapper><Services /></PageWrapper>
+                      <PageWrapper showBreadcrumbs><Services /></PageWrapper>
                     </ProtectedRoute>
                   } 
                 />
@@ -72,7 +75,7 @@ const App = () => (
                   path="/admin/*" 
                   element={
                     <ProtectedRoute>
-                      <PageWrapper>
+                      <PageWrapper showBreadcrumbs>
                         <Routes>
                           <Route index element={<Dashboard />} />
                           <Route path="users" element={<AdminUsers />} />

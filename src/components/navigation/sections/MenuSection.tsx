@@ -4,6 +4,7 @@ import { NavigationButton } from "../NavigationButton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MenuItem {
   to: string;
@@ -27,8 +28,9 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
           <Button 
             variant="ghost" 
             className={cn(
-              "w-full justify-between px-4 py-2 hover:bg-accent",
-              "transition-colors duration-200",
+              "w-full justify-between px-4 py-2",
+              "transition-all duration-300 ease-in-out",
+              "hover:bg-accent/80 hover:scale-[1.02]",
               isOpen && "bg-accent"
             )}
           >
@@ -36,23 +38,47 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
               <Icon className="h-4 w-4" />
               {title}
             </span>
-            <span className={cn(
-              "transition-transform duration-200",
-              isOpen ? "rotate-180" : ""
-            )}>▼</span>
+            <motion.span
+              animate={{ rotate: isOpen ? 180 : 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="text-xs"
+            >
+              ▼
+            </motion.span>
           </Button>
         </CollapsibleTrigger>
-        <CollapsibleContent className="absolute z-50 w-full min-w-[200px] bg-background border rounded-md shadow-lg mt-1 py-2">
-          {items.map((item) => (
-            <NavigationButton 
-              key={item.to}
-              to={item.to} 
-              icon={item.icon}
+        <AnimatePresence>
+          {isOpen && (
+            <CollapsibleContent 
+              forceMount
+              asChild
             >
-              {item.label}
-            </NavigationButton>
-          ))}
-        </CollapsibleContent>
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="absolute z-50 w-full min-w-[200px] bg-background border rounded-md shadow-lg mt-1 py-2"
+              >
+                {items.map((item, index) => (
+                  <motion.div
+                    key={item.to}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <NavigationButton 
+                      to={item.to} 
+                      icon={item.icon}
+                    >
+                      {item.label}
+                    </NavigationButton>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </CollapsibleContent>
+          )}
+        </AnimatePresence>
       </Collapsible>
     </div>
   );
