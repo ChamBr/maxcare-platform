@@ -288,7 +288,7 @@ export type Database = {
           approved_by_id: string | null
           created_at: string
           id: string
-          purchase_date: string
+          purchase_date: string | null
           status: string
           updated_at: string
           user_id: string
@@ -303,7 +303,7 @@ export type Database = {
           approved_by_id?: string | null
           created_at?: string
           id?: string
-          purchase_date: string
+          purchase_date?: string | null
           status: string
           updated_at?: string
           user_id: string
@@ -318,7 +318,7 @@ export type Database = {
           approved_by_id?: string | null
           created_at?: string
           id?: string
-          purchase_date?: string
+          purchase_date?: string | null
           status?: string
           updated_at?: string
           user_id?: string

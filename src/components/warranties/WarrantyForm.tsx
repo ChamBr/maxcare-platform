@@ -13,7 +13,7 @@ import { ptBR } from "date-fns/locale";
 interface WarrantyFormData {
   warranty_type_id: string;
   address_id: string;
-  purchase_date: Date;
+  purchase_date?: Date;
 }
 
 interface WarrantyFormProps {
@@ -59,7 +59,7 @@ export const WarrantyForm = ({ onSubmit }: WarrantyFormProps) => {
           name="purchase_date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Data da Compra</FormLabel>
+              <FormLabel>Data da Compra (opcional)</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
