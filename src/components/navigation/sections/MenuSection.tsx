@@ -50,13 +50,13 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
       <div 
         className={cn(
           "absolute left-0 right-0 top-full mt-1 z-50",
-          "transform transition-all duration-200 ease-out",
+          "transform transition-all duration-200 ease-out min-w-[200px] w-auto",
           isOpen 
             ? "opacity-100 translate-y-0" 
             : "opacity-0 translate-y-[-10px] pointer-events-none"
         )}
       >
-        <div className="bg-background border rounded-md shadow-lg">
+        <div className="bg-background border rounded-md shadow-lg w-full whitespace-nowrap">
           {items.map((item) => {
             const isActive = location.pathname.startsWith(item.to);
             return (
