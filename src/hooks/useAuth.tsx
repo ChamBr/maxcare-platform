@@ -3,7 +3,7 @@ import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AuthUser extends User {
-  role?: 'customer' | 'admin' | 'dev';
+  role?: 'customer' | 'admin' | 'dev' | 'user';
 }
 
 export const useAuth = () => {
