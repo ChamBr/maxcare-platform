@@ -24,7 +24,7 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
   const isActiveRoute = items.some(item => location.pathname.startsWith(item.to));
 
   return (
-    <div className="w-full">
+    <div className="relative inline-block w-full">
       <Button 
         variant="ghost" 
         onClick={() => setIsOpen(!isOpen)}
@@ -48,7 +48,7 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
       </Button>
       
       {isOpen && (
-        <div className="bg-background border-x border-b rounded-b-md shadow-sm">
+        <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-background border rounded-md shadow-lg">
           {items.map((item) => {
             const isActive = location.pathname.startsWith(item.to);
             return (
