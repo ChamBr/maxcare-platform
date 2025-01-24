@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationButton } from "../NavigationButton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -22,16 +22,34 @@ interface MenuSectionProps {
 export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // Fecha o menu quando mudar de rota
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
 
+  // Adiciona listener para fechar o menu quando clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
   const isActiveRoute = items.some(item => location.pathname.startsWith(item.to));
 
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
           <Button 
@@ -64,9 +82,9 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
               asChild
             >
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
                 className="relative z-50 w-full min-w-[200px] bg-background border-l border-r border-b rounded-b-md shadow-lg mt-1 py-2 overflow-hidden"
               >
