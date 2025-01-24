@@ -1,48 +1,25 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthState } from "@/hooks/useAuthState";
-
-interface WarrantyFormData {
-  product_name: string;
-  purchase_date: string;
-  warranty_start: string;
-  warranty_end: string;
-}
+import { WarrantyForm } from "@/components/warranties/WarrantyForm";
 
 const Warranties = () => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const { session } = useAuthState();
-  const form = useForm<WarrantyFormData>();
 
   const { data: warranties, refetch } = useQuery({
     queryKey: ["warranties"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("warranties")
-        .select("*")
+        .select("*, addresses(street_address, city, state_code)")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -50,7 +27,7 @@ const Warranties = () => {
     },
   });
 
-  const onSubmit = async (data: WarrantyFormData) => {
+  const onSubmit = async (data: any) => {
     if (!session?.user?.id) {
       toast({
         title: "Erro ao solicitar garantia",
@@ -76,7 +53,6 @@ const Warranties = () => {
       });
       
       setOpen(false);
-      form.reset();
       refetch();
     } catch (error) {
       console.error("Erro ao solicitar garantia:", error);
@@ -103,65 +79,7 @@ const Warranties = () => {
             <DialogHeader>
               <DialogTitle>Solicitar Nova Garantia</DialogTitle>
             </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="product_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome do Produto</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Ex: iPhone 13" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="purchase_date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data da Compra</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="warranty_start"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Início da Garantia</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="warranty_end"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fim da Garantia</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full">
-                  Solicitar Garantia
-                </Button>
-              </form>
-            </Form>
+            <WarrantyForm onSubmit={onSubmit} />
           </DialogContent>
         </Dialog>
       </div>
@@ -176,6 +94,10 @@ const Warranties = () => {
                 <p>
                   <strong>Status:</strong>{" "}
                   <span className="capitalize">{warranty.approval_status}</span>
+                </p>
+                <p>
+                  <strong>Endereço:</strong>{" "}
+                  {warranty.addresses?.street_address}, {warranty.addresses?.city}, {warranty.addresses?.state_code}
                 </p>
                 <p>
                   <strong>Data da Compra:</strong>{" "}

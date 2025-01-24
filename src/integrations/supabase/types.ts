@@ -272,6 +272,7 @@ export type Database = {
       }
       warranties: {
         Row: {
+          address_id: string | null
           approval_status: string
           approved_at: string | null
           approved_by_id: string | null
@@ -286,6 +287,7 @@ export type Database = {
           warranty_start: string
         }
         Insert: {
+          address_id?: string | null
           approval_status?: string
           approved_at?: string | null
           approved_by_id?: string | null
@@ -300,6 +302,7 @@ export type Database = {
           warranty_start: string
         }
         Update: {
+          address_id?: string | null
           approval_status?: string
           approved_at?: string | null
           approved_by_id?: string | null
@@ -314,6 +317,13 @@ export type Database = {
           warranty_start?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "warranties_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "warranties_approved_by_id_fkey"
             columns: ["approved_by_id"]
