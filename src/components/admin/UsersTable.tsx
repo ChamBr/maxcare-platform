@@ -113,32 +113,34 @@ export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
-                {canChangeRole(user.id, user.role) ? (
-                  <UserRoleSelect
-                    defaultValue={user.role}
-                    onRoleChange={(role) => onRoleChange(user.id, role)}
-                  />
-                ) : (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="text-sm text-gray-500 cursor-help">
-                          Sem permissão
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>
-                          {getNoPermissionReason(
-                            userRole,
-                            user.id,
-                            user.role,
-                            session?.user.id
-                          )}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex justify-end">
+                        {canChangeRole(user.id, user.role) ? (
+                          <UserRoleSelect
+                            defaultValue={user.role}
+                            onRoleChange={(role) => onRoleChange(user.id, role)}
+                          />
+                        ) : (
+                          <span className="text-sm text-gray-500 cursor-help">
+                            Sem permissão
+                          </span>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        {getNoPermissionReason(
+                          userRole,
+                          user.id,
+                          user.role,
+                          session?.user.id
+                        )}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableCell>
             </TableRow>
           ))}
