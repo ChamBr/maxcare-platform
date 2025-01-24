@@ -13,7 +13,7 @@ interface NavigationLinksProps {
 export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => {
   if (isStaff && userRole === "dev") {
     return (
-      <div className="flex md:flex-row flex-col gap-2">
+      <div className="flex md:flex-row flex-col items-center gap-2">
         <NavigationButton to="/admin" icon={LayoutDashboard}>
           Dashboard
         </NavigationButton>
@@ -26,7 +26,7 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
 
   if (userRole === "admin") {
     return (
-      <div className="flex md:flex-row flex-col gap-2">
+      <div className="flex md:flex-row flex-col items-center gap-2">
         <NavigationButton to="/admin" icon={LayoutDashboard}>
           Dashboard
         </NavigationButton>
@@ -39,7 +39,7 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
 
   if (userRole === "user") {
     return (
-      <div className="flex md:flex-row flex-col gap-2">
+      <div className="flex md:flex-row flex-col items-center gap-2">
         <NavigationButton to="/admin" icon={LayoutDashboard}>
           Dashboard
         </NavigationButton>
@@ -50,7 +50,7 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
   }
 
   return (
-    <div className="flex md:flex-row flex-col gap-2">
+    <div className="flex md:flex-row flex-col items-center gap-2">
       <CustomerMenu />
     </div>
   );

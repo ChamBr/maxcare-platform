@@ -3,7 +3,7 @@ import { NavigationButton } from "../NavigationButton";
 
 export const CustomerMenu = () => {
   return (
-    <div className="flex md:flex-row flex-col md:space-x-4 space-y-2 md:space-y-0">
+    <div className="flex md:flex-row flex-col gap-2">
       <NavigationButton to="/warranties" icon={ShieldCheck}>
         Minhas Garantias
       </NavigationButton>
