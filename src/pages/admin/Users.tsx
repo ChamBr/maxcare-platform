@@ -11,28 +11,39 @@ const Users = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
+      // Primeiro, buscamos os usuários
       const { data: usersData, error: usersError } = await supabase
         .from("users")
-        .select(`
-          id,
-          email,
-          full_name,
-          user_roles (
-            role
-          )
-        `);
+        .select("id, email, full_name");
 
       if (usersError) {
         toast.error("Erro ao carregar usuários");
         throw usersError;
       }
 
-      return usersData.map((user) => ({
-        id: user.id,
-        email: user.email,
-        full_name: user.full_name,
-        role: user.user_roles?.[0]?.role || "customer",
-      })) as User[];
+      // Depois, buscamos os roles separadamente
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id, role");
+
+      if (rolesError) {
+        toast.error("Erro ao carregar roles dos usuários");
+        throw rolesError;
+      }
+
+      // Combinamos os dados
+      const usersWithRoles = usersData.map((user) => {
+        const userRole = rolesData.find(role => role.user_id === user.id);
+        return {
+          id: user.id,
+          email: user.email,
+          full_name: user.full_name,
+          role: userRole?.role || "customer",
+        };
+      });
+
+      console.log("Usuários carregados:", usersWithRoles);
+      return usersWithRoles as User[];
     },
   });
 
