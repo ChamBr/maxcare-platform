@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { UsersTable } from "../UsersTable";
+import { UsersTable, User, UserRole } from "../UsersTable";
 import { useAuthState } from "@/hooks/useAuthState";
 import userEvent from "@testing-library/user-event";
 
@@ -8,24 +8,24 @@ jest.mock("@/hooks/useAuthState", () => ({
   useAuthState: jest.fn(),
 }));
 
-const mockUsers = [
+const mockUsers: User[] = [
   {
     id: "1",
     email: "dev@example.com",
     full_name: "Dev User",
-    role: "dev",
+    role: "dev" as UserRole,
   },
   {
     id: "2",
     email: "admin@example.com",
     full_name: "Admin User",
-    role: "admin",
+    role: "admin" as UserRole,
   },
   {
     id: "3",
     email: "user@example.com",
     full_name: "Regular User",
-    role: "user",
+    role: "user" as UserRole,
   },
 ];
 
