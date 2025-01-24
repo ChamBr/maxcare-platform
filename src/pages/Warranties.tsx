@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthState } from "@/hooks/useAuthState";
 
 interface WarrantyFormData {
   product_name: string;
@@ -33,6 +34,7 @@ interface WarrantyFormData {
 const Warranties = () => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const { session } = useAuthState();
   const form = useForm<WarrantyFormData>();
 
   const { data: warranties, refetch } = useQuery({
@@ -49,10 +51,21 @@ const Warranties = () => {
   });
 
   const onSubmit = async (data: WarrantyFormData) => {
+    if (!session?.user?.id) {
+      toast({
+        title: "Erro ao solicitar garantia",
+        description: "Você precisa estar logado para solicitar uma garantia.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase.from("warranties").insert({
         ...data,
+        user_id: session.user.id,
         status: "active",
+        approval_status: "pending"
       });
 
       if (error) throw error;
