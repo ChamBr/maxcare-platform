@@ -12,13 +12,19 @@ export const WarrantyTypeSelect = ({ value, onValueChange }: WarrantyTypeSelectP
   const { data: warrantyTypes } = useQuery({
     queryKey: ["warranty-types"],
     queryFn: async () => {
+      console.log("Buscando tipos de garantia...");
       const { data, error } = await supabase
         .from("warranty_types")
         .select("*")
         .eq("active", true)
         .order("name");
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erro ao buscar tipos de garantia:", error);
+        throw error;
+      }
+      
+      console.log("Tipos de garantia encontrados:", data);
       return data;
     },
   });
@@ -32,6 +38,11 @@ export const WarrantyTypeSelect = ({ value, onValueChange }: WarrantyTypeSelectP
             <SelectValue placeholder="Selecione o tipo de garantia" />
           </SelectTrigger>
           <SelectContent>
+            {warrantyTypes?.length === 0 && (
+              <SelectItem value="" disabled>
+                Nenhuma garantia disponível
+              </SelectItem>
+            )}
             {warrantyTypes?.map((type) => (
               <SelectItem key={type.id} value={type.id}>
                 {type.name}
