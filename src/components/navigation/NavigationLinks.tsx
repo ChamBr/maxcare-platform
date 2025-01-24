@@ -12,7 +12,6 @@ import {
   FileSpreadsheet,
   UserCircle
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 interface NavigationLinksProps {
   isStaff: boolean;
@@ -23,11 +22,6 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
   if (isStaff && userRole === "dev") {
     return (
       <div className="w-full">
-        <div className="px-2 py-1">
-          <Badge variant="outline" className="w-full justify-center bg-[#1A1F2C]/5 text-[#1A1F2C]">
-            MaxCare Panel
-          </Badge>
-        </div>
         <div className="flex md:flex-row flex-col md:space-x-2 space-y-1 md:space-y-0">
           <NavigationButton to="/admin" icon={LayoutDashboard}>Dashboard</NavigationButton>
           <NavigationButton to="/admin/users" icon={Users}>Usuários</NavigationButton>
@@ -42,11 +36,6 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
   if (userRole === "admin") {
     return (
       <div className="w-full">
-        <div className="px-2 py-1">
-          <Badge variant="outline" className="w-full justify-center bg-blue-900/5 text-blue-900">
-            MaxCare Services
-          </Badge>
-        </div>
         <div className="flex md:flex-row flex-col md:space-x-2 space-y-1 md:space-y-0">
           <NavigationButton to="/services/dashboard" icon={LayoutDashboard}>Dashboard</NavigationButton>
           <NavigationButton to="/services/clients" icon={Users}>Clientes</NavigationButton>
@@ -60,11 +49,6 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
 
   return (
     <div className="w-full">
-      <div className="px-2 py-1">
-        <Badge variant="outline" className="w-full justify-center bg-black/5 text-black">
-          MaxCare Customer
-        </Badge>
-      </div>
       <div className="flex md:flex-row flex-col md:space-x-2 space-y-1 md:space-y-0">
         <NavigationButton to="/warranties" icon={ShieldCheck}>Minhas Garantias</NavigationButton>
         <NavigationButton to="/services" icon={Wrench}>Solicitar Serviço</NavigationButton>
