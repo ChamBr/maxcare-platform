@@ -102,49 +102,51 @@ export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell className="font-medium">
-                {user.full_name || "N/A"}
-              </TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>
-                <Badge variant={getRoleBadgeVariant(user.role)}>
-                  {user.role}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-right">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex justify-end">
-                        {canChangeRole(user.id, user.role) ? (
-                          <UserRoleSelect
-                            defaultValue={user.role}
-                            onRoleChange={(role) => onRoleChange(user.id, role)}
-                          />
-                        ) : (
+          {users.map((user) => {
+            const hasPermission = canChangeRole(user.id, user.role);
+            
+            return (
+              <TableRow key={user.id}>
+                <TableCell className="font-medium">
+                  {user.full_name || "N/A"}
+                </TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  <Badge variant={getRoleBadgeVariant(user.role)}>
+                    {user.role}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  {hasPermission ? (
+                    <UserRoleSelect
+                      defaultValue={user.role}
+                      onRoleChange={(role) => onRoleChange(user.id, role)}
+                    />
+                  ) : (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
                           <span className="text-sm text-gray-500 cursor-help">
                             Sem permissão
                           </span>
-                        )}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>
-                        {getNoPermissionReason(
-                          userRole,
-                          user.id,
-                          user.role,
-                          session?.user.id
-                        )}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableCell>
-            </TableRow>
-          ))}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            {getNoPermissionReason(
+                              userRole,
+                              user.id,
+                              user.role,
+                              session?.user.id
+                            )}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>
