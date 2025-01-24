@@ -14,31 +14,25 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
 
   const handleLogout = async () => {
     try {
-      const { data: currentSession } = await supabase.auth.getSession();
+      // Primeiro limpa o token local para garantir
+      localStorage.removeItem('sb-' + import.meta.env.VITE_SUPABASE_PROJECT_ID + '-auth-token');
       
-      // Se não houver sessão, apenas limpe o estado e redirecione
-      if (!currentSession.session) {
-        localStorage.removeItem('sb-' + import.meta.env.VITE_SUPABASE_PROJECT_ID + '-auth-token');
-        onLogout();
-        navigate("/login");
-        return;
-      }
-
-      // Se houver sessão, tente fazer logout normalmente
+      // Tenta fazer logout no Supabase
       const { error } = await supabase.auth.signOut();
       
-      // Se houver erro de sessão não encontrada, force a limpeza
-      if (error && (error.message.includes('session_not_found') || error.message.includes('Session from session_id'))) {
-        localStorage.removeItem('sb-' + import.meta.env.VITE_SUPABASE_PROJECT_ID + '-auth-token');
+      // Se houver erro de sessão não encontrada, apenas ignore
+      if (error && error.message.includes('session_not_found')) {
         onLogout();
         navigate("/login");
         return;
       }
 
-      // Se houver outro tipo de erro, lance-o
-      if (error) throw error;
+      // Se houver outro tipo de erro, registre mas não impeça o logout
+      if (error) {
+        console.error("Erro ao fazer logout no Supabase:", error);
+      }
 
-      // Logout bem sucedido
+      // Sempre limpa o estado e redireciona
       onLogout();
       toast({
         title: "Logout realizado com sucesso",
@@ -49,16 +43,13 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
     } catch (error: any) {
       console.error("Erro ao fazer logout:", error);
       
-      // Em caso de erro, force a limpeza do estado
-      localStorage.removeItem('sb-' + import.meta.env.VITE_SUPABASE_PROJECT_ID + '-auth-token');
+      // Mesmo com erro, garante que o usuário seja desconectado localmente
       onLogout();
-      
       toast({
         variant: "destructive",
         title: "Erro ao fazer logout",
         description: "Ocorreu um erro ao tentar desconectar, mas você foi desconectado localmente.",
       });
-      
       navigate("/login");
     }
   };
