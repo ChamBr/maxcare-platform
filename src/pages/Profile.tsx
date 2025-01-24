@@ -45,7 +45,7 @@ const Profile = () => {
         .select("*")
         .eq("user_id", user.id)
         .eq("is_primary", true)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== "PGRST116") throw error;
       return data;
