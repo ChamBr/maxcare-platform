@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Settings } from "lucide-react";
+import { Plus, Settings, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { WarrantyTypeForm } from "@/components/warranties/WarrantyTypeForm";
 import { WarrantyTypeServices } from "@/components/warranties/WarrantyTypeServices";
+import { Switch } from "@/components/ui/switch";
 import { 
   Breadcrumb, 
   BreadcrumbItem, 
@@ -65,6 +66,31 @@ const WarrantyTypes = () => {
     }
   };
 
+  const toggleActive = async (id: string, currentActive: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("warranty_types")
+        .update({ active: !currentActive })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: `Garantia ${!currentActive ? "ativada" : "desativada"} com sucesso.`,
+      });
+      
+      refetch();
+    } catch (error) {
+      console.error("Erro ao atualizar status da garantia:", error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao atualizar o status da garantia.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
       <Breadcrumb>
@@ -106,10 +132,19 @@ const WarrantyTypes = () => {
         {warrantyTypes?.map((type) => (
           <Card key={type.id}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
                 {type.name}
+                {type.active ? (
+                  <Check className="h-4 w-4 text-green-500" />
+                ) : (
+                  <X className="h-4 w-4 text-red-500" />
+                )}
               </CardTitle>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
+                <Switch
+                  checked={type.active}
+                  onCheckedChange={() => toggleActive(type.id, type.active)}
+                />
                 <Button
                   variant="ghost"
                   size="icon"
