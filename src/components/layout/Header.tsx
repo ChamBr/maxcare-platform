@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, User, Menu, X } from "lucide-react";
+import { LogOut, User, Menu } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -12,17 +12,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 export const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [isAdmin, setIsAdmin] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [userRole, setUserRole] = useState<string>("customer");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) {
@@ -30,7 +30,6 @@ export const Header = () => {
       }
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -65,89 +64,87 @@ export const Header = () => {
     navigate("/login");
   };
 
+  const isCurrentPage = (path: string) => location.pathname === path;
+
+  const NavigationButton = ({ to, children }: { to: string; children: React.ReactNode }) => (
+    <Button 
+      variant={isCurrentPage(to) ? "default" : "ghost"}
+      onClick={() => navigate(to)}
+      className={cn(
+        "transition-all duration-200",
+        isCurrentPage(to) && "bg-primary text-primary-foreground"
+      )}
+    >
+      {children}
+    </Button>
+  );
+
   const NavigationLinks = () => (
     <>
-      <Button 
-        variant="ghost"
-        onClick={() => navigate("/warranties")}
-      >
-        My Warranties
-      </Button>
-      <Button 
-        variant="ghost"
-        onClick={() => navigate("/services")}
-      >
-        Request Service
-      </Button>
+      <NavigationButton to="/warranties">My Warranties</NavigationButton>
+      <NavigationButton to="/services">Request Service</NavigationButton>
       {isAdmin && (
-        <Button 
-          variant="ghost"
-          onClick={() => navigate("/admin")}
-        >
-          Admin
-        </Button>
+        <NavigationButton to="/admin">Admin</NavigationButton>
       )}
     </>
   );
 
   return (
-    <header className="border-b bg-white">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-8">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center">
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-start md:space-x-6">
           <h1 
             onClick={() => navigate("/")}
-            className="text-2xl font-bold text-primary cursor-pointer"
+            className="text-xl font-bold text-primary cursor-pointer transition-colors hover:text-primary/90"
           >
             MaxCare
           </h1>
-          {session ? (
+          {session && (
             <>
-              <nav className="hidden md:flex items-center space-x-6">
+              <nav className="hidden md:flex items-center space-x-2">
                 <NavigationLinks />
               </nav>
               <Sheet>
                 <SheetTrigger asChild className="md:hidden">
-                  <Button variant="ghost" size="icon">
-                    <Menu className="h-6 w-6" />
+                  <Button variant="ghost" size="icon" className="ml-2">
+                    <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left">
+                <SheetContent side="left" className="w-[240px] sm:w-[280px]">
                   <SheetHeader>
                     <SheetTitle>Menu</SheetTitle>
                   </SheetHeader>
-                  <nav className="flex flex-col space-y-4 mt-6">
+                  <nav className="flex flex-col space-y-2 mt-6">
                     <NavigationLinks />
                   </nav>
                 </SheetContent>
               </Sheet>
             </>
-          ) : null}
+          )}
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center justify-end space-x-2">
           {session ? (
-            <>
-              <div className="flex items-center gap-3">
-                <Badge variant="outline" className="capitalize hidden sm:flex">
-                  <User className="w-3 h-3 mr-1" />
-                  {userRole}
-                </Badge>
-                <span className="text-sm text-gray-600 hidden sm:block">
-                  {session.user.email}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleLogout}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <LogOut className="w-4 h-4" />
-                </Button>
-              </div>
-            </>
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="hidden sm:flex">
+                <User className="mr-1 h-3 w-3" />
+                {userRole}
+              </Badge>
+              <span className="hidden sm:inline text-sm text-muted-foreground">
+                {session.user.email}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
           ) : (
             <>
               <Button 
-                variant="outline"
+                variant="ghost"
                 onClick={() => navigate("/login")}
               >
                 Sign In
