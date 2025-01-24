@@ -227,6 +227,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      is_admin: {
+        Args: {
+          user_uuid: string
+        }
+        Returns: boolean
+      }
       is_dev: {
         Args: {
           user_uuid: string
