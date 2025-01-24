@@ -8,7 +8,7 @@ const Users = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: usersData, error: usersError } = await supabase
         .from("users")
         .select(`
           id,
@@ -19,12 +19,12 @@ const Users = () => {
           )
         `);
 
-      if (error) {
+      if (usersError) {
         toast.error("Erro ao carregar usuários");
-        throw error;
+        throw usersError;
       }
 
-      return data.map((user) => ({
+      return usersData.map((user) => ({
         id: user.id,
         email: user.email,
         full_name: user.full_name,
@@ -34,17 +34,19 @@ const Users = () => {
   });
 
   const handleRoleChange = async (userId: string, role: User["role"]) => {
-    const { error } = await supabase
-      .from("user_roles")
-      .update({ role })
-      .eq("user_id", userId);
+    try {
+      const { error } = await supabase
+        .from("user_roles")
+        .update({ role })
+        .eq("user_id", userId);
 
-    if (error) {
+      if (error) throw error;
+
+      toast.success("Papel do usuário atualizado com sucesso");
+    } catch (error) {
+      console.error("Erro ao atualizar papel do usuário:", error);
       toast.error("Erro ao atualizar papel do usuário");
-      return;
     }
-
-    toast.success("Papel do usuário atualizado com sucesso");
   };
 
   return (

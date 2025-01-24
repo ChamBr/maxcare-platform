@@ -38,25 +38,29 @@ const getRoleBadgeVariant = (role: UserRole) => {
 
 export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="bg-white rounded-lg shadow overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
-            <TableHead>Ações</TableHead>
+            <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {users.map((user) => (
             <TableRow key={user.id}>
-              <TableCell>{user.full_name || "N/A"}</TableCell>
+              <TableCell className="font-medium">
+                {user.full_name || "N/A"}
+              </TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
-                <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
+                <Badge variant={getRoleBadgeVariant(user.role)}>
+                  {user.role}
+                </Badge>
               </TableCell>
-              <TableCell>
+              <TableCell className="text-right">
                 <UserRoleSelect
                   defaultValue={user.role}
                   onRoleChange={(role) => onRoleChange(user.id, role)}
