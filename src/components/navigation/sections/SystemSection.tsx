@@ -1,4 +1,4 @@
-import { Cog, Users, Settings, FileText, Bell, Shield } from "lucide-react";
+import { Cog, Users, Settings, FileText, Bell, Shield, CheckSquare } from "lucide-react";
 import { MenuSection } from "./MenuSection";
 
 export const SystemSection = () => {
@@ -21,6 +21,11 @@ export const SystemSection = () => {
           to: "/admin/warranty-types",
           icon: Shield,
           label: "Tipos de Garantia"
+        },
+        {
+          to: "/admin/warranty-approvals",
+          icon: CheckSquare,
+          label: "Aprovar Garantias"
         },
         {
           to: "/admin/logs",
