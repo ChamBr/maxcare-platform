@@ -4,23 +4,23 @@ import { MenuSection } from "./MenuSection";
 export const ServicesSection = () => {
   return (
     <MenuSection
-      title="Services"
+      title="Serviços"
       icon={Wrench}
       items={[
         {
           to: "/admin/services?status=active",
           icon: ShieldCheck,
-          label: "Serviços Ativos"
+          label: "Em Andamento"
         },
         {
           to: "/admin/services?status=pending",
           icon: ScrollText,
-          label: "Serviços Pendentes"
+          label: "Aguardando"
         },
         {
           to: "/admin/services?status=completed",
           icon: FileText,
-          label: "Histórico"
+          label: "Concluídos"
         }
       ]}
     />

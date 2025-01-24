@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Warranties from "./pages/Warranties";
 import Services from "./pages/Services";
+import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import AdminUsers from "./pages/admin/Users";
 import AdminServices from "./pages/admin/Services";
@@ -56,6 +57,14 @@ const App = () => (
                 <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
                 <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
                 <Route path="/register" element={<PageWrapper><Register /></PageWrapper>} />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <PageWrapper showBreadcrumbs><Profile /></PageWrapper>
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route 
                   path="/warranties" 
                   element={

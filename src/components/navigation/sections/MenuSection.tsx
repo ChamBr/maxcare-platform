@@ -24,29 +24,14 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
   const location = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Fecha o menu quando mudar de rota
-  useEffect(() => {
-    setIsOpen(false);
-  }, [location.pathname]);
-
-  // Adiciona listener para fechar o menu quando clicar fora
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
-
   const isActiveRoute = items.some(item => location.pathname.startsWith(item.to));
+
+  // Fecha o menu quando mudar de rota apenas se o novo caminho não for um submenu ativo
+  useEffect(() => {
+    if (!isActiveRoute) {
+      setIsOpen(false);
+    }
+  }, [location.pathname, isActiveRoute]);
 
   return (
     <div className="relative" ref={menuRef}>
@@ -82,9 +67,9 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
               asChild
             >
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
                 className="relative z-50 w-full min-w-[200px] bg-background border-l border-r border-b rounded-b-md shadow-lg mt-1 py-2 overflow-hidden"
               >
