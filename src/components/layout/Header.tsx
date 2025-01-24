@@ -18,7 +18,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [userRole, setUserRole] = useState<string>("customer");
 
@@ -51,7 +51,7 @@ export const Header = () => {
 
     if (roles) {
       setUserRole(roles.role);
-      setIsAdmin(roles.role === "dev");
+      setIsStaff(["dev", "admin"].includes(roles.role));
     }
   };
 
@@ -79,13 +79,20 @@ export const Header = () => {
     </Button>
   );
 
-  const NavigationLinks = () => (
+  const StaffNavigationLinks = () => (
+    <>
+      <NavigationButton to="/admin">Dashboard</NavigationButton>
+      <NavigationButton to="/admin/users">Usuários</NavigationButton>
+      <NavigationButton to="/admin/services">Serviços</NavigationButton>
+      <NavigationButton to="/admin/notifications">Notificações</NavigationButton>
+      <NavigationButton to="/admin/settings">Configurações</NavigationButton>
+    </>
+  );
+
+  const CustomerNavigationLinks = () => (
     <>
       <NavigationButton to="/warranties">My Warranties</NavigationButton>
       <NavigationButton to="/services">Request Service</NavigationButton>
-      {isAdmin && (
-        <NavigationButton to="/admin">Admin</NavigationButton>
-      )}
     </>
   );
 
@@ -93,16 +100,21 @@ export const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-start md:space-x-6">
-          <h1 
-            onClick={() => navigate("/")}
-            className="text-xl font-bold text-primary cursor-pointer transition-colors hover:text-primary/90"
-          >
-            MaxCare
-          </h1>
+          <div className="flex items-center space-x-2">
+            <h1 
+              onClick={() => navigate("/")}
+              className="text-xl font-bold text-primary cursor-pointer transition-colors hover:text-primary/90"
+            >
+              MaxCare
+            </h1>
+            {isStaff && (
+              <span className="text-xl font-bold text-foreground">Admin</span>
+            )}
+          </div>
           {session && (
             <>
               <nav className="hidden md:flex items-center space-x-2">
-                <NavigationLinks />
+                {isStaff ? <StaffNavigationLinks /> : <CustomerNavigationLinks />}
               </nav>
               <Sheet>
                 <SheetTrigger asChild className="md:hidden">
@@ -115,7 +127,7 @@ export const Header = () => {
                     <SheetTitle>Menu</SheetTitle>
                   </SheetHeader>
                   <nav className="flex flex-col space-y-2 mt-6">
-                    <NavigationLinks />
+                    {isStaff ? <StaffNavigationLinks /> : <CustomerNavigationLinks />}
                   </nav>
                 </SheetContent>
               </Sheet>
