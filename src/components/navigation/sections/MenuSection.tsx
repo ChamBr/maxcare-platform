@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationButton } from "../NavigationButton";
 import { cn } from "@/lib/utils";
@@ -20,11 +20,29 @@ interface MenuSectionProps {
 export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const isActiveRoute = items.some(item => location.pathname.startsWith(item.to));
 
+  // Fecha o menu quando clica fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fecha o menu quando a rota muda (submenu selecionado)
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
   return (
-    <div className="relative inline-block w-full">
+    <div className="relative inline-block w-full" ref={menuRef}>
       <Button 
         variant="ghost" 
         onClick={() => setIsOpen(!isOpen)}
