@@ -13,7 +13,9 @@ interface Service {
   scheduled_date: string | null;
   completed_date: string | null;
   warranties: {
-    product_name: string;
+    warranty_types: {
+      name: string;
+    };
   };
   users: {
     full_name: string;
@@ -34,7 +36,9 @@ const Services = () => {
           scheduled_date,
           completed_date,
           warranties (
-            product_name
+            warranty_types (
+              name
+            )
           ),
           users (
             full_name,
@@ -76,7 +80,7 @@ const Services = () => {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-xl">
-                    {service.warranties.product_name}
+                    {service.warranties.warranty_types.name}
                   </CardTitle>
                   <Badge variant={getStatusColor(service.status)}>
                     {service.status}
