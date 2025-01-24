@@ -53,12 +53,13 @@ const getNoPermissionReason = (
     return "Você não pode alterar seu próprio nível de acesso";
   }
 
-  if (currentUserRole === "admin" && targetRole === "dev") {
-    return "Administradores não podem modificar desenvolvedores";
-  }
-
-  if (currentUserRole === "admin" && targetRole === "admin") {
-    return "Administradores não podem modificar outros administradores";
+  if (currentUserRole === "admin") {
+    if (targetRole === "dev") {
+      return "Administradores não podem modificar desenvolvedores";
+    }
+    if (targetRole === "admin") {
+      return "Administradores não podem modificar outros administradores";
+    }
   }
 
   if (currentUserRole === "user" || currentUserRole === "customer") {
@@ -78,7 +79,7 @@ export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
     // Dev pode alterar qualquer role
     if (userRole === 'dev') return true;
 
-    // Admin só pode alterar roles abaixo do seu nível
+    // Admin pode alterar roles abaixo do seu nível
     if (userRole === 'admin') {
       // Admin não pode alterar roles de dev ou outros admin
       if (targetRole === 'dev' || targetRole === 'admin') return false;

@@ -38,6 +38,7 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
       <div className="w-full">
         <div className="flex md:flex-row flex-col md:space-x-4 space-y-2 md:space-y-0">
           <NavigationButton to="/services/dashboard" icon={LayoutDashboard}>Dashboard</NavigationButton>
+          <NavigationButton to="/admin/users" icon={Users}>Usuários</NavigationButton>
           <NavigationButton to="/services/clients" icon={Users}>Clientes</NavigationButton>
           <NavigationButton to="/services/warranties" icon={ShieldCheck}>Garantias</NavigationButton>
           <NavigationButton to="/services/reports" icon={FileSpreadsheet}>Relatórios</NavigationButton>
