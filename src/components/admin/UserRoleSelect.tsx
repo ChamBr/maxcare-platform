@@ -18,19 +18,21 @@ export const UserRoleSelect = ({
   onRoleChange,
 }: UserRoleSelectProps) => {
   return (
-    <Select
-      defaultValue={defaultValue}
-      onValueChange={(value: UserRole) => onRoleChange(value)}
-    >
-      <SelectTrigger className="w-32">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="dev">Dev</SelectItem>
-        <SelectItem value="admin">Admin</SelectItem>
-        <SelectItem value="user">User</SelectItem>
-        <SelectItem value="customer">Customer</SelectItem>
-      </SelectContent>
-    </Select>
+    <div className="flex justify-end">
+      <Select
+        defaultValue={defaultValue}
+        onValueChange={(value: UserRole) => onRoleChange(value)}
+      >
+        <SelectTrigger className="w-32">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="dev">Dev</SelectItem>
+          <SelectItem value="admin">Admin</SelectItem>
+          <SelectItem value="user">User</SelectItem>
+          <SelectItem value="customer">Customer</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
   );
 };
