@@ -7,7 +7,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
+import { useAuthState } from "@/hooks/useAuthState";
 
 const serviceRequestSchema = z.object({
   warranty_service_id: z.string({
@@ -24,6 +25,7 @@ interface ServiceRequestFormProps {
 
 export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceRequestFormProps) => {
   const { toast } = useToast();
+  const { session } = useAuthState();
   const form = useForm<ServiceRequestData>({
     resolver: zodResolver(serviceRequestSchema),
   });
@@ -77,6 +79,7 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
           warranty_service_id: data.warranty_service_id,
           status: "pending",
           service_type: "warranty",
+          user_id: session?.user.id,
         });
 
       if (error) throw error;
