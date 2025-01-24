@@ -22,7 +22,7 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
   if (isStaff && userRole === "dev") {
     return (
       <div className="w-full">
-        <div className="flex md:flex-row flex-col md:space-x-2 space-y-1 md:space-y-0">
+        <div className="flex md:flex-row flex-col md:space-x-4 space-y-2 md:space-y-0">
           <NavigationButton to="/admin" icon={LayoutDashboard}>Dashboard</NavigationButton>
           <NavigationButton to="/admin/users" icon={Users}>Usuários</NavigationButton>
           <NavigationButton to="/admin/services" icon={Wrench}>Serviços</NavigationButton>
@@ -36,7 +36,7 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
   if (userRole === "admin") {
     return (
       <div className="w-full">
-        <div className="flex md:flex-row flex-col md:space-x-2 space-y-1 md:space-y-0">
+        <div className="flex md:flex-row flex-col md:space-x-4 space-y-2 md:space-y-0">
           <NavigationButton to="/services/dashboard" icon={LayoutDashboard}>Dashboard</NavigationButton>
           <NavigationButton to="/services/clients" icon={Users}>Clientes</NavigationButton>
           <NavigationButton to="/services/warranties" icon={ShieldCheck}>Garantias</NavigationButton>
@@ -49,7 +49,7 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
 
   return (
     <div className="w-full">
-      <div className="flex md:flex-row flex-col md:space-x-2 space-y-1 md:space-y-0">
+      <div className="flex md:flex-row flex-col md:space-x-4 space-y-2 md:space-y-0">
         <NavigationButton to="/warranties" icon={ShieldCheck}>Minhas Garantias</NavigationButton>
         <NavigationButton to="/services" icon={Wrench}>Solicitar Serviço</NavigationButton>
         <NavigationButton to="/history" icon={History}>Histórico</NavigationButton>

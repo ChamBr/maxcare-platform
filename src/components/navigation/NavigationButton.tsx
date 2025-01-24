@@ -19,9 +19,11 @@ export const NavigationButton = ({ to, children, icon: Icon }: NavigationButtonP
       variant={isCurrentPage ? "default" : "ghost"}
       onClick={() => navigate(to)}
       className={cn(
-        "w-full justify-start gap-2",
-        "transition-all duration-200",
-        isCurrentPage && "bg-primary text-primary-foreground"
+        "w-full justify-start gap-3 px-4",
+        "transition-all duration-300 ease-in-out",
+        "hover:scale-105",
+        "md:w-auto md:min-w-[140px]",
+        isCurrentPage && "bg-primary text-primary-foreground animate-fade-in"
       )}
     >
       {Icon && <Icon className="h-4 w-4" />}
