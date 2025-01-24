@@ -6,6 +6,59 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Address } from "@/types/address";
 
+const US_STATES = [
+  { code: 'AL', name: 'Alabama' },
+  { code: 'AK', name: 'Alaska' },
+  { code: 'AZ', name: 'Arizona' },
+  { code: 'AR', name: 'Arkansas' },
+  { code: 'CA', name: 'California' },
+  { code: 'CO', name: 'Colorado' },
+  { code: 'CT', name: 'Connecticut' },
+  { code: 'DE', name: 'Delaware' },
+  { code: 'FL', name: 'Florida' },
+  { code: 'GA', name: 'Georgia' },
+  { code: 'HI', name: 'Hawaii' },
+  { code: 'ID', name: 'Idaho' },
+  { code: 'IL', name: 'Illinois' },
+  { code: 'IN', name: 'Indiana' },
+  { code: 'IA', name: 'Iowa' },
+  { code: 'KS', name: 'Kansas' },
+  { code: 'KY', name: 'Kentucky' },
+  { code: 'LA', name: 'Louisiana' },
+  { code: 'ME', name: 'Maine' },
+  { code: 'MD', name: 'Maryland' },
+  { code: 'MA', name: 'Massachusetts' },
+  { code: 'MI', name: 'Michigan' },
+  { code: 'MN', name: 'Minnesota' },
+  { code: 'MS', name: 'Mississippi' },
+  { code: 'MO', name: 'Missouri' },
+  { code: 'MT', name: 'Montana' },
+  { code: 'NE', name: 'Nebraska' },
+  { code: 'NV', name: 'Nevada' },
+  { code: 'NH', name: 'New Hampshire' },
+  { code: 'NJ', name: 'New Jersey' },
+  { code: 'NM', name: 'New Mexico' },
+  { code: 'NY', name: 'New York' },
+  { code: 'NC', name: 'North Carolina' },
+  { code: 'ND', name: 'North Dakota' },
+  { code: 'OH', name: 'Ohio' },
+  { code: 'OK', name: 'Oklahoma' },
+  { code: 'OR', name: 'Oregon' },
+  { code: 'PA', name: 'Pennsylvania' },
+  { code: 'RI', name: 'Rhode Island' },
+  { code: 'SC', name: 'South Carolina' },
+  { code: 'SD', name: 'South Dakota' },
+  { code: 'TN', name: 'Tennessee' },
+  { code: 'TX', name: 'Texas' },
+  { code: 'UT', name: 'Utah' },
+  { code: 'VT', name: 'Vermont' },
+  { code: 'VA', name: 'Virginia' },
+  { code: 'WA', name: 'Washington' },
+  { code: 'WV', name: 'West Virginia' },
+  { code: 'WI', name: 'Wisconsin' },
+  { code: 'WY', name: 'Wyoming' }
+];
+
 interface AddressFormProps {
   address?: Address;
   onSuccess: () => void;
@@ -19,7 +72,7 @@ export const AddressForm = ({ address, onSuccess, onCancel }: AddressFormProps) 
     street_address: "",
     apt_suite_unit: "",
     city: "",
-    state_code: "",
+    state_code: "FL",
     zip_code: "",
     address_type: "home",
   });
@@ -46,7 +99,6 @@ export const AddressForm = ({ address, onSuccess, onCancel }: AddressFormProps) 
       if (!user) throw new Error("User not found");
 
       if (address) {
-        // Update existing address
         const { error } = await supabase
           .from("addresses")
           .update(formData)
@@ -59,7 +111,6 @@ export const AddressForm = ({ address, onSuccess, onCancel }: AddressFormProps) 
           description: "Your address has been updated successfully.",
         });
       } else {
-        // Create new address
         const { error } = await supabase
           .from("addresses")
           .insert({
@@ -110,7 +161,7 @@ export const AddressForm = ({ address, onSuccess, onCancel }: AddressFormProps) 
         <Input
           value={formData.street_address}
           onChange={(e) => setFormData(prev => ({ ...prev, street_address: e.target.value }))}
-          placeholder="Street name and number"
+          placeholder="Enter street name and number"
           required
         />
       </div>
@@ -120,7 +171,7 @@ export const AddressForm = ({ address, onSuccess, onCancel }: AddressFormProps) 
         <Input
           value={formData.apt_suite_unit}
           onChange={(e) => setFormData(prev => ({ ...prev, apt_suite_unit: e.target.value }))}
-          placeholder="Apartment, suite, unit (optional)"
+          placeholder="Apartment, suite, or unit number (optional)"
         />
       </div>
 
@@ -129,30 +180,41 @@ export const AddressForm = ({ address, onSuccess, onCancel }: AddressFormProps) 
         <Input
           value={formData.city}
           onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-          placeholder="City"
+          placeholder="Enter city name"
           required
         />
       </div>
 
-      <div>
-        <label className="text-sm font-medium">State</label>
-        <Input
-          value={formData.state_code}
-          onChange={(e) => setFormData(prev => ({ ...prev, state_code: e.target.value }))}
-          placeholder="State code"
-          required
-          maxLength={2}
-        />
-      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium">State</label>
+          <Select
+            value={formData.state_code}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, state_code: value }))}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {US_STATES.map((state) => (
+                <SelectItem key={state.code} value={state.code}>
+                  {state.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      <div>
-        <label className="text-sm font-medium">ZIP Code</label>
-        <Input
-          value={formData.zip_code}
-          onChange={(e) => setFormData(prev => ({ ...prev, zip_code: e.target.value }))}
-          placeholder="00000-000"
-          required
-        />
+        <div>
+          <label className="text-sm font-medium">ZIP Code</label>
+          <Input
+            value={formData.zip_code}
+            onChange={(e) => setFormData(prev => ({ ...prev, zip_code: e.target.value }))}
+            placeholder="Enter ZIP code"
+            required
+            maxLength={10}
+          />
+        </div>
       </div>
 
       <div className="flex gap-2 justify-end">
