@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Home, Building } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -26,6 +26,7 @@ interface Warranty {
     street_address: string;
     city: string;
     state_code: string;
+    address_type: string;
   } | null;
   warranty_types: {
     name: string;
@@ -77,6 +78,15 @@ export const WarrantyApprovalTable = ({
     }
   };
 
+  const getAddressIcon = (addressType: string | undefined) => {
+    switch (addressType) {
+      case "business":
+        return <Building className="h-4 w-4 inline-block mr-2" />;
+      default:
+        return <Home className="h-4 w-4 inline-block mr-2" />;
+    }
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -101,7 +111,10 @@ export const WarrantyApprovalTable = ({
             <TableCell>{warranty.warranty_types?.name || "N/A"}</TableCell>
             <TableCell>
               {warranty.addresses ? (
-                `${warranty.addresses.street_address}, ${warranty.addresses.city} - ${warranty.addresses.state_code}`
+                <span className="flex items-center">
+                  {getAddressIcon(warranty.addresses.address_type)}
+                  {warranty.addresses.street_address}, {warranty.addresses.city} - {warranty.addresses.state_code}
+                </span>
               ) : (
                 "Endereço não informado"
               )}
