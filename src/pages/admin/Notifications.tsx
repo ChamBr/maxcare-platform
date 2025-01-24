@@ -12,7 +12,7 @@ interface Notification {
   message: string;
   read: boolean;
   created_at: string;
-  user: {
+  users: {
     full_name: string;
     email: string;
   };
@@ -57,7 +57,7 @@ const Notifications = () => {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-xl">{notification.title}</CardTitle>
-                  <Badge variant={notification.read ? "secondary" : "primary"}>
+                  <Badge variant={notification.read ? "secondary" : "blue"}>
                     {notification.read ? "Lida" : "Não lida"}
                   </Badge>
                 </div>
@@ -66,7 +66,7 @@ const Notifications = () => {
                 <div className="grid gap-2">
                   <p>{notification.message}</p>
                   <div className="text-sm text-muted-foreground">
-                    <p>Para: {notification.user.full_name}</p>
+                    <p>Para: {notification.users.full_name}</p>
                     <p>
                       Enviada em:{" "}
                       {format(new Date(notification.created_at), "PPP 'às' HH:mm", {

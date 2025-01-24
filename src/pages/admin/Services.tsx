@@ -8,17 +8,17 @@ import { ptBR } from "date-fns/locale";
 
 interface Service {
   id: string;
-  warranty: {
-    product_name: string;
-  };
-  user: {
-    full_name: string;
-    email: string;
-  };
   service_type: string;
   status: string;
   scheduled_date: string | null;
   completed_date: string | null;
+  warranties: {
+    product_name: string;
+  };
+  users: {
+    full_name: string;
+    email: string;
+  };
 }
 
 const Services = () => {
@@ -51,13 +51,13 @@ const Services = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "yellow";
+        return "secondary";
       case "in_progress":
         return "blue";
       case "completed":
-        return "green";
+        return "purple";
       default:
-        return "gray";
+        return "default";
     }
   };
 
@@ -76,7 +76,7 @@ const Services = () => {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-xl">
-                    {service.warranty.product_name}
+                    {service.warranties.product_name}
                   </CardTitle>
                   <Badge variant={getStatusColor(service.status)}>
                     {service.status}
@@ -85,7 +85,7 @@ const Services = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-2">
-                  <p><strong>Cliente:</strong> {service.user.full_name}</p>
+                  <p><strong>Cliente:</strong> {service.users.full_name}</p>
                   <p><strong>Tipo de Serviço:</strong> {service.service_type}</p>
                   {service.scheduled_date && (
                     <p>
