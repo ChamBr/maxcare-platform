@@ -40,7 +40,7 @@ const getRoleBadgeVariant = (role: UserRole) => {
 export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
   const { session, userRole } = useAuthState();
 
-  const canChangeRole = (currentUserRole: string, targetUserId: string, newRole: UserRole) => {
+  const canChangeRole = (targetUserId: string, targetRole: UserRole) => {
     // Não pode alterar o próprio role
     if (session?.user.id === targetUserId) return false;
 
@@ -49,7 +49,9 @@ export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
 
     // Admin só pode alterar roles abaixo do seu nível
     if (userRole === 'admin') {
-      return ['user', 'customer'].includes(newRole);
+      // Admin não pode alterar roles de dev ou outros admin
+      if (targetRole === 'dev' || targetRole === 'admin') return false;
+      return true;
     }
 
     // Outros usuários não podem alterar roles
@@ -80,11 +82,14 @@ export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
-                <UserRoleSelect
-                  defaultValue={user.role}
-                  onRoleChange={(role) => onRoleChange(user.id, role)}
-                  disabled={!canChangeRole(userRole, user.id, user.role)}
-                />
+                {canChangeRole(user.id, user.role) ? (
+                  <UserRoleSelect
+                    defaultValue={user.role}
+                    onRoleChange={(role) => onRoleChange(user.id, role)}
+                  />
+                ) : (
+                  <span className="text-sm text-gray-500">Sem permissão</span>
+                )}
               </TableCell>
             </TableRow>
           ))}
