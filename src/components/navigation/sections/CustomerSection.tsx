@@ -1,4 +1,4 @@
-import { Building2, Users, CreditCard, Clipboard } from "lucide-react";
+import { Building2, Users, ShieldCheck, Clipboard } from "lucide-react";
 import { NavigationButton } from "../NavigationButton";
 import { MenuSection } from "./MenuSection";
 
@@ -15,7 +15,7 @@ export const CustomerSection = () => {
         },
         {
           to: "/admin/subscriptions",
-          icon: CreditCard,
+          icon: ShieldCheck,
           label: "Garantias"
         },
         {
