@@ -21,15 +21,15 @@ export const Header = () => {
   const getPortalName = () => {
     if (!session) return "MaxCare";
     if (isStaff && userRole === "dev") return ["MaxCare", "Panel"];
-    if (userRole === "admin") return ["MaxCare", "Services"];
+    if (userRole === "admin") return ["MaxCare", "Panel"];
     return ["MaxCare", "Customer"];
   };
 
   const getPortalColor = () => {
     if (!session) return "text-primary";
-    if (isStaff && userRole === "dev") return "text-[#1A1F2C]"; // Roxo escuro
-    if (userRole === "admin") return "text-blue-900"; // Azul escuro
-    return "text-black"; // Preto
+    if (isStaff && userRole === "dev") return "text-[#1A1F2C]";
+    if (userRole === "admin") return "text-blue-900";
+    return "text-black";
   };
 
   return (
