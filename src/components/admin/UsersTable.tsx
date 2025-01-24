@@ -1,20 +1,12 @@
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { UserRoleSelect } from "./UserRoleSelect";
 import { useAuthState } from "@/hooks/useAuthState";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { UserTableRow } from "./UserTableRow";
 
 export type UserRole = "dev" | "admin" | "user" | "customer";
 
@@ -29,21 +21,6 @@ interface UsersTableProps {
   users: User[];
   onRoleChange: (userId: string, role: UserRole) => void;
 }
-
-const getRoleBadgeVariant = (role: UserRole) => {
-  switch (role) {
-    case "dev":
-      return "purple";
-    case "admin":
-      return "destructive";
-    case "user":
-      return "secondary";
-    case "customer":
-      return "blue";
-    default:
-      return "default";
-  }
-};
 
 const getNoPermissionReason = (
   currentUserRole: string,
@@ -71,18 +48,11 @@ export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
   const { session, userRole } = useAuthState();
 
   const canChangeRole = (targetUserId: string, targetRole: UserRole): boolean => {
-    // Não pode alterar o próprio role
     if (session?.user.id === targetUserId) return false;
-
-    // Dev pode alterar qualquer role
     if (userRole === "dev") return true;
-
-    // Admin só pode alterar roles de user e customer
     if (userRole === "admin") {
       return targetRole !== "dev" && targetRole !== "admin";
     }
-
-    // Outros usuários não podem alterar roles
     return false;
   };
 
@@ -98,51 +68,20 @@ export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => {
-            const hasPermission = canChangeRole(user.id, user.role);
-            
-            return (
-              <TableRow key={user.id}>
-                <TableCell className="font-medium">
-                  {user.full_name || "N/A"}
-                </TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <Badge variant={getRoleBadgeVariant(user.role)}>
-                    {user.role}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  {hasPermission ? (
-                    <UserRoleSelect
-                      defaultValue={user.role}
-                      onRoleChange={(role) => onRoleChange(user.id, role)}
-                    />
-                  ) : (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-sm text-gray-500 cursor-help">
-                            Sem permissão
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>
-                            {getNoPermissionReason(
-                              userRole,
-                              user.id,
-                              user.role,
-                              session?.user.id
-                            )}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                </TableCell>
-              </TableRow>
-            );
-          })}
+          {users.map((user) => (
+            <UserTableRow
+              key={user.id}
+              user={user}
+              hasPermission={canChangeRole(user.id, user.role)}
+              noPermissionReason={getNoPermissionReason(
+                userRole,
+                user.id,
+                user.role,
+                session?.user.id
+              )}
+              onRoleChange={onRoleChange}
+            />
+          ))}
         </TableBody>
       </Table>
     </div>
