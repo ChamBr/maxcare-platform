@@ -8,8 +8,6 @@ import { Footer } from "@/components/layout/Footer";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { AnimatePresence, motion } from "framer-motion";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -28,7 +26,6 @@ const queryClient = new QueryClient();
 
 const PageWrapper = ({ children, showBreadcrumbs = false }: { children: React.ReactNode, showBreadcrumbs?: boolean }) => {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
     <motion.div
@@ -37,7 +34,7 @@ const PageWrapper = ({ children, showBreadcrumbs = false }: { children: React.Re
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className={`container mx-auto px-4 py-6 ${isAdminRoute ? 'ml-[var(--sidebar-width)]' : ''}`}
+      className="container mx-auto px-4 py-6"
     >
       {showBreadcrumbs && <Breadcrumbs />}
       {children}
@@ -51,59 +48,54 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <SidebarProvider>
-          <div className="flex min-h-screen flex-col bg-background w-full">
-            <Header />
-            <main className="flex-1">
-              <AnimatePresence mode="wait">
-                <Routes>
-                  <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
-                  <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
-                  <Route path="/register" element={<PageWrapper><Register /></PageWrapper>} />
-                  <Route 
-                    path="/warranties" 
-                    element={
-                      <ProtectedRoute>
-                        <PageWrapper showBreadcrumbs><Warranties /></PageWrapper>
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/services" 
-                    element={
-                      <ProtectedRoute>
-                        <PageWrapper showBreadcrumbs><Services /></PageWrapper>
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/admin/*" 
-                    element={
-                      <ProtectedRoute>
-                        <div className="flex">
-                          <AdminSidebar />
-                          <PageWrapper showBreadcrumbs>
-                            <Routes>
-                              <Route index element={<Dashboard />} />
-                              <Route path="users" element={<AdminUsers />} />
-                              <Route path="services" element={<AdminServices />} />
-                              <Route path="notifications" element={<AdminNotifications />} />
-                              <Route path="settings" element={<AdminSettings />} />
-                              <Route path="logs" element={<Logs />} />
-                              <Route path="subscriptions" element={<Subscriptions />} />
-                              <Route path="service-requests" element={<ServiceRequests />} />
-                            </Routes>
-                          </PageWrapper>
-                        </div>
-                      </ProtectedRoute>
-                    } 
-                  />
-                </Routes>
-              </AnimatePresence>
-            </main>
-            <Footer />
-          </div>
-        </SidebarProvider>
+        <div className="flex min-h-screen flex-col bg-background w-full">
+          <Header />
+          <main className="flex-1">
+            <AnimatePresence mode="wait">
+              <Routes>
+                <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+                <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
+                <Route path="/register" element={<PageWrapper><Register /></PageWrapper>} />
+                <Route 
+                  path="/warranties" 
+                  element={
+                    <ProtectedRoute>
+                      <PageWrapper showBreadcrumbs><Warranties /></PageWrapper>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/services" 
+                  element={
+                    <ProtectedRoute>
+                      <PageWrapper showBreadcrumbs><Services /></PageWrapper>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/*" 
+                  element={
+                    <ProtectedRoute>
+                      <PageWrapper showBreadcrumbs>
+                        <Routes>
+                          <Route index element={<Dashboard />} />
+                          <Route path="users" element={<AdminUsers />} />
+                          <Route path="services" element={<AdminServices />} />
+                          <Route path="notifications" element={<AdminNotifications />} />
+                          <Route path="settings" element={<AdminSettings />} />
+                          <Route path="logs" element={<Logs />} />
+                          <Route path="subscriptions" element={<Subscriptions />} />
+                          <Route path="service-requests" element={<ServiceRequests />} />
+                        </Routes>
+                      </PageWrapper>
+                    </ProtectedRoute>
+                  } 
+                />
+              </Routes>
+            </AnimatePresence>
+          </main>
+          <Footer />
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
