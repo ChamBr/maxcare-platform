@@ -26,7 +26,6 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
 
   const isActiveRoute = items.some(item => location.pathname.startsWith(item.to));
 
-  // Fecha o menu quando mudar de rota apenas se o novo caminho não for um submenu ativo
   useEffect(() => {
     if (!isActiveRoute) {
       setIsOpen(false);
@@ -42,7 +41,7 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
             className={cn(
               "w-full justify-between px-4 py-2",
               "transition-all duration-300 ease-in-out",
-              "hover:bg-accent/80 hover:scale-[1.02]",
+              "hover:bg-accent/80",
               isOpen && "bg-accent",
               isActiveRoute && "text-primary border-l-2 border-primary"
             )}
@@ -67,11 +66,11 @@ export const MenuSection = ({ title, icon: Icon, items }: MenuSectionProps) => {
               asChild
             >
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="relative z-50 w-full min-w-[200px] bg-background border-l border-r border-b rounded-b-md shadow-lg mt-1 py-2 overflow-hidden"
+                className="relative z-50 w-full min-w-[200px] bg-background border rounded-b-md shadow-lg mt-1 py-2 overflow-hidden"
               >
                 {items.map((item, index) => {
                   const isActive = location.pathname.startsWith(item.to);
