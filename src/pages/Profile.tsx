@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AddressListItem } from "@/components/profile/AddressListItem";
+import type { Address } from "@/types/address";
 
 const Profile = () => {
   const { toast } = useToast();
@@ -34,8 +36,8 @@ const Profile = () => {
     },
   });
 
-  const { data: address, isLoading: isLoadingAddress } = useQuery({
-    queryKey: ["user-address"],
+  const { data: addresses, isLoading: isLoadingAddress } = useQuery({
+    queryKey: ["user-addresses"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not found");
@@ -44,11 +46,10 @@ const Profile = () => {
         .from("addresses")
         .select("*")
         .eq("user_id", user.id)
-        .eq("is_primary", true)
-        .maybeSingle();
+        .order('is_primary', { ascending: false });
 
-      if (error && error.code !== "PGRST116") throw error;
-      return data;
+      if (error) throw error;
+      return data as Address[];
     },
   });
 
@@ -80,6 +81,40 @@ const Profile = () => {
     },
   });
 
+  const setPrimaryAddress = useMutation({
+    mutationFn: async (addressId: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not found");
+
+      // Primeiro, remove o status primário de todos os endereços
+      await supabase
+        .from("addresses")
+        .update({ is_primary: false })
+        .eq("user_id", user.id);
+
+      // Depois, define o novo endereço primário
+      const { error } = await supabase
+        .from("addresses")
+        .update({ is_primary: true })
+        .eq("id", addressId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Endereço atualizado",
+        description: "O endereço principal foi atualizado com sucesso.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Erro ao atualizar endereço",
+        description: error.message,
+      });
+    },
+  });
+
   const handleEdit = () => {
     if (profile) {
       setFormData({
@@ -96,6 +131,15 @@ const Profile = () => {
 
   const handleCancel = () => {
     setIsEditing(false);
+  };
+
+  const handleEditAddress = (address: Address) => {
+    // TODO: Implementar edição de endereço
+    console.log("Edit address:", address);
+  };
+
+  const handleSetPrimaryAddress = (address: Address) => {
+    setPrimaryAddress.mutate(address.id);
   };
 
   return (
@@ -170,7 +214,7 @@ const Profile = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
-              Endereço Principal
+              Endereços
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -179,14 +223,22 @@ const Profile = () => {
                 <Skeleton className="h-4 w-[200px]" />
                 <Skeleton className="h-4 w-[150px]" />
               </div>
-            ) : address ? (
-              <div className="space-y-2">
-                <p>{address.street_address}</p>
-                {address.apt_suite_unit && <p>{address.apt_suite_unit}</p>}
-                <p>{address.city}, {address.state_code} {address.zip_code}</p>
-                <Button variant="outline" className="mt-2">
-                  Gerenciar Endereços
-                </Button>
+            ) : addresses && addresses.length > 0 ? (
+              <div className="space-y-2 divide-y">
+                {addresses.map((address) => (
+                  <AddressListItem
+                    key={address.id}
+                    address={address}
+                    isPrimary={address.is_primary}
+                    onEdit={handleEditAddress}
+                    onSetPrimary={handleSetPrimaryAddress}
+                  />
+                ))}
+                <div className="pt-4">
+                  <Button variant="outline">
+                    Adicionar Novo Endereço
+                  </Button>
+                </div>
               </div>
             ) : (
               <Alert>
