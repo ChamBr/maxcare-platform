@@ -9,6 +9,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { UserRoleSelect } from "./UserRoleSelect";
 import { useAuthState } from "@/hooks/useAuthState";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type UserRole = "dev" | "admin" | "user" | "customer";
 
@@ -35,6 +41,23 @@ const getRoleBadgeVariant = (role: UserRole) => {
     default:
       return "default";
   }
+};
+
+const getNoPermissionReason = (
+  currentUserRole: string,
+  targetUserId: string,
+  targetRole: UserRole,
+  sessionUserId: string | undefined
+) => {
+  if (sessionUserId === targetUserId) {
+    return "Você não pode alterar seu próprio nível de acesso";
+  }
+
+  if (currentUserRole === "admin" && (targetRole === "dev" || targetRole === "admin")) {
+    return "Administradores não podem modificar outros administradores ou desenvolvedores";
+  }
+
+  return "Você não tem permissão para alterar níveis de acesso";
 };
 
 export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
@@ -88,7 +111,25 @@ export const UsersTable = ({ users, onRoleChange }: UsersTableProps) => {
                     onRoleChange={(role) => onRoleChange(user.id, role)}
                   />
                 ) : (
-                  <span className="text-sm text-gray-500">Sem permissão</span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-sm text-gray-500 cursor-help">
+                          Sem permissão
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          {getNoPermissionReason(
+                            userRole,
+                            user.id,
+                            user.role,
+                            session?.user.id
+                          )}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 )}
               </TableCell>
             </TableRow>
