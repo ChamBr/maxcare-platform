@@ -31,7 +31,7 @@ export const UsersFilter = ({
             <SelectValue placeholder="Filtrar por role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todas as roles</SelectItem>
+            <SelectItem value="all">Todas as roles</SelectItem>
             <SelectItem value="dev">Dev</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
             <SelectItem value="user">User</SelectItem>
