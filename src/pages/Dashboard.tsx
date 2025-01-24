@@ -13,28 +13,32 @@ interface DashboardStats {
 }
 
 const Dashboard = () => {
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
-      const [customers, warranties, services] = await Promise.all([
+      const [
+        { count: customersCount },
+        { count: warrantiesCount },
+        { count: servicesCount },
+      ] = await Promise.all([
         supabase
-          .from("users")
-          .select("id", { count: "exact" })
+          .from("user_roles")
+          .select("*", { count: "exact", head: true })
           .eq("role", "customer"),
         supabase
           .from("warranties")
-          .select("id", { count: "exact" })
+          .select("*", { count: "exact", head: true })
           .eq("status", "active"),
         supabase
           .from("services")
-          .select("id", { count: "exact" })
+          .select("*", { count: "exact", head: true })
           .eq("status", "pending"),
       ]);
 
       return {
-        totalCustomers: customers.count || 0,
-        activeWarranties: warranties.count || 0,
-        pendingServices: services.count || 0,
+        totalCustomers: customersCount || 0,
+        activeWarranties: warrantiesCount || 0,
+        pendingServices: servicesCount || 0,
         recentActivities: 0, // Implementar lógica de atividades recentes
       };
     },
