@@ -19,7 +19,9 @@ const WarrantyApprovals = () => {
       const { data, error } = await supabase
         .from("warranties")
         .select(`
-          *,
+          id,
+          created_at,
+          approval_status,
           users (
             full_name,
             email

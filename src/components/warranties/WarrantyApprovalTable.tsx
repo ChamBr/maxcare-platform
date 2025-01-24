@@ -26,10 +26,10 @@ interface Warranty {
     street_address: string;
     city: string;
     state_code: string;
-  };
+  } | null;
   warranty_types: {
     name: string;
-  };
+  } | null;
 }
 
 interface WarrantyApprovalTableProps {
@@ -98,10 +98,13 @@ export const WarrantyApprovalTable = ({
             <TableCell>
               {warranty.users.full_name || warranty.users.email}
             </TableCell>
-            <TableCell>{warranty.warranty_types.name}</TableCell>
+            <TableCell>{warranty.warranty_types?.name || "N/A"}</TableCell>
             <TableCell>
-              {warranty.addresses.street_address}, {warranty.addresses.city} -{" "}
-              {warranty.addresses.state_code}
+              {warranty.addresses ? (
+                `${warranty.addresses.street_address}, ${warranty.addresses.city} - ${warranty.addresses.state_code}`
+              ) : (
+                "Endereço não informado"
+              )}
             </TableCell>
             <TableCell>{getStatusBadge(warranty.approval_status)}</TableCell>
             <TableCell>
