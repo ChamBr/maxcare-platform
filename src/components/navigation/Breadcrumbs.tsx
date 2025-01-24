@@ -36,8 +36,8 @@ export const Breadcrumbs = () => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink as={Link} to="/">
-              Início
+            <BreadcrumbLink>
+              <Link to="/">Início</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -52,8 +52,8 @@ export const Breadcrumbs = () => {
                 {isLast ? (
                   <BreadcrumbPage>{label}</BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink as={Link} to={path}>
-                    {label}
+                  <BreadcrumbLink>
+                    <Link to={path}>{label}</Link>
                   </BreadcrumbLink>
                 )}
                 {!isLast && <BreadcrumbSeparator />}
