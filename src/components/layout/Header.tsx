@@ -27,6 +27,8 @@ export const Header = () => {
       setSession(session);
       if (session) {
         checkUserRole(session.user.id);
+      } else {
+        clearUserState();
       }
     });
 
@@ -37,14 +39,18 @@ export const Header = () => {
       if (session) {
         checkUserRole(session.user.id);
       } else {
-        // Limpa os estados quando não há sessão
-        setIsStaff(false);
-        setUserRole("customer");
+        clearUserState();
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const clearUserState = () => {
+    setIsStaff(false);
+    setUserRole("customer");
+    setSession(null);
+  };
 
   const checkUserRole = async (userId: string) => {
     try {
@@ -67,20 +73,25 @@ export const Header = () => {
 
   const handleLogout = async () => {
     try {
+      // Verifica se existe uma sessão antes de tentar fazer logout
+      const { data: currentSession } = await supabase.auth.getSession();
+      
+      if (!currentSession.session) {
+        clearUserState();
+        navigate("/login");
+        return;
+      }
+
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
-      // Limpa os estados
-      setSession(null);
-      setIsStaff(false);
-      setUserRole("customer");
-
+      clearUserState();
+      
       toast({
         title: "Logout realizado com sucesso",
         description: "Você foi desconectado da sua conta",
       });
 
-      // Redireciona para a página de login
       navigate("/login");
     } catch (error: any) {
       console.error("Erro ao fazer logout:", error);
@@ -92,6 +103,7 @@ export const Header = () => {
       
       // Força a limpeza da sessão no localStorage e redireciona
       localStorage.removeItem('sb-' + import.meta.env.VITE_SUPABASE_PROJECT_ID + '-auth-token');
+      clearUserState();
       navigate("/login");
     }
   };
