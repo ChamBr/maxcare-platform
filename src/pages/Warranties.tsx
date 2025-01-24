@@ -19,7 +19,11 @@ const Warranties = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("warranties")
-        .select("*, addresses(street_address, city, state_code)")
+        .select(`
+          *,
+          addresses(street_address, city, state_code),
+          warranty_types(name)
+        `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -87,7 +91,7 @@ const Warranties = () => {
         {warranties?.map((warranty) => (
           <Card key={warranty.id}>
             <CardHeader>
-              <CardTitle>{warranty.product_name}</CardTitle>
+              <CardTitle>{warranty.warranty_types?.name}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 text-sm">
@@ -98,18 +102,6 @@ const Warranties = () => {
                 <p>
                   <strong>Endereço:</strong>{" "}
                   {warranty.addresses?.street_address}, {warranty.addresses?.city}, {warranty.addresses?.state_code}
-                </p>
-                <p>
-                  <strong>Data da Compra:</strong>{" "}
-                  {new Date(warranty.purchase_date).toLocaleDateString()}
-                </p>
-                <p>
-                  <strong>Início da Garantia:</strong>{" "}
-                  {new Date(warranty.warranty_start).toLocaleDateString()}
-                </p>
-                <p>
-                  <strong>Fim da Garantia:</strong>{" "}
-                  {new Date(warranty.warranty_end).toLocaleDateString()}
                 </p>
               </div>
             </CardContent>

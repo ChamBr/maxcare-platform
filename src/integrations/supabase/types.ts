@@ -278,13 +278,13 @@ export type Database = {
           approved_by_id: string | null
           created_at: string
           id: string
-          product_name: string
           purchase_date: string
           status: string
           updated_at: string
           user_id: string
           warranty_end: string
           warranty_start: string
+          warranty_type_id: string | null
         }
         Insert: {
           address_id?: string | null
@@ -293,13 +293,13 @@ export type Database = {
           approved_by_id?: string | null
           created_at?: string
           id?: string
-          product_name: string
           purchase_date: string
           status: string
           updated_at?: string
           user_id: string
           warranty_end: string
           warranty_start: string
+          warranty_type_id?: string | null
         }
         Update: {
           address_id?: string | null
@@ -308,13 +308,13 @@ export type Database = {
           approved_by_id?: string | null
           created_at?: string
           id?: string
-          product_name?: string
           purchase_date?: string
           status?: string
           updated_at?: string
           user_id?: string
           warranty_end?: string
           warranty_start?: string
+          warranty_type_id?: string | null
         }
         Relationships: [
           {
@@ -338,7 +338,41 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "warranties_warranty_type_id_fkey"
+            columns: ["warranty_type_id"]
+            isOneToOne: false
+            referencedRelation: "warranty_types"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      warranty_types: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
