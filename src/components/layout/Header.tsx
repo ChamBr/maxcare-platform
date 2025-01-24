@@ -17,6 +17,18 @@ export const Header = () => {
   const navigate = useNavigate();
   const { isStaff, session, userRole, clearUserState } = useAuthState();
 
+  const getPortalName = () => {
+    if (isStaff && userRole === "dev") return "MaxCare Panel";
+    if (userRole === "admin") return "MaxCare Services";
+    return "MaxCare Customer";
+  };
+
+  const getPortalColor = () => {
+    if (isStaff && userRole === "dev") return "text-primary";
+    if (userRole === "admin") return "text-blue-500";
+    return "text-green-500";
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
@@ -24,18 +36,19 @@ export const Header = () => {
           <div className="flex items-center space-x-2">
             <h1 
               onClick={() => navigate("/")}
-              className="text-xl font-bold text-primary cursor-pointer transition-colors hover:text-primary/90"
+              className={cn(
+                "text-xl font-bold cursor-pointer transition-colors",
+                getPortalColor(),
+                "hover:opacity-90"
+              )}
             >
-              MaxCare
+              {getPortalName()}
             </h1>
-            {isStaff && (
-              <span className="text-xl font-bold text-foreground">Admin</span>
-            )}
           </div>
           {session && (
             <>
               <nav className="hidden md:flex items-center space-x-2">
-                <NavigationLinks isStaff={isStaff} />
+                <NavigationLinks isStaff={isStaff} userRole={userRole} />
               </nav>
               <Sheet>
                 <SheetTrigger asChild className="md:hidden">
@@ -48,7 +61,7 @@ export const Header = () => {
                     <SheetTitle>Menu</SheetTitle>
                   </SheetHeader>
                   <nav className="flex flex-col space-y-2 mt-6">
-                    <NavigationLinks isStaff={isStaff} />
+                    <NavigationLinks isStaff={isStaff} userRole={userRole} />
                   </nav>
                 </SheetContent>
               </Sheet>
