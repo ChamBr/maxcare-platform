@@ -22,8 +22,13 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
       
       // Se houver erro de sessão não encontrada, apenas ignore
       if (error && error.message.includes('session_not_found')) {
+        console.log('Sessão não encontrada, prosseguindo com logout local');
         onLogout();
         navigate("/login");
+        toast({
+          title: "Logout realizado com sucesso",
+          description: "Você foi desconectado da sua conta",
+        });
         return;
       }
 
