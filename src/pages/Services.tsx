@@ -1,19 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { Clock, Plus, ShieldCheck, Wrench } from "lucide-react";
+import { CheckCircle2, Clock, Plus, ShieldCheck, Wrench } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
 import { isAfter, parseISO, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ServiceRequestForm } from "@/components/services/ServiceRequestForm";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Separator } from "@/components/ui/separator";
 
 const Services = () => {
-  const { toast } = useToast();
-
   const { data: warranties } = useQuery({
     queryKey: ["active-warranties"],
     queryFn: async () => {
@@ -65,6 +63,27 @@ const Services = () => {
     },
   });
 
+  const { data: availableServices } = useQuery({
+    queryKey: ["available-warranty-services"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("warranty_type_services")
+        .select(`
+          id,
+          max_uses,
+          warranty_type_id,
+          warranty_services (
+            id,
+            name,
+            description
+          )
+        `);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       pending: { label: "Aguardando", variant: "secondary" },
@@ -76,6 +95,10 @@ const Services = () => {
 
     const config = statusConfig[status] || statusConfig.pending;
     return <Badge variant={config.variant as any}>{config.label}</Badge>;
+  };
+
+  const getAvailableServicesForWarranty = (warrantyTypeId: string) => {
+    return availableServices?.filter(service => service.warranty_type_id === warrantyTypeId) || [];
   };
 
   return (
@@ -112,8 +135,45 @@ const Services = () => {
                   </CardDescription>
                 </CardHeader>
 
-                {/* Lista de Serviços da Garantia */}
                 <CardContent>
+                  {/* Serviços Disponíveis */}
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Serviços Disponíveis
+                    </h3>
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Serviço</TableHead>
+                            <TableHead>Descrição</TableHead>
+                            <TableHead>Usos Máximos</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {getAvailableServicesForWarranty(warranty.warranty_type_id!)?.map((service) => (
+                            <TableRow key={service.id}>
+                              <TableCell>{service.warranty_services.name}</TableCell>
+                              <TableCell>{service.warranty_services.description}</TableCell>
+                              <TableCell>{service.max_uses}</TableCell>
+                            </TableRow>
+                          ))}
+                          {!getAvailableServicesForWarranty(warranty.warranty_type_id!)?.length && (
+                            <TableRow>
+                              <TableCell colSpan={3} className="text-center text-muted-foreground">
+                                Nenhum serviço disponível
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+
+                  <Separator className="my-4" />
+
+                  {/* Serviços Solicitados */}
                   <div className="mb-4">
                     <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
                       <Wrench className="h-4 w-4" />
