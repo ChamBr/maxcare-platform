@@ -34,10 +34,10 @@ export const UsersFilter = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas as roles</SelectItem>
-            <SelectItem value="dev">Dev</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="user">User</SelectItem>
-            {!excludeCustomers && <SelectItem value="customer">Customer</SelectItem>}
+            <SelectItem value="dev">Desenvolvedor</SelectItem>
+            <SelectItem value="admin">Administrador</SelectItem>
+            <SelectItem value="user">Usuário</SelectItem>
+            {!excludeCustomers && <SelectItem value="customer">Cliente</SelectItem>}
           </SelectContent>
         </Select>
       </div>

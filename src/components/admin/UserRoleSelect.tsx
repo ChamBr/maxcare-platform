@@ -27,10 +27,10 @@ export const UserRoleSelect = ({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="dev">Dev</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
-          <SelectItem value="user">User</SelectItem>
-          <SelectItem value="customer">Customer</SelectItem>
+          <SelectItem value="dev">Desenvolvedor</SelectItem>
+          <SelectItem value="admin">Administrador</SelectItem>
+          <SelectItem value="user">Usuário</SelectItem>
+          <SelectItem value="customer">Cliente</SelectItem>
         </SelectContent>
       </Select>
     </div>
