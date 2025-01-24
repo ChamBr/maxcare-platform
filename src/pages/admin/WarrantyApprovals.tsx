@@ -29,7 +29,8 @@ const WarrantyApprovals = () => {
           addresses (
             street_address,
             city,
-            state_code
+            state_code,
+            address_type
           ),
           warranty_types (
             name
