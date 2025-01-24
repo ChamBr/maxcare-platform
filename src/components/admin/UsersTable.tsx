@@ -35,9 +35,9 @@ const getRoleBadgeVariant = (role: UserRole) => {
     case "dev":
       return "purple";
     case "admin":
-      return "red";
+      return "destructive";
     case "user":
-      return "green"; // Alterado para diferenciar melhor
+      return "secondary";
     case "customer":
       return "blue";
     default:

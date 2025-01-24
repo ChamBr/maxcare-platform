@@ -483,6 +483,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_user: {
+        Args: {
+          user_uuid: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       user_role: "dev" | "admin" | "user" | "customer"
