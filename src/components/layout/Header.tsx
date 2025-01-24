@@ -36,6 +36,10 @@ export const Header = () => {
       setSession(session);
       if (session) {
         checkUserRole(session.user.id);
+      } else {
+        // Limpa os estados quando não há sessão
+        setIsStaff(false);
+        setUserRole("customer");
       }
     });
 
@@ -43,25 +47,53 @@ export const Header = () => {
   }, []);
 
   const checkUserRole = async (userId: string) => {
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .single();
+    try {
+      const { data: roles, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .single();
 
-    if (roles) {
-      setUserRole(roles.role);
-      setIsStaff(["dev", "admin"].includes(roles.role));
+      if (error) throw error;
+
+      if (roles) {
+        setUserRole(roles.role);
+        setIsStaff(["dev", "admin"].includes(roles.role));
+      }
+    } catch (error) {
+      console.error("Erro ao verificar papel do usuário:", error);
     }
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: "Logged out successfully",
-      description: "You have been signed out of your account",
-    });
-    navigate("/login");
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      // Limpa os estados
+      setSession(null);
+      setIsStaff(false);
+      setUserRole("customer");
+
+      toast({
+        title: "Logout realizado com sucesso",
+        description: "Você foi desconectado da sua conta",
+      });
+
+      // Redireciona para a página de login
+      navigate("/login");
+    } catch (error: any) {
+      console.error("Erro ao fazer logout:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao fazer logout",
+        description: "Ocorreu um erro ao tentar desconectar. Tente novamente.",
+      });
+      
+      // Força a limpeza da sessão no localStorage e redireciona
+      localStorage.removeItem('sb-' + import.meta.env.VITE_SUPABASE_PROJECT_ID + '-auth-token');
+      navigate("/login");
+    }
   };
 
   const isCurrentPage = (path: string) => location.pathname === path;
