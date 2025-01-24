@@ -17,6 +17,7 @@ import AdminUsers from "./pages/admin/Users";
 import AdminServices from "./pages/admin/Services";
 import AdminNotifications from "./pages/admin/Notifications";
 import AdminSettings from "./pages/admin/Settings";
+import RoleHistory from "./pages/admin/RoleHistory";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => (
                           <Route path="services" element={<AdminServices />} />
                           <Route path="notifications" element={<AdminNotifications />} />
                           <Route path="settings" element={<AdminSettings />} />
+                          <Route path="role-history" element={<RoleHistory />} />
                         </Routes>
                       </PageWrapper>
                     </ProtectedRoute>

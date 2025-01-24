@@ -5,8 +5,6 @@ import {
   Wrench, 
   Bell, 
   Settings,
-  ClipboardList,
-  FileText,
   History,
   ShieldCheck,
   FileSpreadsheet,
@@ -28,6 +26,7 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
           <NavigationButton to="/admin/services" icon={Wrench}>Serviços</NavigationButton>
           <NavigationButton to="/admin/notifications" icon={Bell}>Notificações</NavigationButton>
           <NavigationButton to="/admin/settings" icon={Settings}>Configurações</NavigationButton>
+          <NavigationButton to="/admin/role-history" icon={History}>Histórico de Roles</NavigationButton>
         </div>
       </div>
     );
