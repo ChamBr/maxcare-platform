@@ -148,6 +148,7 @@ export type Database = {
           updated_at: string
           user_id: string
           warranty_id: string
+          warranty_service_id: string | null
         }
         Insert: {
           completed_date?: string | null
@@ -160,6 +161,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           warranty_id: string
+          warranty_service_id?: string | null
         }
         Update: {
           completed_date?: string | null
@@ -172,6 +174,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           warranty_id?: string
+          warranty_service_id?: string | null
         }
         Relationships: [
           {
@@ -186,6 +189,13 @@ export type Database = {
             columns: ["warranty_id"]
             isOneToOne: false
             referencedRelation: "warranties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_warranty_service_id_fkey"
+            columns: ["warranty_service_id"]
+            isOneToOne: false
+            referencedRelation: "warranty_services"
             referencedColumns: ["id"]
           },
         ]
@@ -347,6 +357,75 @@ export type Database = {
           },
         ]
       }
+      warranty_services: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      warranty_type_services: {
+        Row: {
+          created_at: string
+          id: string
+          max_uses: number
+          updated_at: string
+          warranty_service_id: string
+          warranty_type_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_uses?: number
+          updated_at?: string
+          warranty_service_id: string
+          warranty_type_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_uses?: number
+          updated_at?: string
+          warranty_service_id?: string
+          warranty_type_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warranty_type_services_warranty_service_id_fkey"
+            columns: ["warranty_service_id"]
+            isOneToOne: false
+            referencedRelation: "warranty_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "warranty_type_services_warranty_type_id_fkey"
+            columns: ["warranty_type_id"]
+            isOneToOne: false
+            referencedRelation: "warranty_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       warranty_types: {
         Row: {
           active: boolean | null
@@ -379,6 +458,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_request_service: {
+        Args: {
+          p_warranty_id: string
+          p_warranty_service_id: string
+        }
+        Returns: boolean
+      }
       is_admin: {
         Args: {
           user_uuid: string

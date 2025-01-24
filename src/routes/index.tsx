@@ -15,6 +15,7 @@ import AdminSettings from "@/pages/admin/Settings";
 import Logs from "@/pages/admin/Logs";
 import Subscriptions from "@/pages/admin/Subscriptions";
 import ServiceRequests from "@/pages/admin/ServiceRequests";
+import WarrantyTypes from "@/pages/admin/WarrantyTypes";
 
 export const AppRoutes = () => (
   <Routes>
@@ -59,6 +60,7 @@ export const AppRoutes = () => (
               <Route path="logs" element={<Logs />} />
               <Route path="subscriptions" element={<Subscriptions />} />
               <Route path="service-requests" element={<ServiceRequests />} />
+              <Route path="warranty-types" element={<WarrantyTypes />} />
             </Routes>
           </PageWrapper>
         </ProtectedRoute>
