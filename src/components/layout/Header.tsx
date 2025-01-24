@@ -12,6 +12,7 @@ import {
 import { useAuthState } from "@/hooks/useAuthState";
 import { NavigationLinks } from "@/components/navigation/NavigationLinks";
 import { LogoutButton } from "@/components/auth/LogoutButton";
+import { cn } from "@/lib/utils";
 
 export const Header = () => {
   const navigate = useNavigate();
