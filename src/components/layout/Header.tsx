@@ -35,44 +35,44 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-start md:space-x-6">
-          <div className="flex items-center space-x-2">
-            <h1 
-              onClick={() => navigate("/")}
-              className="text-xl font-bold cursor-pointer transition-colors flex items-center"
-            >
-              <span className="text-primary">MaxCare</span>
-              {session && Array.isArray(getPortalName()) && (
-                <span className={cn("ml-1", getPortalColor())}>
-                  {getPortalName()[1]}
-                </span>
-              )}
-            </h1>
-          </div>
-          {session && (
-            <>
-              <nav className="hidden md:flex items-center space-x-4">
-                <NavigationLinks isStaff={isStaff} userRole={userRole} />
-              </nav>
-              <Sheet>
-                <SheetTrigger asChild className="md:hidden">
-                  <Button variant="ghost" size="icon" className="ml-2">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[240px] sm:w-[280px]">
-                  <SheetHeader>
-                    <SheetTitle>Menu</SheetTitle>
-                  </SheetHeader>
-                  <nav className="flex flex-col space-y-4 mt-6">
-                    <NavigationLinks isStaff={isStaff} userRole={userRole} />
-                  </nav>
-                </SheetContent>
-              </Sheet>
-            </>
-          )}
+        <div className="mr-4">
+          <h1 
+            onClick={() => navigate("/")}
+            className="text-xl font-bold cursor-pointer transition-colors flex items-center"
+          >
+            <span className="text-primary">MaxCare</span>
+            {session && Array.isArray(getPortalName()) && (
+              <span className={cn("ml-1", getPortalColor())}>
+                {getPortalName()[1]}
+              </span>
+            )}
+          </h1>
         </div>
-        <div className="flex items-center justify-end space-x-2">
+        
+        {session && (
+          <>
+            <nav className="hidden md:flex flex-1 items-center">
+              <NavigationLinks isStaff={isStaff} userRole={userRole} />
+            </nav>
+            <Sheet>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon" className="ml-2">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[240px] sm:w-[280px]">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col space-y-4 mt-6">
+                  <NavigationLinks isStaff={isStaff} userRole={userRole} />
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </>
+        )}
+
+        <div className="flex items-center justify-end space-x-2 ml-auto">
           {session ? (
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="hidden sm:flex">
