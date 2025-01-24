@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 
@@ -7,27 +7,31 @@ interface NavigationButtonProps {
   to: string;
   children: React.ReactNode;
   icon?: LucideIcon;
+  isActive?: boolean;
 }
 
-export const NavigationButton = ({ to, children, icon: Icon }: NavigationButtonProps) => {
-  const location = useLocation();
+export const NavigationButton = ({ 
+  to, 
+  children, 
+  icon: Icon, 
+  isActive = false 
+}: NavigationButtonProps) => {
   const navigate = useNavigate();
-  const isCurrentPage = location.pathname === to;
 
   return (
     <Button 
-      variant={isCurrentPage ? "default" : "ghost"}
+      variant={isActive ? "default" : "ghost"}
       onClick={() => navigate(to)}
       className={cn(
         "w-full justify-start gap-2 px-4 py-2",
         "transition-all duration-200",
         "hover:bg-accent hover:text-accent-foreground",
         "md:w-auto md:min-w-[140px]",
-        isCurrentPage && "bg-primary text-primary-foreground"
+        isActive && "bg-primary/10 text-primary hover:bg-primary/20"
       )}
     >
-      {Icon && <Icon className="h-4 w-4" />}
-      <span>{children}</span>
+      {Icon && <Icon className={cn("h-4 w-4", isActive && "text-primary")} />}
+      <span className={cn(isActive && "font-medium")}>{children}</span>
     </Button>
   );
 };
