@@ -53,8 +53,16 @@ const getNoPermissionReason = (
     return "Você não pode alterar seu próprio nível de acesso";
   }
 
-  if (currentUserRole === "admin" && (targetRole === "dev" || targetRole === "admin")) {
-    return "Administradores não podem modificar outros administradores ou desenvolvedores";
+  if (currentUserRole === "admin" && targetRole === "dev") {
+    return "Administradores não podem modificar desenvolvedores";
+  }
+
+  if (currentUserRole === "admin" && targetRole === "admin") {
+    return "Administradores não podem modificar outros administradores";
+  }
+
+  if (currentUserRole === "user" || currentUserRole === "customer") {
+    return "Você não tem permissão para alterar níveis de acesso";
   }
 
   return "Você não tem permissão para alterar níveis de acesso";
