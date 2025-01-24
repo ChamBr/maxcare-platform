@@ -26,7 +26,7 @@ export const NavigationButton = ({
         "w-full justify-start gap-2 px-4 py-2",
         "transition-all duration-200",
         "hover:bg-accent hover:text-accent-foreground",
-        "md:w-auto md:min-w-[140px]",
+        "md:w-full",
         isActive && "bg-primary/10 text-primary hover:bg-primary/20"
       )}
     >
