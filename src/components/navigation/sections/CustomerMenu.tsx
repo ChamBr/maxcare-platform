@@ -10,23 +10,23 @@ export const CustomerMenu = () => {
       <NavigationButton 
         to="/profile" 
         icon={UserCircle}
-        is
+        isActive={location.pathname === "/profile"}
       >
-        Meu Perfil
+        My Profile
       </NavigationButton>
       <NavigationButton 
         to="/warranties" 
         icon={ShieldCheck}
         isActive={location.pathname === "/warranties"}
       >
-        Minhas Garantias
+        My Warranties
       </NavigationButton>
       <NavigationButton 
         to="/services" 
         icon={Wrench}
         isActive={location.pathname === "/services"}
       >
-        Solicitar Serviço
+        Request Service
       </NavigationButton>
     </div>
   );

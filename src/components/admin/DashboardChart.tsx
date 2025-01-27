@@ -31,7 +31,7 @@ export const DashboardChart = ({ type }: DashboardChartProps) => {
         });
 
         return Object.entries(counts).map(([name, value]) => ({
-          name,
+          name: name.charAt(0).toUpperCase() + name.slice(1),
           value,
         }));
       } else {
@@ -42,7 +42,7 @@ export const DashboardChart = ({ type }: DashboardChartProps) => {
 
         const counts: Record<string, number> = {};
         data?.forEach((item) => {
-          const month = new Date(item.created_at).toLocaleString("pt-BR", {
+          const month = new Date(item.created_at).toLocaleString("en-US", {
             month: "short",
           });
           counts[month] = (counts[month] || 0) + 1;

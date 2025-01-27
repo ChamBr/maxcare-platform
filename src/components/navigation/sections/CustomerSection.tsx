@@ -5,23 +5,23 @@ import { MenuSection } from "./MenuSection";
 export const CustomerSection = () => {
   return (
     <MenuSection
-      title="Clientes"
+      title="Customers"
       icon={Building2}
       items={[
         {
           to: "/admin/users?type=customer",
           icon: Users,
-          label: "Clientes"
+          label: "Customers"
         },
         {
           to: "/admin/subscriptions",
           icon: ShieldCheck,
-          label: "Garantias"
+          label: "Warranties"
         },
         {
           to: "/admin/service-requests",
           icon: Clipboard,
-          label: "Solicitações"
+          label: "Requests"
         }
       ]}
     />

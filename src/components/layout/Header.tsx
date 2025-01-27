@@ -20,9 +20,9 @@ export const Header = () => {
 
   const getPortalName = () => {
     if (!session) return "MaxCare";
-    if (isStaff && userRole === "dev") return ["MaxCare", "Painel"];
-    if (userRole === "admin") return ["MaxCare", "Painel"];
-    return ["MaxCare", "Cliente"];
+    if (isStaff && userRole === "dev") return ["MaxCare", "Panel"];
+    if (userRole === "admin") return ["MaxCare", "Panel"];
+    return ["MaxCare", "Customer"];
   };
 
   const getPortalColor = () => {
@@ -90,12 +90,12 @@ export const Header = () => {
                 variant="ghost"
                 onClick={() => navigate("/login")}
               >
-                Entrar
+                Sign In
               </Button>
               <Button 
                 onClick={() => navigate("/register")}
               >
-                Cadastrar
+                Sign Up
               </Button>
             </>
           )}

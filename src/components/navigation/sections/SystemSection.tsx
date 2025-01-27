@@ -4,28 +4,28 @@ import { MenuSection } from "./MenuSection";
 export const SystemSection = () => {
   return (
     <MenuSection
-      title="Sistema"
+      title="System"
       icon={Cog}
       items={[
         {
           to: "/admin/users",
           icon: Users,
-          label: "Gerenciar Usuários"
+          label: "Manage Users"
         },
         {
           to: "/admin/settings",
           icon: Settings,
-          label: "Configurações"
+          label: "Settings"
         },
         {
           to: "/admin/warranty-types",
           icon: Shield,
-          label: "Tipos de Garantia"
+          label: "Warranty Types"
         },
         {
           to: "/admin/warranty-approvals",
           icon: CheckSquare,
-          label: "Aprovar Garantias"
+          label: "Approve Warranties"
         },
         {
           to: "/admin/logs",
@@ -35,7 +35,7 @@ export const SystemSection = () => {
         {
           to: "/admin/notifications",
           icon: Bell,
-          label: "Notificações"
+          label: "Notifications"
         }
       ]}
     />
