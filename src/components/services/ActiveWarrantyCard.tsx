@@ -7,7 +7,6 @@ import { ServiceRequestForm } from "./ServiceRequestForm";
 import { WarrantyServicesTable } from "./WarrantyServicesTable";
 import { WarrantyRequestedServicesTable } from "./WarrantyRequestedServicesTable";
 import { Separator } from "@/components/ui/separator";
-import { format, parseISO } from "date-fns";
 import { Service, Warranty } from "@/types/services";
 
 interface ActiveWarrantyCardProps {
@@ -22,43 +21,47 @@ export const ActiveWarrantyCard = ({ warranty, services, availableServices }: Ac
   };
 
   return (
-    <Card key={warranty.id}>
+    <Card className="w-full">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <CardTitle className="text-base md:text-lg">
             {warranty.warranty_types?.name}
           </CardTitle>
-          <Badge variant="green" className="capitalize">
+          <Badge variant="green" className="capitalize whitespace-nowrap">
             <ShieldCheck className="mr-1 h-3 w-3" />
             Ativa
           </Badge>
         </div>
-        <CardDescription>
+        <CardDescription className="text-sm break-words">
           {warranty.addresses?.street_address}, {warranty.addresses?.city}, {warranty.addresses?.state_code}
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="space-y-6">
         {/* Serviços Disponíveis */}
-        <div className="mb-4">
+        <div>
           <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4" />
+            <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
             Serviços Disponíveis
           </h3>
-          <WarrantyServicesTable services={getAvailableServicesForWarranty(warranty.warranty_type_id!)} />
+          <div className="overflow-x-auto">
+            <WarrantyServicesTable services={getAvailableServicesForWarranty(warranty.warranty_type_id!)} />
+          </div>
         </div>
 
-        <Separator className="my-4" />
+        <Separator />
 
         {/* Serviços Solicitados */}
-        <div className="mb-4">
+        <div>
           <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
-            <Wrench className="h-4 w-4" />
+            <Wrench className="h-4 w-4 flex-shrink-0" />
             Serviços Solicitados
           </h3>
-          <WarrantyRequestedServicesTable 
-            services={services.filter(service => service.warranty_id === warranty.id)} 
-          />
+          <div className="overflow-x-auto">
+            <WarrantyRequestedServicesTable 
+              services={services.filter(service => service.warranty_id === warranty.id)} 
+            />
+          </div>
         </div>
       </CardContent>
 
@@ -70,7 +73,7 @@ export const ActiveWarrantyCard = ({ warranty, services, availableServices }: Ac
               Solicitar Serviço
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[95vw] max-w-lg">
             <DialogHeader>
               <DialogTitle>Solicitar Serviço</DialogTitle>
             </DialogHeader>
