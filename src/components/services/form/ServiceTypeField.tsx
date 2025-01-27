@@ -32,18 +32,19 @@ export const ServiceTypeField = ({ form, isLoading, availableServices }: Service
                 <SelectValue placeholder="Selecione o tipo de serviço" />
               </SelectTrigger>
               <SelectContent>
-                {availableServices.map((service) => (
-                  <SelectItem 
-                    key={service.warranty_services.id} 
-                    value={service.warranty_services.id}
-                  >
-                    {service.warranty_services.name}
-                  </SelectItem>
-                ))}
-                {availableServices.length === 0 && (
-                  <SelectItem disabled value="">
+                {availableServices.length > 0 ? (
+                  availableServices.map((service) => (
+                    <SelectItem 
+                      key={service.warranty_services.id} 
+                      value={service.warranty_services.id}
+                    >
+                      {service.warranty_services.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none text-muted-foreground">
                     Nenhum serviço disponível
-                  </SelectItem>
+                  </div>
                 )}
               </SelectContent>
             </Select>
