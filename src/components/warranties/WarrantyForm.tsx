@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -51,6 +50,10 @@ const WarrantyForm = ({ onSuccess }: WarrantyFormProps) => {
         return;
       }
 
+      // Definindo as datas de início e fim da garantia
+      const warrantyStart = new Date().toISOString().split('T')[0];
+      const warrantyEnd = new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0];
+
       const { error } = await supabase
         .from("warranties")
         .insert({
@@ -60,6 +63,8 @@ const WarrantyForm = ({ onSuccess }: WarrantyFormProps) => {
           purchase_date: values.purchaseDate,
           status: "active",
           approval_status: "pending",
+          warranty_start: warrantyStart,
+          warranty_end: warrantyEnd
         });
 
       if (error) throw error;
