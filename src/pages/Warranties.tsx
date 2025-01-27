@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthState } from "@/hooks/useAuthState";
-import { WarrantyForm } from "@/components/warranties/WarrantyForm";
+import WarrantyForm from "@/components/warranties/WarrantyForm";
 import { addDays, isAfter, isBefore, parseISO } from "date-fns";
 
 const Warranties = () => {
@@ -30,7 +30,6 @@ const Warranties = () => {
 
       if (error) throw error;
 
-      // Ordenar garantias por status e data de vencimento
       return data.sort((a, b) => {
         const statusOrder = {
           active: 0,
@@ -43,7 +42,6 @@ const Warranties = () => {
         const bStatus = getWarrantyStatus(b);
 
         if (aStatus === bStatus) {
-          // Se mesmo status, ordenar por data de vencimento (mais distante primeiro)
           return new Date(b.warranty_end).getTime() - new Date(a.warranty_end).getTime();
         }
 
@@ -76,73 +74,29 @@ const Warranties = () => {
     return variants[status];
   };
 
-  const onSubmit = async (data: any) => {
-    if (!session?.user?.id) {
-      toast({
-        title: "Erro ao solicitar garantia",
-        description: "Você precisa estar logado para solicitar uma garantia.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const currentDate = new Date();
-      const oneYearFromNow = new Date();
-      oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
-
-      const { error } = await supabase.from("warranties").insert({
-        ...data,
-        user_id: session.user.id,
-        status: "active",
-        approval_status: "pending",
-        warranty_start: currentDate.toISOString(),
-        warranty_end: oneYearFromNow.toISOString()
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Garantia solicitada com sucesso",
-        description: "Aguarde a aprovação da equipe.",
-      });
-      
-      setOpen(false);
-      refetch();
-    } catch (error) {
-      console.error("Erro ao solicitar garantia:", error);
-      toast({
-        title: "Erro ao solicitar garantia",
-        description: "Por favor, tente novamente.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleRenewal = async (warrantyId: string) => {
-    // Aqui você implementaria a lógica de renovação
     toast({
-      title: "Solicitação de renovação enviada",
-      description: "Nossa equipe irá analisar seu pedido em breve.",
+      title: "Renewal Request Sent",
+      description: "Our team will review your request soon.",
     });
   };
 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Minhas Garantias</h1>
+        <h1 className="text-3xl font-bold">My Warranties</h1>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2" />
-              Nova Garantia
+              New Warranty
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Solicitar Nova Garantia</DialogTitle>
+              <DialogTitle>Request New Warranty</DialogTitle>
             </DialogHeader>
-            <WarrantyForm onSubmit={onSubmit} />
+            <WarrantyForm />
           </DialogContent>
         </Dialog>
       </div>
@@ -156,17 +110,17 @@ const Warranties = () => {
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-lg">{warranty.warranty_types?.name}</CardTitle>
                 <Badge variant={getStatusBadgeVariant(status)} className="capitalize">
-                  {status === "expiring" ? "Vencendo em breve" : status}
+                  {status === "expiring" ? "Expiring Soon" : status}
                 </Badge>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
                   <p>
-                    <strong>Status de Aprovação:</strong>{" "}
+                    <strong>Approval Status:</strong>{" "}
                     <span className="capitalize">{warranty.approval_status}</span>
                   </p>
                   <p>
-                    <strong>Endereço:</strong>{" "}
+                    <strong>Address:</strong>{" "}
                     {warranty.addresses?.street_address}, {warranty.addresses?.city}, {warranty.addresses?.state_code}
                   </p>
                   {showRenewalButton && (
@@ -176,7 +130,7 @@ const Warranties = () => {
                       onClick={() => handleRenewal(warranty.id)}
                     >
                       <RefreshCw className="mr-2 h-4 w-4" />
-                      Solicitar Renovação
+                      Request Renewal
                     </Button>
                   )}
                 </div>

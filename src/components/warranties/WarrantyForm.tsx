@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { AddressSelect } from "./AddressSelect";
-import { WarrantyTypeSelect } from "./WarrantyTypeSelect";
+import AddressSelect from "./AddressSelect";
+import WarrantyTypeSelect from "./WarrantyTypeSelect";
 
 const WarrantyForm = () => {
   const navigate = useNavigate();
@@ -40,6 +40,9 @@ const WarrantyForm = () => {
           warranty_type_id: warrantyTypeId,
           purchase_date: purchaseDate,
           status: "pending",
+          approval_status: "pending",
+          warranty_start: new Date().toISOString(),
+          warranty_end: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
         });
 
       if (error) throw error;
@@ -73,7 +76,7 @@ const WarrantyForm = () => {
             <label className="text-sm font-medium">Installation Address</label>
             <AddressSelect
               value={addressId}
-              onChange={setAddressId}
+              onSelect={setAddressId}
               disabled={isLoading}
             />
           </div>
@@ -82,7 +85,7 @@ const WarrantyForm = () => {
             <label className="text-sm font-medium">Warranty Type</label>
             <WarrantyTypeSelect
               value={warrantyTypeId}
-              onChange={setWarrantyTypeId}
+              onSelect={setWarrantyTypeId}
               disabled={isLoading}
             />
           </div>

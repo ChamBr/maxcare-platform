@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,24 +56,24 @@ export const WarrantyApprovalTable = ({
 
       toast.success(
         approved
-          ? "Garantia aprovada com sucesso"
-          : "Garantia rejeitada com sucesso"
+          ? "Warranty approved successfully"
+          : "Warranty rejected successfully"
       );
       onApprovalUpdate();
     } catch (error) {
-      console.error("Erro ao atualizar garantia:", error);
-      toast.error("Erro ao processar a solicitação");
+      console.error("Error updating warranty:", error);
+      toast.error("Error processing request");
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
-        return <Badge className="bg-green-500">Aprovada</Badge>;
+        return <Badge className="bg-green-500">Approved</Badge>;
       case "rejected":
-        return <Badge variant="destructive">Rejeitada</Badge>;
+        return <Badge variant="destructive">Rejected</Badge>;
       default:
-        return <Badge variant="secondary">Pendente</Badge>;
+        return <Badge variant="secondary">Pending</Badge>;
     }
   };
 
@@ -91,19 +90,19 @@ export const WarrantyApprovalTable = ({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Data</TableHead>
-          <TableHead>Cliente</TableHead>
-          <TableHead>Tipo</TableHead>
-          <TableHead>Endereço</TableHead>
+          <TableHead>Date</TableHead>
+          <TableHead>Customer</TableHead>
+          <TableHead>Type</TableHead>
+          <TableHead>Address</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Ações</TableHead>
+          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {warranties.map((warranty) => (
           <TableRow key={warranty.id}>
             <TableCell>
-              {format(new Date(warranty.created_at), "Pp", { locale: ptBR })}
+              {format(new Date(warranty.created_at), "PPp")}
             </TableCell>
             <TableCell>
               {warranty.users.full_name || warranty.users.email}
@@ -116,7 +115,7 @@ export const WarrantyApprovalTable = ({
                   {warranty.addresses.street_address}, {warranty.addresses.city} - {warranty.addresses.state_code}
                 </span>
               ) : (
-                "Endereço não informado"
+                "Address not provided"
               )}
             </TableCell>
             <TableCell>{getStatusBadge(warranty.approval_status)}</TableCell>
@@ -129,7 +128,7 @@ export const WarrantyApprovalTable = ({
                     onClick={() => handleApproval(warranty.id, true)}
                   >
                     <CheckCircle2 className="h-4 w-4 mr-1" />
-                    Aprovar
+                    Approve
                   </Button>
                   <Button
                     size="sm"
@@ -137,7 +136,7 @@ export const WarrantyApprovalTable = ({
                     onClick={() => handleApproval(warranty.id, false)}
                   >
                     <XCircle className="h-4 w-4 mr-1" />
-                    Rejeitar
+                    Reject
                   </Button>
                 </div>
               )}
