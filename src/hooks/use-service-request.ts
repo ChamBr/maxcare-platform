@@ -72,13 +72,24 @@ export const useServiceRequest = (warrantyId: string, warrantyTypeId: string | n
         return;
       }
 
+      const selectedService = availableServices.find(s => s.warranty_services.id === values.serviceType);
+      
+      if (!selectedService) {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: "Serviço selecionado não encontrado.",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from("services")
         .insert({
           user_id: user.id,
           warranty_id: warrantyId,
           warranty_service_id: values.serviceType,
-          service_type: availableServices.find(s => s.warranty_services.id === values.serviceType)?.warranty_services.name || '',
+          service_type: selectedService.warranty_services.name,
           notes: values.notes,
           status: "pending",
         });
