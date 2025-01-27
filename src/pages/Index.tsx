@@ -5,7 +5,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="h-[calc(100dvh-3.5rem)] flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white">
+    <div className="h-[calc(100dvh-56px)] flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white">
       <div className="text-center max-w-md mx-4">
         <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
           Bem-vindo ao CareHub
