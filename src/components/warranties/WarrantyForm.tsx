@@ -56,7 +56,7 @@ const WarrantyForm = () => {
           address_id: values.addressId,
           warranty_type_id: values.warrantyTypeId,
           purchase_date: values.purchaseDate,
-          status: "inactive", // Alterado de "pending" para "inactive"
+          status: "active",
           approval_status: "pending",
           warranty_start: new Date().toISOString(),
           warranty_end: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
