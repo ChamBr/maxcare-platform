@@ -16,9 +16,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="flex min-h-screen flex-col bg-background w-full">
+        <div className="flex min-h-screen flex-col bg-background">
           <Header />
-          <main className="flex-1">
+          <main className="flex-1 overflow-hidden">
             <AnimatePresence mode="wait">
               <AppRoutes />
             </AnimatePresence>
