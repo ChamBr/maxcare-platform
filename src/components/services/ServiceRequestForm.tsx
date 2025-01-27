@@ -5,7 +5,25 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage 
+} from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const formSchema = z.object({
+  serviceType: z.string().min(1, "Por favor selecione um tipo de serviço"),
+  notes: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface ServiceRequestFormProps {
   warrantyId: string;
@@ -16,11 +34,16 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [serviceType, setServiceType] = useState("");
-  const [notes, setNotes] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      serviceType: "",
+      notes: "",
+    },
+  });
+
+  const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
 
     try {
@@ -29,8 +52,8 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
       if (!user) {
         toast({
           variant: "destructive",
-          title: "Authentication Error",
-          description: "Please sign in to request a service.",
+          title: "Erro de Autenticação",
+          description: "Por favor, faça login para solicitar um serviço.",
         });
         return;
       }
@@ -40,24 +63,24 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
         .insert({
           user_id: user.id,
           warranty_id: warrantyId,
-          service_type: serviceType,
-          notes,
+          service_type: values.serviceType,
+          notes: values.notes,
           status: "pending",
         });
 
       if (error) throw error;
 
       toast({
-        title: "Success!",
-        description: "Your service request has been submitted.",
+        title: "Sucesso!",
+        description: "Sua solicitação de serviço foi enviada.",
       });
       
       navigate("/services");
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to submit service request. Please try again.",
+        title: "Erro",
+        description: "Falha ao enviar solicitação de serviço. Por favor, tente novamente.",
       });
       console.error("Service request error:", error);
     } finally {
@@ -68,42 +91,61 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Request New Service</CardTitle>
+        <CardTitle>Solicitar Novo Serviço</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Service Type</label>
-            <Select
-              value={serviceType}
-              onValueChange={setServiceType}
-              disabled={isLoading}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select service type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="repair">Repair</SelectItem>
-                <SelectItem value="maintenance">Maintenance</SelectItem>
-                <SelectItem value="inspection">Inspection</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Additional Notes</label>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Describe your service request..."
-              disabled={isLoading}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="serviceType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Serviço</FormLabel>
+                  <Select
+                    disabled={isLoading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo de serviço" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="repair">Reparo</SelectItem>
+                      <SelectItem value="maintenance">Manutenção</SelectItem>
+                      <SelectItem value="inspection">Inspeção</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Submitting..." : "Submit Request"}
-          </Button>
-        </form>
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Observações Adicionais</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Descreva sua solicitação de serviço..."
+                      disabled={isLoading}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Enviando..." : "Enviar Solicitação"}
+            </Button>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );
