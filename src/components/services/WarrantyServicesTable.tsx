@@ -34,7 +34,7 @@ export const WarrantyServicesTable = ({ services }: WarrantyServicesTableProps) 
               {!isMobile && (
                 <TableCell>{service.warranty_services.description}</TableCell>
               )}
-              <TableCell className="text-center">0/{service.max_uses}</TableCell>
+              <TableCell className="text-center">{`0/${service.max_uses}`}</TableCell>
             </TableRow>
           ))}
           {!services.length && (

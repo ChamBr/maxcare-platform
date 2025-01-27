@@ -23,7 +23,7 @@ export const WarrantyRequestedServicesTable = ({ services }: WarrantyRequestedSe
   };
 
   return (
-    <div className="rounded-md border min-w-[600px] md:min-w-0">
+    <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
