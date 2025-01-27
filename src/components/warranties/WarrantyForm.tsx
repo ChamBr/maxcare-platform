@@ -7,17 +7,34 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AddressSelect } from "./AddressSelect";
 import { WarrantyTypeSelect } from "./WarrantyTypeSelect";
+import { Form } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const formSchema = z.object({
+  addressId: z.string().min(1, "Por favor selecione um endereço"),
+  warrantyTypeId: z.string().min(1, "Por favor selecione um tipo de garantia"),
+  purchaseDate: z.string().min(1, "Por favor selecione a data de compra"),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 const WarrantyForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [addressId, setAddressId] = useState<string>("");
-  const [warrantyTypeId, setWarrantyTypeId] = useState<string>("");
-  const [purchaseDate, setPurchaseDate] = useState<string>("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      addressId: "",
+      warrantyTypeId: "",
+      purchaseDate: "",
+    },
+  });
+
+  const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
 
     try {
@@ -26,8 +43,8 @@ const WarrantyForm = () => {
       if (!user) {
         toast({
           variant: "destructive",
-          title: "Authentication Error",
-          description: "Please sign in to request a warranty.",
+          title: "Erro de Autenticação",
+          description: "Por favor, faça login para solicitar uma garantia.",
         });
         return;
       }
@@ -36,9 +53,9 @@ const WarrantyForm = () => {
         .from("warranties")
         .insert({
           user_id: user.id,
-          address_id: addressId,
-          warranty_type_id: warrantyTypeId,
-          purchase_date: purchaseDate,
+          address_id: values.addressId,
+          warranty_type_id: values.warrantyTypeId,
+          purchase_date: values.purchaseDate,
           status: "pending",
           approval_status: "pending",
           warranty_start: new Date().toISOString(),
@@ -48,16 +65,16 @@ const WarrantyForm = () => {
       if (error) throw error;
 
       toast({
-        title: "Success!",
-        description: "Your warranty request has been submitted.",
+        title: "Sucesso!",
+        description: "Sua solicitação de garantia foi enviada.",
       });
       
       navigate("/warranties");
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to submit warranty request. Please try again.",
+        title: "Erro",
+        description: "Falha ao enviar solicitação de garantia. Por favor, tente novamente.",
       });
       console.error("Warranty request error:", error);
     } finally {
@@ -68,43 +85,40 @@ const WarrantyForm = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Request New Warranty</CardTitle>
+        <CardTitle>Solicitar Nova Garantia</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Installation Address</label>
-            <AddressSelect
-              value={addressId}
-              onValueChange={setAddressId}
-              disabled={isLoading}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Warranty Type</label>
-            <WarrantyTypeSelect
-              value={warrantyTypeId}
-              onValueChange={setWarrantyTypeId}
-              disabled={isLoading}
-            />
-          </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <AddressSelect
+                value={form.watch("addressId")}
+                onValueChange={(value) => form.setValue("addressId", value)}
+                disabled={isLoading}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <WarrantyTypeSelect
+                value={form.watch("warrantyTypeId")}
+                onValueChange={(value) => form.setValue("warrantyTypeId", value)}
+                disabled={isLoading}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Purchase Date</label>
-            <Input
-              type="date"
-              value={purchaseDate}
-              onChange={(e) => setPurchaseDate(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
+            <div className="space-y-2">
+              <Input
+                type="date"
+                {...form.register("purchaseDate")}
+                disabled={isLoading}
+              />
+            </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Submitting..." : "Submit Request"}
-          </Button>
-        </form>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Enviando..." : "Enviar Solicitação"}
+            </Button>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );
