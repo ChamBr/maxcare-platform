@@ -45,6 +45,24 @@ export const useServiceSubmission = ({ warrantyId, availableServices }: UseServi
         return;
       }
 
+      // Primeiro verificamos se o usuário pode solicitar este serviço
+      const { data: canRequest, error: checkError } = await supabase
+        .rpc('can_request_service', {
+          p_warranty_id: warrantyId,
+          p_warranty_service_id: values.serviceType
+        });
+
+      if (checkError) throw checkError;
+
+      if (!canRequest) {
+        toast({
+          variant: "destructive",
+          title: "Limite Excedido",
+          description: "Você já atingiu o limite de solicitações para este serviço.",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from("services")
         .insert({
@@ -65,12 +83,12 @@ export const useServiceSubmission = ({ warrantyId, availableServices }: UseServi
       
       navigate("/services");
     } catch (error: any) {
+      console.error("Service request error:", error);
       toast({
         variant: "destructive",
         title: "Erro",
         description: "Falha ao enviar solicitação de serviço. Por favor, tente novamente.",
       });
-      console.error("Service request error:", error);
     } finally {
       setIsLoading(false);
     }
