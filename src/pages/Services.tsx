@@ -16,7 +16,11 @@ const Services = () => {
           *,
           warranty_types(
             id,
-            name
+            name,
+            description,
+            active,
+            created_at,
+            updated_at
           ),
           addresses(street_address, city, state_code)
         `)
@@ -47,8 +51,12 @@ const Services = () => {
             )
           ),
           warranty_services (
+            id,
             name,
-            description
+            description,
+            active,
+            created_at,
+            updated_at
           )
         `)
         .order("created_at", { ascending: false });
