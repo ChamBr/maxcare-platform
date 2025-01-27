@@ -1,8 +1,8 @@
 import { useAvailableServices } from "./services/use-available-services";
 import { useServiceSubmission } from "./services/use-service-submission";
-import { serviceFormSchema, ServiceFormValues } from "./services/types";
+import { serviceFormSchema, type ServiceFormValues as FormValues } from "./services/types";
 
-export type { ServiceFormValues };
+export type { FormValues };
 
 export const useServiceRequest = (warrantyId: string, warrantyTypeId: string | null) => {
   const { data: availableServices = [] } = useAvailableServices(warrantyId, warrantyTypeId);

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ServiceTypeField } from "./form/ServiceTypeField";
 import { NotesField } from "./form/NotesField";
 import { useServiceRequest } from "@/hooks/use-service-request";
-import { FormValues } from "@/hooks/use-service-request";
+import type { FormValues } from "@/hooks/use-service-request";
 
 interface ServiceRequestFormProps {
   warrantyId: string;
