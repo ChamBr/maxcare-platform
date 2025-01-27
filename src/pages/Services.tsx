@@ -93,7 +93,7 @@ const Services = () => {
         {/* Seção de Garantias Ativas */}
         <section>
           <h2 className="text-xl md:text-2xl font-bold mb-4">Minhas Garantias Ativas</h2>
-          <div className="grid gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             {warranties?.length === 0 && (
               <Card>
                 <CardContent className="pt-6">
