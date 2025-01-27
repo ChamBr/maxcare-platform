@@ -3,6 +3,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "../ServiceRequestForm";
 
+export const SERVICE_TYPES = {
+  repair: "Reparo",
+  maintenance: "Manutenção",
+  inspection: "Inspeção"
+} as const;
+
 interface ServiceTypeFieldProps {
   form: UseFormReturn<FormValues>;
   isLoading: boolean;
@@ -27,9 +33,11 @@ export const ServiceTypeField = ({ form, isLoading }: ServiceTypeFieldProps) => 
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              <SelectItem value="repair">Reparo</SelectItem>
-              <SelectItem value="maintenance">Manutenção</SelectItem>
-              <SelectItem value="inspection">Inspeção</SelectItem>
+              {Object.entries(SERVICE_TYPES).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <FormMessage />
