@@ -8,7 +8,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AddressSelect } from "./AddressSelect";
 import { WarrantyTypeSelect } from "./WarrantyTypeSelect";
-import { Input } from "@/components/ui/input";
+import { PurchaseDateField } from "./PurchaseDateField";
 
 const formSchema = z.object({
   addressId: z.string().min(1, "Por favor selecione um endereço"),
@@ -90,29 +90,23 @@ const WarrantyForm = ({ onSuccess }: WarrantyFormProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-2">
-          <AddressSelect
-            value={form.watch("addressId")}
-            onValueChange={(value) => form.setValue("addressId", value)}
-            disabled={isLoading}
-          />
-        </div>
+        <AddressSelect
+          value={form.watch("addressId")}
+          onValueChange={(value) => form.setValue("addressId", value)}
+          disabled={isLoading}
+        />
         
-        <div className="space-y-2">
-          <WarrantyTypeSelect
-            value={form.watch("warrantyTypeId")}
-            onValueChange={(value) => form.setValue("warrantyTypeId", value)}
-            disabled={isLoading}
-          />
-        </div>
+        <WarrantyTypeSelect
+          value={form.watch("warrantyTypeId")}
+          onValueChange={(value) => form.setValue("warrantyTypeId", value)}
+          disabled={isLoading}
+        />
 
-        <div className="space-y-2">
-          <Input
-            type="date"
-            {...form.register("purchaseDate")}
-            disabled={isLoading}
-          />
-        </div>
+        <PurchaseDateField
+          value={form.watch("purchaseDate")}
+          onChange={(value) => form.setValue("purchaseDate", value)}
+          disabled={isLoading}
+        />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? "Enviando..." : "Enviar Solicitação"}
