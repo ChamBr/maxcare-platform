@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ServiceTypeField } from "./form/ServiceTypeField";
 import { NotesField } from "./form/NotesField";
 import { useServiceRequest } from "@/hooks/use-service-request";
+import { FormValues } from "@/hooks/use-service-request";
 
 interface ServiceRequestFormProps {
   warrantyId: string;
@@ -15,7 +16,7 @@ interface ServiceRequestFormProps {
 export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceRequestFormProps) => {
   const { isLoading, availableServices, onSubmit, formSchema } = useServiceRequest(warrantyId, warrantyTypeId);
 
-  const form = useForm({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       serviceType: "",

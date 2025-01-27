@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
-import { FormValues } from "../ServiceRequestForm";
+import { FormValues } from "@/hooks/use-service-request";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 interface ServiceTypeFieldProps {
