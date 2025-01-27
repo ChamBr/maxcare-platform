@@ -10,6 +10,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ServiceTypeField } from "./form/ServiceTypeField";
 import { NotesField } from "./form/NotesField";
+import { useQuery } from "@tanstack/react-query";
 
 const formSchema = z.object({
   serviceType: z.string().min(1, "Por favor selecione um tipo de serviço"),
@@ -27,6 +28,50 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+
+  const { data: availableServices = [] } = useQuery({
+    queryKey: ["available-services", warrantyId, warrantyTypeId],
+    queryFn: async () => {
+      // Primeiro, buscar todos os serviços disponíveis para este tipo de garantia
+      const { data: typeServices, error: typeError } = await supabase
+        .from('warranty_type_services')
+        .select(`
+          id,
+          max_uses,
+          warranty_services (
+            id,
+            name
+          )
+        `)
+        .eq('warranty_type_id', warrantyTypeId);
+
+      if (typeError) throw typeError;
+
+      // Depois, buscar os serviços já solicitados para esta garantia
+      const { data: requestedServices, error: requestError } = await supabase
+        .from('services')
+        .select('warranty_service_id, status')
+        .eq('warranty_id', warrantyId)
+        .neq('status', 'cancelled');
+
+      if (requestError) throw requestError;
+
+      // Contar quantas vezes cada serviço foi solicitado
+      const serviceUsageCounts = requestedServices.reduce((acc: Record<string, number>, service) => {
+        if (service.warranty_service_id) {
+          acc[service.warranty_service_id] = (acc[service.warranty_service_id] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
+      // Filtrar apenas os serviços que ainda não atingiram o limite de usos
+      return typeServices.filter(typeService => {
+        const usageCount = serviceUsageCounts[typeService.warranty_services.id] || 0;
+        return usageCount < typeService.max_uses;
+      });
+    },
+    enabled: !!warrantyTypeId,
+  });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -56,7 +101,8 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
         .insert({
           user_id: user.id,
           warranty_id: warrantyId,
-          service_type: values.serviceType,
+          warranty_service_id: values.serviceType,
+          service_type: availableServices.find(s => s.warranty_services.id === values.serviceType)?.warranty_services.name || '',
           notes: values.notes,
           status: "pending",
         });
@@ -89,7 +135,11 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <ServiceTypeField form={form} isLoading={isLoading} />
+            <ServiceTypeField 
+              form={form} 
+              isLoading={isLoading} 
+              availableServices={availableServices}
+            />
             <NotesField form={form} isLoading={isLoading} />
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Enviando..." : "Enviar Solicitação"}
