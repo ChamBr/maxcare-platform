@@ -7,6 +7,7 @@ import { ServiceTypeField } from "./form/ServiceTypeField";
 import { NotesField } from "./form/NotesField";
 import { useServiceRequest } from "@/hooks/use-service-request";
 import type { FormValues } from "@/hooks/use-service-request";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ServiceRequestFormProps {
   warrantyId: string;
@@ -14,6 +15,7 @@ interface ServiceRequestFormProps {
 }
 
 export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceRequestFormProps) => {
+  const { toast } = useToast();
   const { isLoading, availableServices, onSubmit, formSchema } = useServiceRequest(warrantyId, warrantyTypeId);
 
   const form = useForm<FormValues>({
@@ -24,6 +26,24 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
     },
   });
 
+  const handleSubmit = async (values: FormValues) => {
+    try {
+      await onSubmit(values);
+      form.reset();
+      toast({
+        title: "Sucesso",
+        description: "Solicitação de serviço enviada com sucesso!",
+      });
+    } catch (error) {
+      console.error("Erro ao enviar solicitação:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Não foi possível enviar a solicitação. Por favor, tente novamente.",
+      });
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -31,7 +51,7 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <ServiceTypeField 
               form={form} 
               isLoading={isLoading} 
