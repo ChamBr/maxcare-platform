@@ -18,7 +18,7 @@ export const WarrantyRequestedServicesTable = ({ services }: WarrantyRequestedSe
       cancelled: { label: "Cancelado", variant: "destructive" },
     };
 
-    const config = statusConfig[status] || statusConfig.pending;
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
     return <Badge variant={config.variant as any}>{config.label}</Badge>;
   };
 
