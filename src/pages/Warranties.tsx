@@ -81,6 +81,11 @@ const Warranties = () => {
     });
   };
 
+  const handleWarrantySuccess = () => {
+    setOpen(false);
+    refetch();
+  };
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="flex items-center justify-between mb-8">
@@ -96,7 +101,7 @@ const Warranties = () => {
             <DialogHeader>
               <DialogTitle>Request New Warranty</DialogTitle>
             </DialogHeader>
-            <WarrantyForm />
+            <WarrantyForm onSuccess={handleWarrantySuccess} />
           </DialogContent>
         </Dialog>
       </div>

@@ -1,16 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { AddressSelect } from "./AddressSelect";
-import { WarrantyTypeSelect } from "./WarrantyTypeSelect";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AddressSelect } from "./AddressSelect";
+import { WarrantyTypeSelect } from "./WarrantyTypeSelect";
+import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
   addressId: z.string().min(1, "Por favor selecione um endereço"),
@@ -20,8 +19,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const WarrantyForm = () => {
-  const navigate = useNavigate();
+interface WarrantyFormProps {
+  onSuccess?: () => void;
+}
+
+const WarrantyForm = ({ onSuccess }: WarrantyFormProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -58,8 +60,6 @@ const WarrantyForm = () => {
           purchase_date: values.purchaseDate,
           status: "active",
           approval_status: "pending",
-          warranty_start: new Date().toISOString(),
-          warranty_end: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
         });
 
       if (error) throw error;
@@ -69,7 +69,7 @@ const WarrantyForm = () => {
         description: "Sua solicitação de garantia foi enviada.",
       });
       
-      navigate("/warranties");
+      onSuccess?.();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -83,44 +83,37 @@ const WarrantyForm = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Solicitar Nova Garantia</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <AddressSelect
-                value={form.watch("addressId")}
-                onValueChange={(value) => form.setValue("addressId", value)}
-                disabled={isLoading}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <WarrantyTypeSelect
-                value={form.watch("warrantyTypeId")}
-                onValueChange={(value) => form.setValue("warrantyTypeId", value)}
-                disabled={isLoading}
-              />
-            </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <AddressSelect
+            value={form.watch("addressId")}
+            onValueChange={(value) => form.setValue("addressId", value)}
+            disabled={isLoading}
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <WarrantyTypeSelect
+            value={form.watch("warrantyTypeId")}
+            onValueChange={(value) => form.setValue("warrantyTypeId", value)}
+            disabled={isLoading}
+          />
+        </div>
 
-            <div className="space-y-2">
-              <Input
-                type="date"
-                {...form.register("purchaseDate")}
-                disabled={isLoading}
-              />
-            </div>
+        <div className="space-y-2">
+          <Input
+            type="date"
+            {...form.register("purchaseDate")}
+            disabled={isLoading}
+          />
+        </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Enviando..." : "Enviar Solicitação"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Enviando..." : "Enviar Solicitação"}
+        </Button>
+      </form>
+    </Form>
   );
 };
 
