@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import AddressSelect from "./AddressSelect";
-import WarrantyTypeSelect from "./WarrantyTypeSelect";
+import { AddressSelect } from "./AddressSelect";
+import { WarrantyTypeSelect } from "./WarrantyTypeSelect";
 
 const WarrantyForm = () => {
   const navigate = useNavigate();
