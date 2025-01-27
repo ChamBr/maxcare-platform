@@ -7,11 +7,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export const ServiceRequestForm = () => {
+interface ServiceRequestFormProps {
+  warrantyId: string;
+  warrantyTypeId: string | null;
+}
+
+export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceRequestFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [warrantyId, setWarrantyId] = useState("");
   const [serviceType, setServiceType] = useState("");
   const [notes, setNotes] = useState("");
 
@@ -68,23 +72,6 @@ export const ServiceRequestForm = () => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Warranty</label>
-            <Select
-              value={warrantyId}
-              onValueChange={setWarrantyId}
-              disabled={isLoading}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a warranty" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="warranty1">Warranty #1</SelectItem>
-                <SelectItem value="warranty2">Warranty #2</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="space-y-2">
             <label className="text-sm font-medium">Service Type</label>
             <Select
