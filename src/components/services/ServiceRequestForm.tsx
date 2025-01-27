@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const ServiceRequestForm = () => {
+export const ServiceRequestForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -121,5 +121,3 @@ const ServiceRequestForm = () => {
     </Card>
   );
 };
-
-export default ServiceRequestForm;

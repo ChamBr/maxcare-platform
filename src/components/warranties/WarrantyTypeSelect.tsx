@@ -6,41 +6,36 @@ import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/f
 interface WarrantyTypeSelectProps {
   value: string;
   onValueChange: (value: string) => void;
+  disabled?: boolean;
 }
 
-export const WarrantyTypeSelect = ({ value, onValueChange }: WarrantyTypeSelectProps) => {
+export const WarrantyTypeSelect = ({ value, onValueChange, disabled }: WarrantyTypeSelectProps) => {
   const { data: warrantyTypes, isLoading } = useQuery({
     queryKey: ["warranty-types"],
     queryFn: async () => {
-      console.log("Buscando tipos de garantia...");
       const { data, error } = await supabase
         .from("warranty_types")
         .select("*")
         .eq("active", true)
         .order("name");
 
-      if (error) {
-        console.error("Erro ao buscar tipos de garantia:", error);
-        throw error;
-      }
-      
-      console.log("Tipos de garantia encontrados:", data);
+      if (error) throw error;
       return data;
     },
   });
 
   return (
     <FormItem>
-      <FormLabel>Tipo de Garantia</FormLabel>
+      <FormLabel>Warranty Type</FormLabel>
       <FormControl>
-        <Select value={value} onValueChange={onValueChange}>
+        <Select value={value} onValueChange={onValueChange} disabled={disabled}>
           <SelectTrigger>
-            <SelectValue placeholder="Selecione o tipo de garantia" />
+            <SelectValue placeholder="Select warranty type" />
           </SelectTrigger>
           <SelectContent>
             {!isLoading && warrantyTypes?.length === 0 && (
               <div className="p-2 text-sm text-muted-foreground text-center">
-                Nenhuma garantia disponível
+                No warranty types available
               </div>
             )}
             {warrantyTypes?.map((type) => (

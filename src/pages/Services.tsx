@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { isAfter, parseISO, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ServiceRequestForm } from "@/components/services/ServiceRequestForm";
+import ServiceRequestForm from "@/components/services/ServiceRequestForm";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 

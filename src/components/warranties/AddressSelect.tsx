@@ -9,16 +9,16 @@ import type { Address } from "@/types/address";
 interface AddressSelectProps {
   value: string;
   onValueChange: (value: string) => void;
+  disabled?: boolean;
 }
 
-export const AddressSelect = ({ value, onValueChange }: AddressSelectProps) => {
+export const AddressSelect = ({ value, onValueChange, disabled }: AddressSelectProps) => {
   const { data: addresses, isLoading } = useQuery({
     queryKey: ["available-addresses"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not found");
 
-      // Primeiro, buscar todos os endereços do usuário
       const { data: userAddresses, error: addressError } = await supabase
         .from("addresses")
         .select("*")
@@ -26,7 +26,6 @@ export const AddressSelect = ({ value, onValueChange }: AddressSelectProps) => {
 
       if (addressError) throw addressError;
 
-      // Depois, buscar endereços que já têm garantias ativas
       const { data: activeWarranties, error: warrantyError } = await supabase
         .from("warranties")
         .select("address_id")
@@ -35,7 +34,6 @@ export const AddressSelect = ({ value, onValueChange }: AddressSelectProps) => {
 
       if (warrantyError) throw warrantyError;
 
-      // Filtrar endereços que já têm garantias ativas
       const usedAddressIds = new Set(activeWarranties.map(w => w.address_id));
       const availableAddresses = userAddresses.filter(addr => !usedAddressIds.has(addr.id));
 
@@ -52,16 +50,16 @@ export const AddressSelect = ({ value, onValueChange }: AddressSelectProps) => {
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Você precisa cadastrar um endereço antes de solicitar uma garantia.
+          You need to register an address before requesting a warranty.
         </AlertDescription>
       </Alert>
     );
   }
 
   return (
-    <Select value={value} onValueChange={onValueChange}>
+    <Select value={value} onValueChange={onValueChange} disabled={disabled}>
       <SelectTrigger>
-        <SelectValue placeholder="Selecione um endereço" />
+        <SelectValue placeholder="Select an address" />
       </SelectTrigger>
       <SelectContent>
         {addresses.map((address) => (

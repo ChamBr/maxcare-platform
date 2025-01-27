@@ -76,7 +76,7 @@ const WarrantyForm = () => {
             <label className="text-sm font-medium">Installation Address</label>
             <AddressSelect
               value={addressId}
-              onSelect={setAddressId}
+              onValueChange={setAddressId}
               disabled={isLoading}
             />
           </div>
@@ -85,7 +85,7 @@ const WarrantyForm = () => {
             <label className="text-sm font-medium">Warranty Type</label>
             <WarrantyTypeSelect
               value={warrantyTypeId}
-              onSelect={setWarrantyTypeId}
+              onValueChange={setWarrantyTypeId}
               disabled={isLoading}
             />
           </div>
