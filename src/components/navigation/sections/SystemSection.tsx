@@ -4,7 +4,7 @@ import { MenuSection } from "./MenuSection";
 export const SystemSection = () => {
   return (
     <MenuSection
-      title="System"
+      title="Sistema"
       icon={Cog}
       items={[
         {

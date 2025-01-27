@@ -10,7 +10,7 @@ export const CustomerMenu = () => {
       <NavigationButton 
         to="/profile" 
         icon={UserCircle}
-        isActive={location.pathname === "/profile"}
+        is
       >
         Meu Perfil
       </NavigationButton>

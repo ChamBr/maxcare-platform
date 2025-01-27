@@ -5,7 +5,7 @@ import { MenuSection } from "./MenuSection";
 export const CustomerSection = () => {
   return (
     <MenuSection
-      title="Customers"
+      title="Clientes"
       icon={Building2}
       items={[
         {
