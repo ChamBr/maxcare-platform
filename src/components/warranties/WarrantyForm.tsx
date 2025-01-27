@@ -1,79 +1,110 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { AddressSelect } from "./AddressSelect";
 import { WarrantyTypeSelect } from "./WarrantyTypeSelect";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
-const warrantyFormSchema = z.object({
-  warranty_type_id: z.string({
-    required_error: "Selecione um tipo de garantia",
-  }),
-  address_id: z.string({
-    required_error: "Selecione um endereço",
-  }),
-});
+const WarrantyForm = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [addressId, setAddressId] = useState<string>("");
+  const [warrantyTypeId, setWarrantyTypeId] = useState<string>("");
+  const [purchaseDate, setPurchaseDate] = useState<string>("");
 
-type WarrantyFormData = z.infer<typeof warrantyFormSchema>;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-interface WarrantyFormProps {
-  onSubmit: (data: WarrantyFormData) => void;
-}
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Authentication Error",
+          description: "Please sign in to request a warranty.",
+        });
+        return;
+      }
 
-export const WarrantyForm = ({ onSubmit }: WarrantyFormProps) => {
-  const form = useForm<WarrantyFormData>({
-    resolver: zodResolver(warrantyFormSchema),
-  });
-  const currentDate = new Date();
+      const { error } = await supabase
+        .from("warranties")
+        .insert({
+          user_id: user.id,
+          address_id: addressId,
+          warranty_type_id: warrantyTypeId,
+          purchase_date: purchaseDate,
+          status: "pending",
+        });
 
-  const { formState: { isValid, isSubmitting } } = form;
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "Your warranty request has been submitted.",
+      });
+      
+      navigate("/warranties");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to submit warranty request. Please try again.",
+      });
+      console.error("Warranty request error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="text-sm text-muted-foreground mb-4">
-          Solicitado em {format(currentDate, "PPP", { locale: ptBR })}
-        </div>
-
-        <FormField
-          control={form.control}
-          name="address_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Endereço</FormLabel>
-              <FormControl>
-                <AddressSelect
-                  value={field.value}
-                  onValueChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="warranty_type_id"
-          render={({ field }) => (
-            <WarrantyTypeSelect
-              value={field.value}
-              onValueChange={field.onChange}
+    <Card>
+      <CardHeader>
+        <CardTitle>Request New Warranty</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Installation Address</label>
+            <AddressSelect
+              value={addressId}
+              onChange={setAddressId}
+              disabled={isLoading}
             />
-          )}
-        />
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Warranty Type</label>
+            <WarrantyTypeSelect
+              value={warrantyTypeId}
+              onChange={setWarrantyTypeId}
+              disabled={isLoading}
+            />
+          </div>
 
-        <Button 
-          type="submit" 
-          className="w-full"
-          disabled={!isValid || isSubmitting}
-        >
-          Solicitar Garantia
-        </Button>
-      </form>
-    </Form>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Purchase Date</label>
+            <Input
+              type="date"
+              value={purchaseDate}
+              onChange={(e) => setPurchaseDate(e.target.value)}
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Submitting..." : "Submit Request"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
+
+export default WarrantyForm;

@@ -1,161 +1,125 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus } from "lucide-react";
-import { useAuthState } from "@/hooks/useAuthState";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const serviceRequestSchema = z.object({
-  warranty_service_id: z.string({
-    required_error: "Selecione um serviço",
-  }),
-});
-
-type ServiceRequestData = z.infer<typeof serviceRequestSchema>;
-
-interface ServiceRequestFormProps {
-  warrantyId: string;
-  warrantyTypeId: string | null;
-}
-
-export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceRequestFormProps) => {
+const ServiceRequestForm = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const { session } = useAuthState();
-  const form = useForm<ServiceRequestData>({
-    resolver: zodResolver(serviceRequestSchema),
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [warrantyId, setWarrantyId] = useState("");
+  const [serviceType, setServiceType] = useState("");
+  const [notes, setNotes] = useState("");
 
-  const { data: availableServices, isLoading: isLoadingServices } = useQuery({
-    queryKey: ["warranty-type-services", warrantyTypeId],
-    queryFn: async () => {
-      if (!warrantyTypeId) return [];
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-      const { data: typeServices, error } = await supabase
-        .from("warranty_type_services")
-        .select(`
-          warranty_service_id,
-          max_uses,
-          warranty_services (
-            id,
-            name,
-            description
-          )
-        `)
-        .eq("warranty_type_id", warrantyTypeId);
-
-      if (error) throw error;
-
-      // Para cada serviço, verificar quantos usos ainda estão disponíveis
-      const servicesWithUsage = await Promise.all(
-        typeServices.map(async (typeService) => {
-          const { data: canRequest } = await supabase
-            .rpc("can_request_service", {
-              p_warranty_id: warrantyId,
-              p_warranty_service_id: typeService.warranty_service_id,
-            });
-
-          return {
-            ...typeService,
-            canRequest,
-          };
-        })
-      );
-
-      return servicesWithUsage;
-    },
-  });
-
-  const onSubmit = async (data: ServiceRequestData) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Authentication Error",
+          description: "Please sign in to request a service.",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from("services")
         .insert({
+          user_id: user.id,
           warranty_id: warrantyId,
-          warranty_service_id: data.warranty_service_id,
+          service_type: serviceType,
+          notes,
           status: "pending",
-          service_type: "warranty",
-          user_id: session?.user.id,
         });
 
       if (error) throw error;
 
       toast({
-        title: "Sucesso",
-        description: "Serviço solicitado com sucesso",
+        title: "Success!",
+        description: "Your service request has been submitted.",
       });
-
-      form.reset();
-    } catch (error) {
-      console.error("Erro ao solicitar serviço:", error);
+      
+      navigate("/services");
+    } catch (error: any) {
       toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao solicitar o serviço",
         variant: "destructive",
+        title: "Error",
+        description: "Failed to submit service request. Please try again.",
       });
+      console.error("Service request error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="warranty_service_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Serviço</FormLabel>
-              <FormControl>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={isLoadingServices}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um serviço" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableServices?.map((service) => (
-                      <SelectItem
-                        key={service.warranty_services.id}
-                        value={service.warranty_services.id}
-                        disabled={!service.canRequest}
-                      >
-                        <div className="flex flex-col">
-                          <span>{service.warranty_services.name}</span>
-                          {!service.canRequest && (
-                            <span className="text-xs text-muted-foreground">
-                              Limite de usos atingido
-                            </span>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Card>
+      <CardHeader>
+        <CardTitle>Request New Service</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Warranty</label>
+            <Select
+              value={warrantyId}
+              onValueChange={setWarrantyId}
+              disabled={isLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a warranty" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="warranty1">Warranty #1</SelectItem>
+                <SelectItem value="warranty2">Warranty #2</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-        <Button 
-          type="submit" 
-          disabled={!form.formState.isValid || form.formState.isSubmitting}
-          className="w-full"
-        >
-          {form.formState.isSubmitting ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Plus className="mr-2 h-4 w-4" />
-          )}
-          Solicitar Serviço
-        </Button>
-      </form>
-    </Form>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Service Type</label>
+            <Select
+              value={serviceType}
+              onValueChange={setServiceType}
+              disabled={isLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select service type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="repair">Repair</SelectItem>
+                <SelectItem value="maintenance">Maintenance</SelectItem>
+                <SelectItem value="inspection">Inspection</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Additional Notes</label>
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Describe your service request..."
+              disabled={isLoading}
+            />
+          </div>
+
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Submitting..." : "Submit Request"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
+
+export default ServiceRequestForm;
