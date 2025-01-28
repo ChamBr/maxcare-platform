@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { PageWrapper } from "@/components/layout/PageWrapper";
 
 interface Service {
   id: string;
@@ -66,9 +67,7 @@ const Services = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Serviços</h1>
-      
+    <PageWrapper showBreadcrumbs title="Serviços">
       <div className="grid gap-4">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => (
@@ -109,7 +108,7 @@ const Services = () => {
           ))
         )}
       </div>
-    </div>
+    </PageWrapper>
   );
 };
 

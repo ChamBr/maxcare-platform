@@ -84,7 +84,7 @@ const ServiceRequests = () => {
   const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
       case "pending":
-        return "secondary"; // Alterado de "warning" para "secondary"
+        return "secondary";
       case "approved":
         return "success";
       case "rejected":
@@ -124,11 +124,11 @@ const ServiceRequests = () => {
   );
 
   if (isLoading) {
-    return <PageWrapper showBreadcrumbs>Carregando...</PageWrapper>;
+    return <PageWrapper showBreadcrumbs title="Solicitações de Serviço">Carregando...</PageWrapper>;
   }
 
   return (
-    <PageWrapper showBreadcrumbs>
+    <PageWrapper showBreadcrumbs title="Solicitações de Serviço">
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <Input
