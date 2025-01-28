@@ -26,7 +26,7 @@ export const AddressListItem = ({
   };
 
   return (
-    <div className="flex items-center gap-4 py-2 group">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 py-2 group">
       <div className="flex items-center gap-2">
         {getAddressIcon()}
         {address.is_primary && (
@@ -42,14 +42,14 @@ export const AddressListItem = ({
           {address.city}, {address.state_code} {address.zip_code}
         </p>
       </div>
-      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => onEdit(address)}
           className="h-8"
         >
-          Editar
+          Edit
         </Button>
         {!isPrimary && (
           <Button
@@ -58,7 +58,7 @@ export const AddressListItem = ({
             onClick={() => onSetPrimary(address)}
             className="h-8"
           >
-            Tornar Principal
+            Set as Primary
           </Button>
         )}
       </div>

@@ -9,14 +9,14 @@ interface ProfileSectionProps {
 
 export const ProfileSection = ({ title, icon, children }: ProfileSectionProps) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className="w-full">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="flex items-center gap-2 text-lg">
           {icon}
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className="p-4 sm:p-6 pt-0">{children}</CardContent>
     </Card>
   );
 };
