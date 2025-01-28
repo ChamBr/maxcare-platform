@@ -126,8 +126,8 @@ const Profile = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="grid gap-6">
+    <div className="container mx-auto p-6">
+      <div className="grid gap-6 md:grid-cols-2">
         <ProfileSection title="Personal Information" icon={<UserCircle className="h-5 w-5" />}>
           <ProfileInfo
             profile={profile}
