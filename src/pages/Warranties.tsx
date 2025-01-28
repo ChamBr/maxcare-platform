@@ -61,7 +61,7 @@ const Warranties = () => {
   };
 
   return (
-    <PageWrapper title="Warranties">
+    <PageWrapper>
       <div className="flex items-center justify-end">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
