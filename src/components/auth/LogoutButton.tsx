@@ -14,30 +14,22 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
 
   const handleLogout = async () => {
     try {
-      // Primeiro limpa o token local para garantir
-      localStorage.removeItem('sb-' + import.meta.env.VITE_SUPABASE_PROJECT_ID + '-auth-token');
-      
-      // Tenta fazer logout no Supabase
+      // Primeiro tenta fazer logout no Supabase
       const { error } = await supabase.auth.signOut();
       
-      // Se houver erro de sessão não encontrada, apenas ignore
-      if (error && error.message.includes('session_not_found')) {
-        console.log('Sessão não encontrada, prosseguindo com logout local');
-        onLogout();
-        navigate("/login");
-        toast({
-          title: "Logout realizado com sucesso",
-          description: "Você foi desconectado da sua conta",
-        });
-        return;
-      }
-
-      // Se houver outro tipo de erro, registre mas não impeça o logout
       if (error) {
         console.error("Erro ao fazer logout no Supabase:", error);
+        // Mesmo com erro, continua com o logout local
       }
 
-      // Sempre limpa o estado e redireciona
+      // Limpa todos os tokens do localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Limpa o estado e redireciona
       onLogout();
       toast({
         title: "Logout realizado com sucesso",
