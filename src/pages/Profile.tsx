@@ -127,7 +127,7 @@ const Profile = () => {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <ProfileSection title="Personal Information" icon={<UserCircle className="h-5 w-5" />}>
           <ProfileInfo
             profile={profile}

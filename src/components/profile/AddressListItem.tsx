@@ -26,14 +26,14 @@ export const AddressListItem = ({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 py-2 group">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-row items-start gap-2 py-2 group">
+      <div className="flex flex-col items-center gap-1 pt-1">
         {getAddressIcon()}
         {address.is_primary && (
           <ShieldCheck className="h-4 w-4 text-green-500" />
         )}
       </div>
-      <div className="flex-1">
+      <div className="flex-1 text-left">
         <p className="text-sm">
           {address.street_address}
           {address.apt_suite_unit && `, ${address.apt_suite_unit}`}
@@ -42,7 +42,7 @@ export const AddressListItem = ({
           {address.city}, {address.state_code} {address.zip_code}
         </p>
       </div>
-      <div className="flex gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+      <div className="flex flex-col sm:flex-row gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
         <Button
           variant="ghost"
           size="sm"
