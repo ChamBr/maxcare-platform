@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuthState } from "@/hooks/useAuthState";
 import WarrantyForm from "@/components/warranties/WarrantyForm";
 import { addDays, isAfter, isBefore, parseISO } from "date-fns";
+import { PageWrapper } from "@/components/layout/PageWrapper";
 
 const Warranties = () => {
   const [open, setOpen] = useState(false);
@@ -87,64 +88,65 @@ const Warranties = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">My Warranties</h1>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2" />
-              New Warranty
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Request New Warranty</DialogTitle>
-            </DialogHeader>
-            <WarrantyForm onSuccess={handleWarrantySuccess} />
-          </DialogContent>
-        </Dialog>
-      </div>
-      <div className="grid md:grid-cols-2 gap-6">
-        {warranties?.map((warranty) => {
-          const status = getWarrantyStatus(warranty);
-          const showRenewalButton = ["expiring", "expired"].includes(status);
+    <PageWrapper showBreadcrumbs>
+      <div className="mt-2">
+        <div className="flex items-center justify-end">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2" />
+                New Warranty
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Request New Warranty</DialogTitle>
+              </DialogHeader>
+              <WarrantyForm onSuccess={handleWarrantySuccess} />
+            </DialogContent>
+          </Dialog>
+        </div>
+        <div className="grid md:grid-cols-2 gap-6 mt-6">
+          {warranties?.map((warranty) => {
+            const status = getWarrantyStatus(warranty);
+            const showRenewalButton = ["expiring", "expired"].includes(status);
 
-          return (
-            <Card key={warranty.id} className="relative">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg">{warranty.warranty_types?.name}</CardTitle>
-                <Badge variant={getStatusBadgeVariant(status)} className="capitalize">
-                  {status === "expiring" ? "Expiring Soon" : status}
-                </Badge>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <p>
-                    <strong>Approval Status:</strong>{" "}
-                    <span className="capitalize">{warranty.approval_status}</span>
-                  </p>
-                  <p>
-                    <strong>Address:</strong>{" "}
-                    {warranty.addresses?.street_address}, {warranty.addresses?.city}, {warranty.addresses?.state_code}
-                  </p>
-                  {showRenewalButton && (
-                    <Button
-                      variant="outline"
-                      className="mt-4 w-full"
-                      onClick={() => handleRenewal(warranty.id)}
-                    >
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Request Renewal
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+            return (
+              <Card key={warranty.id} className="relative">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-lg">{warranty.warranty_types?.name}</CardTitle>
+                  <Badge variant={getStatusBadgeVariant(status)} className="capitalize">
+                    {status === "expiring" ? "Expiring Soon" : status}
+                  </Badge>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <p>
+                      <strong>Approval Status:</strong>{" "}
+                      <span className="capitalize">{warranty.approval_status}</span>
+                    </p>
+                    <p>
+                      <strong>Address:</strong>{" "}
+                      {warranty.addresses?.street_address}, {warranty.addresses?.city}, {warranty.addresses?.state_code}
+                    </p>
+                    {showRenewalButton && (
+                      <Button
+                        variant="outline"
+                        className="mt-4 w-full"
+                        onClick={() => handleRenewal(warranty.id)}
+                      >
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Request Renewal
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 };
 
