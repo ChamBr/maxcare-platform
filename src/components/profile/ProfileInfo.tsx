@@ -44,15 +44,15 @@ export const ProfileInfo = ({ profile, isLoading, onUpdate }: ProfileInfoProps) 
   return isEditing ? (
     <div className="space-y-4">
       <div>
-        <label className="text-sm font-medium">Nome</label>
+        <label className="text-sm font-medium">Name</label>
         <Input
           value={formData.full_name}
           onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-          placeholder="Seu nome completo"
+          placeholder="Your full name"
         />
       </div>
       <div>
-        <label className="text-sm font-medium">Telefone</label>
+        <label className="text-sm font-medium">Phone</label>
         <Input
           value={formData.phone}
           onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
@@ -67,24 +67,24 @@ export const ProfileInfo = ({ profile, isLoading, onUpdate }: ProfileInfoProps) 
           className="bg-muted"
         />
         <p className="text-xs text-muted-foreground mt-1">
-          A alteração de email será implementada em breve.
+          Email changes will be implemented soon.
         </p>
       </div>
       <div className="flex gap-2">
         <Button onClick={handleSave}>
-          Salvar
+          Save
         </Button>
         <Button variant="outline" onClick={() => setIsEditing(false)}>
-          Cancelar
+          Cancel
         </Button>
       </div>
     </div>
   ) : (
     <div className="space-y-4">
-      <p><strong>Nome:</strong> {profile?.full_name || "Não informado"}</p>
+      <p><strong>Name:</strong> {profile?.full_name || "Not informed"}</p>
       <p><strong>Email:</strong> {profile?.email}</p>
-      <p><strong>Telefone:</strong> {profile?.phone || "Não informado"}</p>
-      <Button onClick={handleEdit}>Editar Informações</Button>
+      <p><strong>Phone:</strong> {profile?.phone || "Not informed"}</p>
+      <Button onClick={handleEdit}>Edit Information</Button>
     </div>
   );
 };

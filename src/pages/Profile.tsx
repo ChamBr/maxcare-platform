@@ -127,11 +127,6 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold flex items-center gap-2">
-        <UserCircle className="h-8 w-8" />
-        My Profile
-      </h1>
-      
       <div className="grid gap-6">
         <ProfileSection title="Personal Information" icon={<UserCircle className="h-5 w-5" />}>
           <ProfileInfo
