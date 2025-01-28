@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ActiveWarrantyCard } from "@/components/services/ActiveWarrantyCard";
+import { PageTitle } from "@/components/ui/page-title";
 import { isAfter, parseISO } from "date-fns";
 
 const Services = () => {
@@ -92,7 +93,7 @@ const Services = () => {
       <div className="grid gap-6">
         {/* Active Warranties Section */}
         <section>
-          <h2 className="text-xl md:text-2xl font-bold mb-4">My Active Warranties</h2>
+          <PageTitle>My Active Warranties</PageTitle>
           <div className="grid gap-4 md:grid-cols-2">
             {warranties?.length === 0 && (
               <Card>
@@ -117,7 +118,7 @@ const Services = () => {
 
         {/* Individual Services Section */}
         <section>
-          <h2 className="text-xl md:text-2xl font-bold mb-4">Individual Services</h2>
+          <PageTitle>Individual Services</PageTitle>
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
