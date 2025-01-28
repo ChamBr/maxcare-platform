@@ -88,17 +88,17 @@ const Services = () => {
   });
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-12">
+    <div className="container mx-auto px-4 py-4">
       <div className="grid gap-6">
-        {/* Seção de Garantias Ativas */}
+        {/* Active Warranties Section */}
         <section>
-          <h2 className="text-xl md:text-2xl font-bold mb-4">Minhas Garantias Ativas</h2>
+          <h2 className="text-xl md:text-2xl font-bold mb-4">My Active Warranties</h2>
           <div className="grid gap-4 md:grid-cols-2">
             {warranties?.length === 0 && (
               <Card>
                 <CardContent className="pt-6">
                   <p className="text-muted-foreground text-center">
-                    Você não possui garantias ativas no momento.
+                    You don't have any active warranties at the moment.
                   </p>
                 </CardContent>
               </Card>
@@ -115,23 +115,23 @@ const Services = () => {
           </div>
         </section>
 
-        {/* Seção de Serviços Avulsos */}
+        {/* Individual Services Section */}
         <section>
-          <h2 className="text-xl md:text-2xl font-bold mb-4">Serviços Avulsos</h2>
+          <h2 className="text-xl md:text-2xl font-bold mb-4">Individual Services</h2>
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Clock className="h-5 w-5" />
-                Em Breve
+                Coming Soon
               </CardTitle>
               <CardDescription>
-                Em breve você poderá solicitar serviços avulsos, mesmo sem uma garantia ativa.
+                Soon you'll be able to request individual services, even without an active warranty.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button disabled className="w-full">
                 <Plus className="mr-2 h-4 w-4" />
-                Solicitar Serviço Avulso
+                Request Individual Service
               </Button>
             </CardContent>
           </Card>
