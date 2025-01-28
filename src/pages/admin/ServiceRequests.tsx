@@ -84,7 +84,7 @@ const ServiceRequests = () => {
   const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
       case "pending":
-        return "warning";
+        return "secondary"; // Alterado de "warning" para "secondary"
       case "approved":
         return "success";
       case "rejected":
