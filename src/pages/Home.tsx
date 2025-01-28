@@ -6,11 +6,11 @@ const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="container mx-auto px-4 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-x-hidden">
+      <div className="container mx-auto px-4 py-8 lg:py-16">
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
-          <div className="flex flex-col lg:flex-row items-center gap-12">
+          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
             {/* Left Content */}
             <div className="flex-1 text-left">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">

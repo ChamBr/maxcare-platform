@@ -20,7 +20,7 @@ import WarrantyApprovals from "@/pages/admin/WarrantyApprovals";
 
 export const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<PageWrapper title="Home"><Home /></PageWrapper>} />
+    <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
     <Route path="/login" element={<PageWrapper title="Login"><Login /></PageWrapper>} />
     <Route path="/register" element={<PageWrapper title="Register"><Register /></PageWrapper>} />
     <Route 
