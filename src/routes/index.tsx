@@ -20,14 +20,14 @@ import WarrantyApprovals from "@/pages/admin/WarrantyApprovals";
 
 export const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
-    <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
-    <Route path="/register" element={<PageWrapper><Register /></PageWrapper>} />
+    <Route path="/" element={<PageWrapper title="Home"><Home /></PageWrapper>} />
+    <Route path="/login" element={<PageWrapper title="Login"><Login /></PageWrapper>} />
+    <Route path="/register" element={<PageWrapper title="Register"><Register /></PageWrapper>} />
     <Route 
       path="/profile" 
       element={
         <ProtectedRoute>
-          <PageWrapper showBreadcrumbs><Profile /></PageWrapper>
+          <PageWrapper showBreadcrumbs title="Profile"><Profile /></PageWrapper>
         </ProtectedRoute>
       } 
     />
@@ -35,7 +35,7 @@ export const AppRoutes = () => (
       path="/warranties" 
       element={
         <ProtectedRoute>
-          <PageWrapper showBreadcrumbs><Warranties /></PageWrapper>
+          <PageWrapper showBreadcrumbs title="Warranties"><Warranties /></PageWrapper>
         </ProtectedRoute>
       } 
     />
@@ -43,7 +43,7 @@ export const AppRoutes = () => (
       path="/services" 
       element={
         <ProtectedRoute>
-          <PageWrapper showBreadcrumbs><Services /></PageWrapper>
+          <PageWrapper showBreadcrumbs title="Services"><Services /></PageWrapper>
         </ProtectedRoute>
       } 
     />
