@@ -126,8 +126,8 @@ const Profile = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="grid gap-6 md:grid-cols-2">
+    <div className="container mx-auto p-4 sm:p-6">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
         <ProfileSection title="Personal Information" icon={<UserCircle className="h-5 w-5" />}>
           <ProfileInfo
             profile={profile}
@@ -148,7 +148,7 @@ const Profile = () => {
       </div>
 
       <Dialog open={showAddressForm} onOpenChange={setShowAddressForm}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{selectedAddress ? "Edit Address" : "New Address"}</DialogTitle>
           </DialogHeader>
