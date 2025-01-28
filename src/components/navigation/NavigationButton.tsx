@@ -2,26 +2,36 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import { useEffect } from "react";
 
 interface NavigationButtonProps {
   to: string;
   children: React.ReactNode;
   icon?: LucideIcon;
   isActive?: boolean;
+  onNavigate?: () => void;
 }
 
 export const NavigationButton = ({ 
   to, 
   children, 
   icon: Icon, 
-  isActive = false 
+  isActive = false,
+  onNavigate
 }: NavigationButtonProps) => {
   const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(to);
+    if (onNavigate) {
+      onNavigate();
+    }
+  };
 
   return (
     <Button 
       variant={isActive ? "default" : "ghost"}
-      onClick={() => navigate(to)}
+      onClick={handleClick}
       className={cn(
         "w-full justify-start gap-2 px-4 py-2",
         "transition-all duration-200",

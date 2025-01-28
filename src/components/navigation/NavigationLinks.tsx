@@ -8,13 +8,14 @@ import { CustomerMenu } from "./sections/CustomerMenu";
 interface NavigationLinksProps {
   isStaff: boolean;
   userRole?: string;
+  onNavigate?: () => void;
 }
 
-export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => {
+export const NavigationLinks = ({ isStaff, userRole, onNavigate }: NavigationLinksProps) => {
   if (isStaff && userRole === "dev") {
     return (
       <div className="flex md:flex-row flex-col items-center gap-2">
-        <NavigationButton to="/admin" icon={LayoutDashboard}>
+        <NavigationButton to="/admin" icon={LayoutDashboard} onNavigate={onNavigate}>
           Dashboard
         </NavigationButton>
         <CustomerSection />
@@ -27,7 +28,7 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
   if (userRole === "admin") {
     return (
       <div className="flex md:flex-row flex-col items-center gap-2">
-        <NavigationButton to="/admin" icon={LayoutDashboard}>
+        <NavigationButton to="/admin" icon={LayoutDashboard} onNavigate={onNavigate}>
           Dashboard
         </NavigationButton>
         <CustomerSection />
@@ -40,7 +41,7 @@ export const NavigationLinks = ({ isStaff, userRole }: NavigationLinksProps) => 
   if (userRole === "user") {
     return (
       <div className="flex md:flex-row flex-col items-center gap-2">
-        <NavigationButton to="/admin" icon={LayoutDashboard}>
+        <NavigationButton to="/admin" icon={LayoutDashboard} onNavigate={onNavigate}>
           Dashboard
         </NavigationButton>
         <CustomerSection />
