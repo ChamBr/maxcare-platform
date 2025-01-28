@@ -22,7 +22,14 @@ const Warranties = () => {
         .select(`
           *,
           addresses(street_address, city, state_code),
-          warranty_types(name)
+          warranty_types(
+            id,
+            name,
+            description,
+            active,
+            created_at,
+            updated_at
+          )
         `)
         .order("warranty_end", { ascending: false });
 
