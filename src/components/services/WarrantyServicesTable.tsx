@@ -1,5 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface WarrantyServicesTableProps {
   services: Array<{
@@ -10,10 +12,35 @@ interface WarrantyServicesTableProps {
     };
     max_uses: number;
   }>;
+  warrantyId: string;
 }
 
-export const WarrantyServicesTable = ({ services }: WarrantyServicesTableProps) => {
+export const WarrantyServicesTable = ({ services, warrantyId }: WarrantyServicesTableProps) => {
   const isMobile = useIsMobile();
+
+  // Buscar as solicitações de serviço para esta garantia
+  const { data: requestedServices } = useQuery({
+    queryKey: ["warranty-requested-services", warrantyId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("services")
+        .select("warranty_service_id, status")
+        .eq("warranty_id", warrantyId)
+        .neq("status", "cancelled");
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Calcular usos por serviço
+  const getServiceUsage = (serviceId: string) => {
+    if (!requestedServices) return 0;
+    return requestedServices.filter(
+      service => service.warranty_service_id === serviceId && 
+      ["pending", "scheduled", "in_progress", "completed"].includes(service.status)
+    ).length;
+  };
 
   return (
     <div className="rounded-md border">
@@ -28,15 +55,20 @@ export const WarrantyServicesTable = ({ services }: WarrantyServicesTableProps) 
           </TableRow>
         </TableHeader>
         <TableBody>
-          {services.map((service) => (
-            <TableRow key={service.id}>
-              <TableCell className="font-medium">{service.warranty_services.name}</TableCell>
-              {!isMobile && (
-                <TableCell>{service.warranty_services.description}</TableCell>
-              )}
-              <TableCell className="text-center">{`0/${service.max_uses}`}</TableCell>
-            </TableRow>
-          ))}
+          {services.map((service) => {
+            const usedServices = getServiceUsage(service.warranty_services.id);
+            const availableServices = service.max_uses - usedServices;
+
+            return (
+              <TableRow key={service.id}>
+                <TableCell className="font-medium">{service.warranty_services.name}</TableCell>
+                {!isMobile && (
+                  <TableCell>{service.warranty_services.description}</TableCell>
+                )}
+                <TableCell className="text-center">{`${availableServices}/${service.max_uses}`}</TableCell>
+              </TableRow>
+            );
+          })}
           {!services.length && (
             <TableRow>
               <TableCell colSpan={isMobile ? 2 : 3} className="text-center text-muted-foreground">

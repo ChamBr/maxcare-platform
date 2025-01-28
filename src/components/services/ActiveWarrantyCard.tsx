@@ -45,7 +45,10 @@ export const ActiveWarrantyCard = ({ warranty, services, availableServices }: Ac
             Serviços Disponíveis
           </h3>
           <div className="overflow-x-auto">
-            <WarrantyServicesTable services={getAvailableServicesForWarranty(warranty.warranty_type_id!)} />
+            <WarrantyServicesTable 
+              services={getAvailableServicesForWarranty(warranty.warranty_type_id!)}
+              warrantyId={warranty.id}
+            />
           </div>
         </div>
 
