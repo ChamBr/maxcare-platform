@@ -34,9 +34,7 @@ export const Header = () => {
     return "text-black";
   };
 
-  const handleNavigate = () => {
-    setIsOpen(false);
-  };
+  const handleNavigate = () => setIsOpen(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -58,7 +56,11 @@ export const Header = () => {
         {session && (
           <>
             <nav className="hidden md:flex flex-1 items-center">
-              <NavigationLinks isStaff={isStaff} userRole={userRole} onNavigate={handleNavigate} />
+              <NavigationLinks 
+                isStaff={isStaff} 
+                userRole={userRole} 
+                onNavigate={handleNavigate} 
+              />
             </nav>
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className="md:hidden">
@@ -71,7 +73,11 @@ export const Header = () => {
                   <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col space-y-4 mt-6">
-                  <NavigationLinks isStaff={isStaff} userRole={userRole} onNavigate={handleNavigate} />
+                  <NavigationLinks 
+                    isStaff={isStaff} 
+                    userRole={userRole} 
+                    onNavigate={handleNavigate} 
+                  />
                 </nav>
               </SheetContent>
             </Sheet>

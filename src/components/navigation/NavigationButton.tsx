@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
-import { useEffect } from "react";
 
 interface NavigationButtonProps {
   to: string;
@@ -23,9 +22,7 @@ export const NavigationButton = ({
 
   const handleClick = () => {
     navigate(to);
-    if (onNavigate) {
-      onNavigate();
-    }
+    onNavigate?.();
   };
 
   return (

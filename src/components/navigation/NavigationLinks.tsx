@@ -12,12 +12,16 @@ interface NavigationLinksProps {
 }
 
 export const NavigationLinks = ({ isStaff, userRole, onNavigate }: NavigationLinksProps) => {
+  const renderDashboardButton = () => (
+    <NavigationButton to="/admin" icon={LayoutDashboard} onNavigate={onNavigate}>
+      Dashboard
+    </NavigationButton>
+  );
+
   if (isStaff && userRole === "dev") {
     return (
       <div className="flex md:flex-row flex-col items-center gap-2">
-        <NavigationButton to="/admin" icon={LayoutDashboard} onNavigate={onNavigate}>
-          Dashboard
-        </NavigationButton>
+        {renderDashboardButton()}
         <CustomerSection />
         <ServicesSection />
         <SystemSection />
@@ -28,9 +32,7 @@ export const NavigationLinks = ({ isStaff, userRole, onNavigate }: NavigationLin
   if (userRole === "admin") {
     return (
       <div className="flex md:flex-row flex-col items-center gap-2">
-        <NavigationButton to="/admin" icon={LayoutDashboard} onNavigate={onNavigate}>
-          Dashboard
-        </NavigationButton>
+        {renderDashboardButton()}
         <CustomerSection />
         <ServicesSection />
         <SystemSection />
@@ -41,9 +43,7 @@ export const NavigationLinks = ({ isStaff, userRole, onNavigate }: NavigationLin
   if (userRole === "user") {
     return (
       <div className="flex md:flex-row flex-col items-center gap-2">
-        <NavigationButton to="/admin" icon={LayoutDashboard} onNavigate={onNavigate}>
-          Dashboard
-        </NavigationButton>
+        {renderDashboardButton()}
         <CustomerSection />
         <ServicesSection />
       </div>
