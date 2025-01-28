@@ -3,15 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { UsersTable, User, UserRole } from "@/components/admin/UsersTable";
-import { 
-  Breadcrumb, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbList, 
-  BreadcrumbPage, 
-  BreadcrumbSeparator 
-} from "@/components/ui/breadcrumb";
-import { Home, Users } from "lucide-react";
+import { PageWrapper } from "@/components/layout/PageWrapper";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -112,32 +104,15 @@ const Admin = () => {
   };
 
   if (isLoading) {
-    return <div className="container mx-auto px-4 py-8">Carregando...</div>;
+    return <PageWrapper showBreadcrumbs>Carregando...</PageWrapper>;
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/" className="flex items-center gap-2">
-              <Home className="h-4 w-4" />
-              Início
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Gerenciamento de Usuários
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      
-      <h1 className="text-2xl font-bold">Gerenciamento de Usuários</h1>
-      <UsersTable users={users} onRoleChange={handleRoleChange} />
-    </div>
+    <PageWrapper showBreadcrumbs>
+      <div className="space-y-6">
+        <UsersTable users={users} onRoleChange={handleRoleChange} />
+      </div>
+    </PageWrapper>
   );
 };
 

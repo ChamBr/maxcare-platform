@@ -1,149 +1,133 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { UsersTable, type User } from "@/components/admin/UsersTable";
-import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
-import { useAuthState } from "@/hooks/useAuthState";
-import { UsersFilter } from "@/components/admin/UsersFilter";
-import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { UsersTable, User, UserRole } from "@/components/admin/UsersTable";
+import { Input } from "@/components/ui/input";
+import { PageWrapper } from "@/components/layout/PageWrapper";
 
 const Users = () => {
-  const { userRole, session } = useAuthState();
-  const [nameFilter, setNameFilter] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
-  const [searchParams] = useSearchParams();
-  const type = searchParams.get("type");
-  const excludeCustomers = type === "customer";
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: users, isLoading } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => {
-      const { data: usersData, error: usersError } = await supabase
-        .from("users")
-        .select("id, email, full_name");
+  useEffect(() => {
+    checkAccess();
+    fetchUsers();
+  }, []);
 
-      if (usersError) {
-        toast.error("Erro ao carregar usuários");
-        throw usersError;
-      }
+  const checkAccess = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      navigate("/login");
+      return;
+    }
 
-      const { data: rolesData, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("user_id, role");
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
 
-      if (rolesError) {
-        toast.error("Erro ao carregar roles dos usuários");
-        throw rolesError;
-      }
-
-      const usersWithRoles = usersData.map((user) => {
-        const userRole = rolesData.find(role => role.user_id === user.id);
-        return {
-          id: user.id,
-          email: user.email,
-          full_name: user.full_name,
-          role: userRole?.role || "customer",
-        };
+    if (!roles || roles.role !== "dev") {
+      toast({
+        title: "Acesso Negado",
+        description: "Apenas desenvolvedores podem acessar esta página.",
+        variant: "destructive",
       });
-
-      return usersWithRoles as User[];
-    },
-  });
-
-  const handleRoleChange = async (userId: string, newRole: User["role"]) => {
-    try {
-      // Buscar a role atual do usuário
-      const { data: currentRoleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .single();
-
-      const oldRole = currentRoleData?.role || "customer";
-
-      // Atualizar a role
-      const { error } = await supabase
-        .from("user_roles")
-        .upsert({ 
-          user_id: userId, 
-          role: newRole 
-        }, { 
-          onConflict: "user_id" 
-        });
-
-      if (error) throw error;
-
-      // Registrar a mudança no log
-      const { error: logError } = await supabase
-        .from("role_change_logs")
-        .insert({
-          user_id: userId,
-          changed_by_id: session?.user.id,
-          old_role: oldRole,
-          new_role: newRole,
-        });
-
-      if (logError) throw logError;
-
-      toast.success("Papel do usuário atualizado com sucesso");
-    } catch (error) {
-      console.error("Erro ao atualizar papel do usuário:", error);
-      toast.error("Erro ao atualizar papel do usuário");
+      navigate("/");
+      return;
     }
   };
 
-  const filteredUsers = users?.filter(user => {
-    // Se estamos na página de clientes, excluir usuários que não são customers
-    if (excludeCustomers && user.role !== "customer") return false;
-    // Se estamos na página de usuários, excluir customers
-    if (!excludeCustomers && user.role === "customer") return false;
+  const fetchUsers = async () => {
+    const { data: usersData, error: usersError } = await supabase
+      .from("users")
+      .select("id, email, full_name");
 
-    const matchesName = user.full_name?.toLowerCase().includes(nameFilter.toLowerCase()) ||
-                       user.email.toLowerCase().includes(nameFilter.toLowerCase());
-    const matchesRole = roleFilter === "all" || !roleFilter ? true : user.role === roleFilter;
-    return matchesName && matchesRole;
-  });
+    if (usersError) {
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar usuários.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  if (!["dev", "admin"].includes(userRole)) {
-    return (
-      <div className="container mx-auto p-6">
-        <h1 className="text-2xl font-bold text-red-600">
-          Acesso Negado
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Você não tem permissão para acessar esta página.
-        </p>
-      </div>
-    );
+    const { data: rolesData, error: rolesError } = await supabase
+      .from("user_roles")
+      .select("user_id, role");
+
+    if (rolesError) {
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar roles.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const usersWithRoles = usersData.map((user) => ({
+      ...user,
+      role: (rolesData.find((role) => role.user_id === user.id)?.role || "customer") as UserRole,
+    }));
+
+    setUsers(usersWithRoles);
+    setIsLoading(false);
+  };
+
+  const handleRoleChange = async (userId: string, newRole: UserRole) => {
+    const { error } = await supabase
+      .from("user_roles")
+      .upsert({ 
+        user_id: userId, 
+        role: newRole 
+      }, { 
+        onConflict: "user_id" 
+      });
+
+    if (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar role do usuário.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Sucesso",
+      description: "Role do usuário atualizado com sucesso.",
+    });
+
+    fetchUsers();
+  };
+
+  const filteredUsers = users.filter(user => 
+    user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (isLoading) {
+    return <PageWrapper showBreadcrumbs>Carregando...</PageWrapper>;
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">
-          {excludeCustomers ? "Clientes" : "Usuários do Sistema"}
-        </h1>
-      </div>
-      
-      <UsersFilter
-        nameFilter={nameFilter}
-        roleFilter={roleFilter}
-        excludeCustomers={excludeCustomers}
-        onNameFilterChange={setNameFilter}
-        onRoleFilterChange={setRoleFilter}
-      />
-
-      {isLoading ? (
-        <div className="space-y-4">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
+    <PageWrapper showBreadcrumbs>
+      <div className="space-y-6">
+        <div className="mb-4">
+          <Input
+            placeholder="Buscar por nome ou email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm"
+          />
         </div>
-      ) : (
-        <UsersTable users={filteredUsers || []} onRoleChange={handleRoleChange} />
-      )}
-    </div>
+        <UsersTable users={filteredUsers} onRoleChange={handleRoleChange} />
+      </div>
+    </PageWrapper>
   );
 };
 
