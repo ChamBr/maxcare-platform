@@ -1,21 +1,18 @@
 import { useState } from "react";
-import { Plus, RefreshCw } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useAuthState } from "@/hooks/useAuthState";
 import WarrantyForm from "@/components/warranties/WarrantyForm";
-import { addDays, isAfter, isBefore, parseISO } from "date-fns";
 import { PageWrapper } from "@/components/layout/PageWrapper";
+import { WarrantyCard } from "@/components/warranties/WarrantyCard";
+import { getWarrantyStatus } from "@/components/warranties/WarrantyStatus";
 
 const Warranties = () => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
-  const { session } = useAuthState();
 
   const { data: warranties, refetch } = useQuery({
     queryKey: ["warranties"],
@@ -51,30 +48,6 @@ const Warranties = () => {
     },
   });
 
-  const getWarrantyStatus = (warranty) => {
-    if (warranty.approval_status === "rejected") return "rejected";
-    if (warranty.approval_status === "pending") return "pending";
-    
-    const today = new Date();
-    const endDate = parseISO(warranty.warranty_end);
-    const thirtyDaysFromNow = addDays(today, 30);
-
-    if (isBefore(endDate, today)) return "expired";
-    if (isBefore(endDate, thirtyDaysFromNow)) return "expiring";
-    return "active";
-  };
-
-  const getStatusBadgeVariant = (status) => {
-    const variants = {
-      active: "green",
-      expiring: "blue",
-      expired: "red",
-      pending: "purple",
-      rejected: "red",
-    };
-    return variants[status];
-  };
-
   const handleRenewal = async (warrantyId: string) => {
     toast({
       title: "Renewal Request Sent",
@@ -88,7 +61,7 @@ const Warranties = () => {
   };
 
   return (
-    <PageWrapper showBreadcrumbs>
+    <PageWrapper title="Warranties">
       <div className="flex items-center justify-end">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -106,43 +79,13 @@ const Warranties = () => {
         </Dialog>
       </div>
       <div className="grid md:grid-cols-2 gap-6 mt-6">
-        {warranties?.map((warranty) => {
-          const status = getWarrantyStatus(warranty);
-          const showRenewalButton = ["expiring", "expired"].includes(status);
-
-          return (
-            <Card key={warranty.id} className="relative">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg">{warranty.warranty_types?.name}</CardTitle>
-                <Badge variant={getStatusBadgeVariant(status)} className="capitalize">
-                  {status === "expiring" ? "Expiring Soon" : status}
-                </Badge>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <p>
-                    <strong>Approval Status:</strong>{" "}
-                    <span className="capitalize">{warranty.approval_status}</span>
-                  </p>
-                  <p>
-                    <strong>Address:</strong>{" "}
-                    {warranty.addresses?.street_address}, {warranty.addresses?.city}, {warranty.addresses?.state_code}
-                  </p>
-                  {showRenewalButton && (
-                    <Button
-                      variant="outline"
-                      className="mt-4 w-full"
-                      onClick={() => handleRenewal(warranty.id)}
-                    >
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Request Renewal
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        {warranties?.map((warranty) => (
+          <WarrantyCard
+            key={warranty.id}
+            warranty={warranty}
+            onRenewal={handleRenewal}
+          />
+        ))}
       </div>
     </PageWrapper>
   );
