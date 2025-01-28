@@ -12,14 +12,14 @@ import { motion } from "framer-motion";
 
 const routeLabels: Record<string, string> = {
   admin: "Admin",
-  services: "Serviços",
-  users: "Usuários",
-  notifications: "Notificações",
-  settings: "Configurações",
+  services: "Services",
+  users: "Users",
+  notifications: "Notifications",
+  settings: "Settings",
   logs: "Logs",
-  subscriptions: "Assinaturas",
-  "service-requests": "Solicitações de Serviço",
-  warranties: "Garantias",
+  subscriptions: "Subscriptions",
+  "service-requests": "Service Requests",
+  warranties: "Warranties",
 };
 
 export const Breadcrumbs = () => {
@@ -37,7 +37,9 @@ export const Breadcrumbs = () => {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink>
-              <Link to="/">Início</Link>
+              <Link to="/" className="text-muted-foreground hover:text-foreground">
+                Home
+              </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -50,10 +52,14 @@ export const Breadcrumbs = () => {
             return (
               <BreadcrumbItem key={path}>
                 {isLast ? (
-                  <BreadcrumbPage>{label}</BreadcrumbPage>
+                  <BreadcrumbPage className="text-lg font-semibold">
+                    {label}
+                  </BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink>
-                    <Link to={path}>{label}</Link>
+                    <Link to={path} className="text-muted-foreground hover:text-foreground">
+                      {label}
+                    </Link>
                   </BreadcrumbLink>
                 )}
                 {!isLast && <BreadcrumbSeparator />}
