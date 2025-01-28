@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ActiveWarrantyCard } from "@/components/services/ActiveWarrantyCard";
-import { PageTitle } from "@/components/ui/page-title";
 import { isAfter, parseISO } from "date-fns";
 
 const Services = () => {
@@ -89,55 +88,51 @@ const Services = () => {
   });
 
   return (
-    <div className="container mx-auto px-4 py-4">
-      <div className="grid gap-6">
-        {/* Active Warranties Section */}
-        <section>
-          <PageTitle>My Active Warranties</PageTitle>
-          <div className="grid gap-4 md:grid-cols-2">
-            {warranties?.length === 0 && (
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-muted-foreground text-center">
-                    You don't have any active warranties at the moment.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+    <div className="grid gap-6">
+      {/* Active Warranties Section */}
+      <section>
+        <div className="grid gap-4 md:grid-cols-2">
+          {warranties?.length === 0 && (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-muted-foreground text-center">
+                  You don't have any active warranties at the moment.
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
-            {warranties?.map((warranty) => (
-              <ActiveWarrantyCard
-                key={warranty.id}
-                warranty={warranty}
-                services={services || []}
-                availableServices={availableServices || []}
-              />
-            ))}
-          </div>
-        </section>
+          {warranties?.map((warranty) => (
+            <ActiveWarrantyCard
+              key={warranty.id}
+              warranty={warranty}
+              services={services || []}
+              availableServices={availableServices || []}
+            />
+          ))}
+        </div>
+      </section>
 
-        {/* Individual Services Section */}
-        <section>
-          <PageTitle>Individual Services</PageTitle>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Clock className="h-5 w-5" />
-                Coming Soon
-              </CardTitle>
-              <CardDescription>
-                Soon you'll be able to request individual services, even without an active warranty.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button disabled className="w-full">
-                <Plus className="mr-2 h-4 w-4" />
-                Request Individual Service
-              </Button>
-            </CardContent>
-          </Card>
-        </section>
-      </div>
+      {/* Individual Services Section */}
+      <section>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Clock className="h-5 w-5" />
+              Coming Soon
+            </CardTitle>
+            <CardDescription>
+              Soon you'll be able to request individual services, even without an active warranty.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button disabled className="w-full">
+              <Plus className="mr-2 h-4 w-4" />
+              Request Individual Service
+            </Button>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 };

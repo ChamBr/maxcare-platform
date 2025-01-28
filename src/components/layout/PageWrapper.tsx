@@ -22,7 +22,7 @@ export const PageWrapper = ({ children, showBreadcrumbs = false, title }: PageWr
       className="container mx-auto px-4 py-4"
     >
       {showBreadcrumbs && <Breadcrumbs />}
-      {title && <PageTitle>{title}</PageTitle>}
+      {!showBreadcrumbs && title && <PageTitle>{title}</PageTitle>}
       {children}
     </motion.div>
   );
