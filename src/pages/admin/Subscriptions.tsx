@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { UsersTable, User, UserRole } from "@/components/admin/UsersTable";
 import { Input } from "@/components/ui/input";
+import { PageWrapper } from "@/components/layout/PageWrapper";
 
 const Subscriptions = () => {
   const navigate = useNavigate();
@@ -110,22 +111,23 @@ const Subscriptions = () => {
   );
 
   if (isLoading) {
-    return <div>Carregando...</div>;
+    return <PageWrapper showBreadcrumbs>Carregando...</PageWrapper>;
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Gerenciamento de Garantias</h1>
-      <div className="mb-4">
-        <Input
-          placeholder="Buscar por nome ou email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
+    <PageWrapper showBreadcrumbs>
+      <div className="space-y-6">
+        <div className="mb-4">
+          <Input
+            placeholder="Buscar por nome ou email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm"
+          />
+        </div>
+        <UsersTable users={filteredUsers} onRoleChange={handleRoleChange} />
       </div>
-      <UsersTable users={filteredUsers} onRoleChange={handleRoleChange} />
-    </div>
+    </PageWrapper>
   );
 };
 
