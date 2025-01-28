@@ -1,7 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { Service } from "@/types/services";
 
 interface WarrantyRequestedServicesTableProps {
@@ -11,11 +10,11 @@ interface WarrantyRequestedServicesTableProps {
 export const WarrantyRequestedServicesTable = ({ services }: WarrantyRequestedServicesTableProps) => {
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      pending: { label: "Aguardando", variant: "secondary" },
-      scheduled: { label: "Agendado", variant: "blue" },
-      in_progress: { label: "Em Andamento", variant: "yellow" },
-      completed: { label: "Concluído", variant: "green" },
-      cancelled: { label: "Cancelado", variant: "destructive" },
+      pending: { label: "Pending", variant: "secondary" },
+      scheduled: { label: "Scheduled", variant: "blue" },
+      in_progress: { label: "In Progress", variant: "yellow" },
+      completed: { label: "Completed", variant: "green" },
+      cancelled: { label: "Cancelled", variant: "destructive" },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
@@ -27,8 +26,8 @@ export const WarrantyRequestedServicesTable = ({ services }: WarrantyRequestedSe
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="whitespace-nowrap">Serviço</TableHead>
-            <TableHead className="whitespace-nowrap">Data</TableHead>
+            <TableHead className="whitespace-nowrap">Service</TableHead>
+            <TableHead className="whitespace-nowrap">Date</TableHead>
             <TableHead className="whitespace-nowrap">Status</TableHead>
           </TableRow>
         </TableHeader>
@@ -38,8 +37,8 @@ export const WarrantyRequestedServicesTable = ({ services }: WarrantyRequestedSe
               <TableCell className="font-medium">{service.warranty_services?.name}</TableCell>
               <TableCell className="whitespace-nowrap">
                 {service.scheduled_date 
-                  ? format(parseISO(service.scheduled_date), "dd/MM/yyyy", { locale: ptBR })
-                  : format(parseISO(service.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                  ? format(parseISO(service.scheduled_date), "MM/dd/yyyy")
+                  : format(parseISO(service.created_at), "MM/dd/yyyy")}
               </TableCell>
               <TableCell>{getStatusBadge(service.status)}</TableCell>
             </TableRow>
@@ -47,7 +46,7 @@ export const WarrantyRequestedServicesTable = ({ services }: WarrantyRequestedSe
           {!services.length && (
             <TableRow>
               <TableCell colSpan={3} className="text-center text-muted-foreground">
-                Nenhum serviço solicitado
+                No services requested
               </TableCell>
             </TableRow>
           )}

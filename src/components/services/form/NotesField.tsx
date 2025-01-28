@@ -15,10 +15,10 @@ export const NotesField = ({ form, isLoading }: NotesFieldProps) => {
       name="notes"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Observações Adicionais</FormLabel>
+          <FormLabel>Additional Notes</FormLabel>
           <FormControl>
             <Textarea
-              placeholder="Descreva sua solicitação de serviço..."
+              placeholder="Describe your service request..."
               disabled={isLoading}
               {...field}
             />

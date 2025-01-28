@@ -21,7 +21,7 @@ export const ServiceTypeField = ({ form, isLoading, availableServices }: Service
       name="serviceType"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Tipo de Serviço</FormLabel>
+          <FormLabel>Service Type</FormLabel>
           <FormControl>
             <Select
               disabled={isLoading}
@@ -29,7 +29,7 @@ export const ServiceTypeField = ({ form, isLoading, availableServices }: Service
               value={field.value}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione o tipo de serviço" />
+                <SelectValue placeholder="Select service type" />
               </SelectTrigger>
               <SelectContent>
                 {availableServices.length > 0 ? (
@@ -43,7 +43,7 @@ export const ServiceTypeField = ({ form, isLoading, availableServices }: Service
                   ))
                 ) : (
                   <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none text-muted-foreground">
-                    Nenhum serviço disponível
+                    No services available
                   </div>
                 )}
               </SelectContent>

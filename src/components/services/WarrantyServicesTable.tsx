@@ -7,6 +7,7 @@ interface WarrantyServicesTableProps {
   services: Array<{
     id: string;
     warranty_services: {
+      id: string;
       name: string;
       description: string;
     };
@@ -18,7 +19,7 @@ interface WarrantyServicesTableProps {
 export const WarrantyServicesTable = ({ services, warrantyId }: WarrantyServicesTableProps) => {
   const isMobile = useIsMobile();
 
-  // Buscar as solicitações de serviço para esta garantia
+  // Fetch service requests for this warranty
   const { data: requestedServices } = useQuery({
     queryKey: ["warranty-requested-services", warrantyId],
     queryFn: async () => {
@@ -33,7 +34,7 @@ export const WarrantyServicesTable = ({ services, warrantyId }: WarrantyServices
     },
   });
 
-  // Calcular usos por serviço
+  // Calculate service usage
   const getServiceUsage = (serviceId: string) => {
     if (!requestedServices) return 0;
     return requestedServices.filter(
@@ -47,11 +48,11 @@ export const WarrantyServicesTable = ({ services, warrantyId }: WarrantyServices
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="whitespace-nowrap">Serviço</TableHead>
+            <TableHead className="whitespace-nowrap">Service</TableHead>
             {!isMobile && (
-              <TableHead className="whitespace-nowrap">Descrição</TableHead>
+              <TableHead className="whitespace-nowrap">Description</TableHead>
             )}
-            <TableHead className="whitespace-nowrap text-center">Disponível</TableHead>
+            <TableHead className="whitespace-nowrap text-center">Available</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -72,7 +73,7 @@ export const WarrantyServicesTable = ({ services, warrantyId }: WarrantyServices
           {!services.length && (
             <TableRow>
               <TableCell colSpan={isMobile ? 2 : 3} className="text-center text-muted-foreground">
-                Nenhum serviço disponível
+                No services available
               </TableCell>
             </TableRow>
           )}

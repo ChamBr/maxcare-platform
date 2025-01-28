@@ -31,15 +31,15 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
       await onSubmit(values);
       form.reset();
       toast({
-        title: "Sucesso",
-        description: "Solicitação de serviço enviada com sucesso!",
+        title: "Success",
+        description: "Service request submitted successfully!",
       });
     } catch (error) {
-      console.error("Erro ao enviar solicitação:", error);
+      console.error("Error submitting request:", error);
       toast({
         variant: "destructive",
-        title: "Erro",
-        description: "Não foi possível enviar a solicitação. Por favor, tente novamente.",
+        title: "Error",
+        description: "Unable to submit request. Please try again.",
       });
     }
   };
@@ -47,7 +47,7 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Solicitar Novo Serviço</CardTitle>
+        <CardTitle>Request New Service</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -59,7 +59,7 @@ export const ServiceRequestForm = ({ warrantyId, warrantyTypeId }: ServiceReques
             />
             <NotesField form={form} isLoading={isLoading} />
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Enviando..." : "Enviar Solicitação"}
+              {isLoading ? "Submitting..." : "Submit Request"}
             </Button>
           </form>
         </Form>

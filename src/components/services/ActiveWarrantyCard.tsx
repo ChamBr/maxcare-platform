@@ -29,7 +29,7 @@ export const ActiveWarrantyCard = ({ warranty, services, availableServices }: Ac
           </CardTitle>
           <Badge variant="green" className="capitalize whitespace-nowrap">
             <ShieldCheck className="mr-1 h-3 w-3" />
-            Ativa
+            Active
           </Badge>
         </div>
         <CardDescription className="text-sm break-words">
@@ -38,11 +38,11 @@ export const ActiveWarrantyCard = ({ warranty, services, availableServices }: Ac
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Serviços Disponíveis */}
+        {/* Available Services */}
         <div>
           <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-            Serviços Disponíveis
+            Available Services
           </h3>
           <div className="overflow-x-auto">
             <WarrantyServicesTable 
@@ -54,11 +54,11 @@ export const ActiveWarrantyCard = ({ warranty, services, availableServices }: Ac
 
         <Separator />
 
-        {/* Serviços Solicitados */}
+        {/* Requested Services */}
         <div>
           <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
             <Wrench className="h-4 w-4 flex-shrink-0" />
-            Serviços Solicitados
+            Requested Services
           </h3>
           <div className="overflow-x-auto">
             <WarrantyRequestedServicesTable 
@@ -73,12 +73,12 @@ export const ActiveWarrantyCard = ({ warranty, services, availableServices }: Ac
           <DialogTrigger asChild>
             <Button className="w-full">
               <Plus className="mr-2 h-4 w-4" />
-              Solicitar Serviço
+              Request Service
             </Button>
           </DialogTrigger>
           <DialogContent className="w-[95vw] max-w-lg">
             <DialogHeader>
-              <DialogTitle>Solicitar Serviço</DialogTitle>
+              <DialogTitle>Request Service</DialogTitle>
             </DialogHeader>
             <ServiceRequestForm warrantyId={warranty.id} warrantyTypeId={warranty.warranty_type_id} />
           </DialogContent>
