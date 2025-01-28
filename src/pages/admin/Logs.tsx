@@ -11,15 +11,8 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { FileText, Shield } from "lucide-react";
-import { 
-  Breadcrumb, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbList, 
-  BreadcrumbPage, 
-  BreadcrumbSeparator 
-} from "@/components/ui/breadcrumb";
+import { FileText } from "lucide-react";
+import { PageWrapper } from "@/components/layout/PageWrapper";
 
 const Logs = () => {
   const { data: logs, isLoading } = useQuery({
@@ -51,25 +44,7 @@ const Logs = () => {
   });
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Admin
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Logs do Sistema
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
+    <PageWrapper showBreadcrumbs>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -112,7 +87,7 @@ const Logs = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageWrapper>
   );
 };
 

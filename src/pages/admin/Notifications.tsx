@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { PageWrapper } from "@/components/layout/PageWrapper";
 
 interface Notification {
   id: string;
@@ -43,8 +44,8 @@ const Notifications = () => {
   });
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Notificações</h1>
+    <PageWrapper showBreadcrumbs>
+      <h1 className="text-3xl font-bold mb-6">Notificações</h1>
       
       <div className="grid gap-4">
         {isLoading ? (
@@ -80,7 +81,7 @@ const Notifications = () => {
           ))
         )}
       </div>
-    </div>
+    </PageWrapper>
   );
 };
 

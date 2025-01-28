@@ -2,15 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WarrantyApprovalTable } from "@/components/warranties/WarrantyApprovalTable";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Shield } from "lucide-react";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { PageWrapper } from "@/components/layout/PageWrapper";
 
 const WarrantyApprovals = () => {
   const { data: warranties, refetch, isLoading } = useQuery({
@@ -45,43 +37,24 @@ const WarrantyApprovals = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
-        <Skeleton className="h-8 w-64" />
+      <PageWrapper showBreadcrumbs>
         <div className="space-y-4">
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
         </div>
-      </div>
+      </PageWrapper>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin" className="flex items-center gap-2">
-              Admin
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Aprovação de Garantias
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      <h1 className="text-3xl font-bold">Aprovação de Garantias</h1>
-      
+    <PageWrapper showBreadcrumbs>
+      <h1 className="text-3xl font-bold mb-6">Aprovação de Garantias</h1>
       <WarrantyApprovalTable
         warranties={warranties || []}
         onApprovalUpdate={refetch}
       />
-    </div>
+    </PageWrapper>
   );
 };
 
