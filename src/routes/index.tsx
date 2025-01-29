@@ -19,55 +19,59 @@ import ServiceRequests from "@/pages/admin/ServiceRequests";
 import WarrantyTypes from "@/pages/admin/WarrantyTypes";
 import WarrantyApprovals from "@/pages/admin/WarrantyApprovals";
 
-export const AppRoutes = () => (
-  <Routes>
-    <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
-    <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
-    <Route path="/register" element={<PageWrapper><Register /></PageWrapper>} />
-    <Route 
-      path="/profile" 
-      element={
-        <ProtectedRoute>
-          <PageWrapper showBreadcrumbs title="Profile"><Profile /></PageWrapper>
-        </ProtectedRoute>
-      } 
-    />
-    <Route 
-      path="/warranties" 
-      element={
-        <ProtectedRoute>
-          <PageWrapper showBreadcrumbs title="Warranties"><Warranties /></PageWrapper>
-        </ProtectedRoute>
-      } 
-    />
-    <Route 
-      path="/services" 
-      element={
-        <ProtectedRoute>
-          <PageWrapper showBreadcrumbs title="Services"><Services /></PageWrapper>
-        </ProtectedRoute>
-      } 
-    />
-    <Route 
-      path="/admin/*" 
-      element={
-        <ProtectedRoute>
-          <PageWrapper showBreadcrumbs>
-            <Routes>
-              <Route index element={<Dashboard />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="services" element={<AdminServices />} />
-              <Route path="notifications" element={<AdminNotifications />} />
-              <Route path="settings" element={<AdminSettings />} />
-              <Route path="logs" element={<Logs />} />
-              <Route path="subscriptions" element={<Subscriptions />} />
-              <Route path="service-requests" element={<ServiceRequests />} />
-              <Route path="warranty-types" element={<WarrantyTypes />} />
-              <Route path="warranty-approvals" element={<WarrantyApprovals />} />
-            </Routes>
-          </PageWrapper>
-        </ProtectedRoute>
-      } 
-    />
-  </Routes>
-);
+export const AppRoutes = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+      <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
+      <Route path="/register" element={<PageWrapper><Register /></PageWrapper>} />
+      <Route 
+        path="/profile" 
+        element={
+          <ProtectedRoute>
+            <PageWrapper showBreadcrumbs title="Profile"><Profile /></PageWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/warranties" 
+        element={
+          <ProtectedRoute>
+            <PageWrapper showBreadcrumbs title="Warranties"><Warranties /></PageWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/services" 
+        element={
+          <ProtectedRoute>
+            <PageWrapper showBreadcrumbs title="Services"><Services /></PageWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/*" 
+        element={
+          <ProtectedRoute>
+            <PageWrapper showBreadcrumbs>
+              <Routes>
+                <Route index element={<Dashboard />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="services" element={<AdminServices />} />
+                <Route path="notifications" element={<AdminNotifications />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="logs" element={<Logs />} />
+                <Route path="subscriptions" element={<Subscriptions />} />
+                <Route path="service-requests" element={<ServiceRequests />} />
+                <Route path="warranty-types" element={<WarrantyTypes />} />
+                <Route path="warranty-approvals" element={<WarrantyApprovals />} />
+              </Routes>
+            </PageWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      {/* Fallback para rotas não encontradas */}
+      <Route path="*" element={<PageWrapper><Home /></PageWrapper>} />
+    </Routes>
+  );
+};
