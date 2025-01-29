@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { Input } from "@/components/ui/input";
-import { WarrantyList } from "@/components/admin/warranties/WarrantyList";
+import { WarrantiesTable } from "@/components/admin/warranties/WarrantiesTable";
 import { WarrantyDetails } from "@/components/admin/warranties/WarrantyDetails";
 
 const Subscriptions = () => {
@@ -20,19 +20,10 @@ const Subscriptions = () => {
           warranty_start,
           warranty_end,
           users!warranties_user_id_fkey (
-            id,
             full_name,
             email
           ),
-          addresses (
-            street_address,
-            apt_suite_unit,
-            city,
-            state_code,
-            zip_code
-          ),
           warranty_types (
-            id,
             name
           )
         `)
@@ -67,7 +58,7 @@ const Subscriptions = () => {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <WarrantyList 
+            <WarrantiesTable 
               warranties={filteredWarranties || []} 
               onWarrantyClick={setSelectedWarrantyId}
             />
