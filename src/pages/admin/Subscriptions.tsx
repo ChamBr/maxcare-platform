@@ -111,11 +111,11 @@ const Subscriptions = () => {
   );
 
   if (isLoading) {
-    return <PageWrapper showBreadcrumbs>Carregando...</PageWrapper>;
+    return <PageWrapper>Carregando...</PageWrapper>;
   }
 
   return (
-    <PageWrapper showBreadcrumbs>
+    <PageWrapper>
       <div className="space-y-6">
         <div className="mb-4">
           <Input
