@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft } from "lucide-react";
 import { WarrantyServicesTable } from "@/components/services/WarrantyServicesTable";
 import { WarrantyRequestedServicesTable } from "@/components/services/WarrantyRequestedServicesTable";
-import { ServiceRequestForm } from "@/components/services/ServiceRequestForm";
 import { Separator } from "@/components/ui/separator";
 
 interface WarrantyDetailsProps {
@@ -113,31 +112,33 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
         Voltar
       </Button>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Informações do Cliente</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <p><strong>Nome:</strong> {warranty.users?.full_name}</p>
-          <p><strong>Email:</strong> {warranty.users?.email}</p>
-          <p><strong>Telefone:</strong> {warranty.users?.phone || "Não informado"}</p>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Informações do Cliente</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <p><strong>Nome:</strong> {warranty.users?.full_name}</p>
+            <p><strong>Email:</strong> {warranty.users?.email}</p>
+            <p><strong>Telefone:</strong> {warranty.users?.phone || "Não informado"}</p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Endereço</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>
-            {warranty.addresses?.street_address}
-            {warranty.addresses?.apt_suite_unit && `, ${warranty.addresses.apt_suite_unit}`}
-          </p>
-          <p>
-            {warranty.addresses?.city}, {warranty.addresses?.state_code} - {warranty.addresses?.zip_code}
-          </p>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Endereço</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>
+              {warranty.addresses?.street_address}
+              {warranty.addresses?.apt_suite_unit && `, ${warranty.addresses.apt_suite_unit}`}
+            </p>
+            <p>
+              {warranty.addresses?.city}, {warranty.addresses?.state_code} - {warranty.addresses?.zip_code}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
         <CardHeader>
@@ -154,16 +155,6 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
           <div>
             <h3 className="text-lg font-medium mb-4">Serviços Solicitados</h3>
             <WarrantyRequestedServicesTable services={services || []} />
-          </div>
-
-          <Separator />
-
-          <div>
-            <h3 className="text-lg font-medium mb-4">Nova Solicitação</h3>
-            <ServiceRequestForm 
-              warrantyId={warrantyId} 
-              warrantyTypeId={warranty.warranty_type_id}
-            />
           </div>
         </CardContent>
       </Card>
