@@ -1,7 +1,8 @@
+
 import { Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { PageWrapper } from "@/components/layout/PageWrapper";
-import Home from "@/pages/Home";
+import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Warranties from "@/pages/Warranties";
@@ -20,7 +21,7 @@ import WarrantyApprovals from "@/pages/admin/WarrantyApprovals";
 
 export const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+    <Route path="/" element={<PageWrapper><Index /></PageWrapper>} />
     <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
     <Route path="/register" element={<PageWrapper><Register /></PageWrapper>} />
     <Route 
