@@ -111,7 +111,7 @@ const Users = () => {
   );
 
   if (isLoading) {
-    return <PageWrapper showBreadcrumbs>Carregando...</PageWrapper>;
+    return <PageWrapper>Carregando...</PageWrapper>;
   }
 
   return (
