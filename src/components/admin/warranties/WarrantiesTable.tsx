@@ -22,7 +22,7 @@ interface WarrantiesTableProps {
   onWarrantyClick: (warrantyId: string) => void;
 }
 
-type SortField = 'name' | 'email' | 'type' | 'start' | 'end';
+type SortField = 'name' | 'email' | 'type' | 'validity';
 type SortOrder = 'asc' | 'desc';
 
 export const WarrantiesTable = ({ warranties, onWarrantyClick }: WarrantiesTableProps) => {
@@ -49,10 +49,8 @@ export const WarrantiesTable = ({ warranties, onWarrantyClick }: WarrantiesTable
           return multiplier * ((a.users?.email || '').localeCompare(b.users?.email || ''));
         case 'type':
           return multiplier * ((a.warranty_types?.name || '').localeCompare(b.warranty_types?.name || ''));
-        case 'start':
+        case 'validity':
           return multiplier * (new Date(a.warranty_start).getTime() - new Date(b.warranty_start).getTime());
-        case 'end':
-          return multiplier * (new Date(a.warranty_end).getTime() - new Date(b.warranty_end).getTime());
         default:
           return 0;
       }
@@ -60,13 +58,12 @@ export const WarrantiesTable = ({ warranties, onWarrantyClick }: WarrantiesTable
   };
 
   const handleExport = () => {
-    const headers = ['Nome', 'Email', 'Tipo de Garantia', 'Início', 'Fim'];
+    const headers = ['Nome', 'Email', 'Tipo de Garantia', 'Vigência'];
     const data = getSortedWarranties().map(warranty => [
       warranty.users?.full_name || warranty.users?.email || '',
       warranty.users?.email || '',
       warranty.warranty_types?.name || '',
-      format(parseISO(warranty.warranty_start), "dd/MM/yyyy"),
-      format(parseISO(warranty.warranty_end), "dd/MM/yyyy")
+      `${format(parseISO(warranty.warranty_start), "dd/MM/yyyy")} -> ${format(parseISO(warranty.warranty_end), "dd/MM/yyyy")}`
     ]);
 
     const csvContent = [
@@ -87,74 +84,59 @@ export const WarrantiesTable = ({ warranties, onWarrantyClick }: WarrantiesTable
   };
 
   return (
-    <div>
-      <div className="mb-4 flex justify-end">
-        <Button variant="outline" onClick={handleExport}>
-          <Download className="mr-2 h-4 w-4" />
-          Exportar
-        </Button>
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead 
-              className="cursor-pointer"
-              onClick={() => handleSort('name')}
-            >
-              <div className="flex items-center">
-                Nome <SortIcon field="name" />
-              </div>
-            </TableHead>
-            <TableHead 
-              className="cursor-pointer"
-              onClick={() => handleSort('email')}
-            >
-              <div className="flex items-center">
-                Email <SortIcon field="email" />
-              </div>
-            </TableHead>
-            <TableHead 
-              className="cursor-pointer"
-              onClick={() => handleSort('type')}
-            >
-              <div className="flex items-center">
-                Tipo de Garantia <SortIcon field="type" />
-              </div>
-            </TableHead>
-            <TableHead 
-              className="cursor-pointer"
-              onClick={() => handleSort('start')}
-            >
-              <div className="flex items-center">
-                Início <SortIcon field="start" />
-              </div>
-            </TableHead>
-            <TableHead 
-              className="cursor-pointer"
-              onClick={() => handleSort('end')}
-            >
-              <div className="flex items-center">
-                Fim <SortIcon field="end" />
-              </div>
-            </TableHead>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead 
+            className="cursor-pointer"
+            onClick={() => handleSort('name')}
+          >
+            <div className="flex items-center">
+              Nome <SortIcon field="name" />
+            </div>
+          </TableHead>
+          <TableHead 
+            className="cursor-pointer"
+            onClick={() => handleSort('email')}
+          >
+            <div className="flex items-center">
+              Email <SortIcon field="email" />
+            </div>
+          </TableHead>
+          <TableHead 
+            className="cursor-pointer"
+            onClick={() => handleSort('type')}
+          >
+            <div className="flex items-center">
+              Tipo de Garantia <SortIcon field="type" />
+            </div>
+          </TableHead>
+          <TableHead 
+            className="cursor-pointer"
+            onClick={() => handleSort('validity')}
+          >
+            <div className="flex items-center">
+              Vigência <SortIcon field="validity" />
+            </div>
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {getSortedWarranties().map((warranty) => (
+          <TableRow
+            key={warranty.id}
+            className="cursor-pointer hover:bg-accent/50"
+            onClick={() => onWarrantyClick(warranty.id)}
+          >
+            <TableCell>{warranty.users?.full_name || warranty.users?.email}</TableCell>
+            <TableCell>{warranty.users?.email}</TableCell>
+            <TableCell>{warranty.warranty_types?.name}</TableCell>
+            <TableCell>
+              {format(parseISO(warranty.warranty_start), "dd/MM/yyyy")} {"->"} {format(parseISO(warranty.warranty_end), "dd/MM/yyyy")}
+            </TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {getSortedWarranties().map((warranty) => (
-            <TableRow
-              key={warranty.id}
-              className="cursor-pointer hover:bg-accent/50"
-              onClick={() => onWarrantyClick(warranty.id)}
-            >
-              <TableCell>{warranty.users?.full_name || warranty.users?.email}</TableCell>
-              <TableCell>{warranty.users?.email}</TableCell>
-              <TableCell>{warranty.warranty_types?.name}</TableCell>
-              <TableCell>{format(parseISO(warranty.warranty_start), "dd/MM/yyyy")}</TableCell>
-              <TableCell>{format(parseISO(warranty.warranty_end), "dd/MM/yyyy")}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+        ))}
+      </TableBody>
+    </Table>
   );
 };
