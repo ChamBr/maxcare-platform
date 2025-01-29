@@ -19,7 +19,7 @@ const Subscriptions = () => {
           id,
           warranty_start,
           warranty_end,
-          users (
+          users!warranties_user_id_fkey (
             id,
             full_name,
             email

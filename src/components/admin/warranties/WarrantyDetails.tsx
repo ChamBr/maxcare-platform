@@ -21,7 +21,7 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
         .from("warranties")
         .select(`
           *,
-          users (
+          users!warranties_user_id_fkey (
             full_name,
             email,
             phone
@@ -56,7 +56,10 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
           warranty_services (
             id,
             name,
-            description
+            description,
+            active,
+            created_at,
+            updated_at
           )
         `)
         .eq("warranty_id", warrantyId);
