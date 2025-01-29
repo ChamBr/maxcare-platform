@@ -26,6 +26,10 @@ export const Breadcrumbs = () => {
   const location = useLocation();
   const pathSegments = location.pathname.split("/").filter(Boolean);
 
+  // Se estivermos em uma rota admin/*, removemos 'admin' do caminho
+  const isAdminRoute = pathSegments[0] === "admin";
+  const displaySegments = isAdminRoute ? pathSegments.slice(1) : pathSegments;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
@@ -44,10 +48,15 @@ export const Breadcrumbs = () => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           
-          {pathSegments.map((segment, index) => {
-            const path = `/${pathSegments.slice(0, index + 1).join("/")}`;
-            const isLast = index === pathSegments.length - 1;
+          {displaySegments.map((segment, index) => {
+            const isLast = index === displaySegments.length - 1;
             const label = routeLabels[segment] || segment;
+            
+            // Construir o path considerando se estamos em uma rota admin
+            const segmentsForPath = isAdminRoute 
+              ? ['admin', ...displaySegments.slice(0, index + 1)]
+              : displaySegments.slice(0, index + 1);
+            const path = `/${segmentsForPath.join("/")}`;
 
             return (
               <BreadcrumbItem key={path}>
