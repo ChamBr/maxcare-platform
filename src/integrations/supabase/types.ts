@@ -49,15 +49,67 @@ export type Database = {
           user_id?: string
           zip_code?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "addresses_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      cat_slabs: {
+        Row: {
+          barcode: string | null
+          code: string
+          created_at: string | null
+          dimensions: Json | null
+          id: string
+          image_url: string | null
+          last_updated: string | null
+          location: string | null
+          name: string
+          price: number
+          price_per_sqft: number
+          quantity: number
+          share_link: string | null
+          share_link_expiry: string | null
+          sqft: number
+          supplier: string | null
+          type: string
+        }
+        Insert: {
+          barcode?: string | null
+          code: string
+          created_at?: string | null
+          dimensions?: Json | null
+          id?: string
+          image_url?: string | null
+          last_updated?: string | null
+          location?: string | null
+          name: string
+          price?: number
+          price_per_sqft?: number
+          quantity?: number
+          share_link?: string | null
+          share_link_expiry?: string | null
+          sqft?: number
+          supplier?: string | null
+          type?: string
+        }
+        Update: {
+          barcode?: string | null
+          code?: string
+          created_at?: string | null
+          dimensions?: Json | null
+          id?: string
+          image_url?: string | null
+          last_updated?: string | null
+          location?: string | null
+          name?: string
+          price?: number
+          price_per_sqft?: number
+          quantity?: number
+          share_link?: string | null
+          share_link_expiry?: string | null
+          sqft?: number
+          supplier?: string | null
+          type?: string
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -84,15 +136,7 @@ export type Database = {
           title?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       role_change_logs: {
         Row: {
@@ -119,22 +163,7 @@ export type Database = {
           old_role?: Database["public"]["Enums"]["user_role"]
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "role_change_logs_changed_by_id_fkey"
-            columns: ["changed_by_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_change_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       services: {
         Row: {
@@ -177,13 +206,6 @@ export type Database = {
           warranty_service_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "services_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "services_warranty_id_fkey"
             columns: ["warranty_id"]
@@ -243,40 +265,23 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_roles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
-      users: {
+      user_sessions: {
         Row: {
-          created_at: string
-          email: string
-          full_name: string | null
           id: string
-          phone: string | null
-          updated_at: string
+          last_login: string
+          session_start: string
         }
         Insert: {
-          created_at?: string
-          email: string
-          full_name?: string | null
           id: string
-          phone?: string | null
-          updated_at?: string
+          last_login?: string
+          session_start?: string
         }
         Update: {
-          created_at?: string
-          email?: string
-          full_name?: string | null
           id?: string
-          phone?: string | null
-          updated_at?: string
+          last_login?: string
+          session_start?: string
         }
         Relationships: []
       }
@@ -332,20 +337,6 @@ export type Database = {
             columns: ["address_id"]
             isOneToOne: false
             referencedRelation: "addresses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "warranties_approved_by_id_fkey"
-            columns: ["approved_by_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "warranties_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
             referencedColumns: ["id"]
           },
           {
