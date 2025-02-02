@@ -1,3 +1,4 @@
+
 import { UserCircle, MapPin } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,9 +10,12 @@ import { ProfileSection } from "@/components/profile/ProfileSection";
 import { AddressSection } from "@/components/profile/AddressSection";
 import { ProfileInfo } from "@/components/profile/ProfileInfo";
 import { AddressForm } from "@/components/profile/AddressForm";
+import { useAuthState } from "@/hooks/useAuthState";
+import { Badge } from "@/components/ui/badge";
 
 const Profile = () => {
   const { toast } = useToast();
+  const { userRole } = useAuthState();
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<Address | undefined>();
 
@@ -21,13 +25,20 @@ const Profile = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not found");
 
+      console.log("Current user:", user);
+
       const { data, error } = await supabase
         .from("users")
         .select("*")
         .eq("id", user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching user profile:", error);
+        throw error;
+      }
+
+      console.log("User profile:", data);
       return data;
     },
   });
@@ -44,7 +55,12 @@ const Profile = () => {
         .eq("user_id", user.id)
         .order('is_primary', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching addresses:", error);
+        throw error;
+      }
+
+      console.log("User addresses:", data);
       return data as Address[];
     },
   });
@@ -63,14 +79,15 @@ const Profile = () => {
     },
     onSuccess: () => {
       toast({
-        title: "Profile updated",
-        description: "Your information has been updated successfully.",
+        title: "Perfil atualizado",
+        description: "Suas informações foram atualizadas com sucesso.",
       });
     },
     onError: (error: Error) => {
+      console.error("Error updating profile:", error);
       toast({
         variant: "destructive",
-        title: "Error updating profile",
+        title: "Erro ao atualizar perfil",
         description: error.message,
       });
     },
@@ -95,15 +112,16 @@ const Profile = () => {
     },
     onSuccess: () => {
       toast({
-        title: "Address updated",
-        description: "Primary address has been updated successfully.",
+        title: "Endereço atualizado",
+        description: "Endereço principal foi atualizado com sucesso.",
       });
       refetchAddresses();
     },
     onError: (error: Error) => {
+      console.error("Error updating primary address:", error);
       toast({
         variant: "destructive",
-        title: "Error updating address",
+        title: "Erro ao atualizar endereço",
         description: error.message,
       });
     },
@@ -125,10 +143,30 @@ const Profile = () => {
     setSelectedAddress(undefined);
   };
 
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case "dev":
+        return "purple";
+      case "admin":
+        return "destructive";
+      case "user":
+        return "secondary";
+      case "customer":
+        return "blue";
+      default:
+        return "default";
+    }
+  };
+
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-6">
+        <h1 className="text-2xl font-bold">Perfil</h1>
+        <Badge variant={getRoleBadgeVariant(userRole)}>{userRole}</Badge>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2">
-        <ProfileSection title="Personal Information" icon={<UserCircle className="h-5 w-5" />}>
+        <ProfileSection title="Informações Pessoais" icon={<UserCircle className="h-5 w-5" />}>
           <ProfileInfo
             profile={profile}
             isLoading={isLoadingProfile}
@@ -136,7 +174,7 @@ const Profile = () => {
           />
         </ProfileSection>
 
-        <ProfileSection title="Addresses" icon={<MapPin className="h-5 w-5" />}>
+        <ProfileSection title="Endereços" icon={<MapPin className="h-5 w-5" />}>
           <AddressSection
             addresses={addresses}
             isLoading={isLoadingAddress}
@@ -150,7 +188,7 @@ const Profile = () => {
       <Dialog open={showAddressForm} onOpenChange={setShowAddressForm}>
         <DialogContent className="w-[calc(100%-2rem)] sm:max-w-[425px] p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle>{selectedAddress ? "Edit Address" : "New Address"}</DialogTitle>
+            <DialogTitle>{selectedAddress ? "Editar Endereço" : "Novo Endereço"}</DialogTitle>
           </DialogHeader>
           <AddressForm
             address={selectedAddress}
