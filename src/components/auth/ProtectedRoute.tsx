@@ -20,33 +20,22 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
     const checkAuth = async () => {
       try {
-        // Força uma atualização da sessão
-        await supabase.auth.refreshSession();
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session && mounted) {
-          console.log("No session found, redirecting to login");
           toast({
             title: "Autenticação necessária",
             description: "Por favor, faça login para acessar esta página",
             variant: "destructive",
           });
-          navigate("/login", { 
-            state: { from: location.pathname },
-            replace: true 
-          });
+          navigate("/login", { state: { from: location.pathname } });
           return;
         }
         
         if (mounted) setIsAuthenticated(true);
       } catch (error) {
         console.error("Erro ao verificar autenticação:", error);
-        if (mounted) {
-          navigate("/login", { 
-            state: { from: location.pathname },
-            replace: true 
-          });
-        }
+        if (mounted) navigate("/login", { state: { from: location.pathname } });
       } finally {
         if (mounted) setIsLoading(false);
       }
@@ -55,14 +44,9 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
 
-      console.log("Auth state changed in ProtectedRoute:", event);
-
-      if (event === 'SIGNED_OUT' || !session) {
+      if (!session) {
         setIsAuthenticated(false);
-        navigate("/login", { 
-          state: { from: location.pathname },
-          replace: true 
-        });
+        navigate("/login", { state: { from: location.pathname } });
       } else {
         setIsAuthenticated(true);
       }

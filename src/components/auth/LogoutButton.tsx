@@ -20,9 +20,6 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
 
     setIsLoggingOut(true);
     try {
-      // Limpa o estado local primeiro para atualização imediata da UI
-      onLogout();
-
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -34,17 +31,17 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
         });
         return;
       }
+
+      // Limpa o estado local primeiro
+      onLogout();
       
       toast({
         title: "Logout realizado com sucesso",
         description: "Você foi desconectado da sua conta",
       });
       
-      // Força uma limpeza do cache do cliente Supabase
-      await supabase.auth.refreshSession();
-      
       // Redireciona para a página de login por último
-      navigate("/login", { replace: true });
+      navigate("/login");
       
     } catch (error: any) {
       console.error("Erro ao fazer logout:", error);
