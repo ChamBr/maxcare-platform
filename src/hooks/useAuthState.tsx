@@ -47,8 +47,8 @@ export const useAuthState = () => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (mounted) {
-          setSession(session);
           if (session?.user) {
+            setSession(session);
             await checkUserRole(session.user.id);
           } else {
             clearUserState();
@@ -69,16 +69,16 @@ export const useAuthState = () => {
       
       console.log("Auth state changed:", event, session);
       
-      if (event === 'SIGNED_OUT') {
+      if (event === 'SIGNED_OUT' || !session) {
         clearUserState();
         return;
       }
       
       setSession(session);
       if (session?.user) {
+        setIsLoading(true); // Ativa loading enquanto verifica role
         await checkUserRole(session.user.id);
-      } else {
-        clearUserState();
+        if (mounted) setIsLoading(false);
       }
     });
 
@@ -90,3 +90,4 @@ export const useAuthState = () => {
 
   return { isStaff, session, userRole, isLoading, clearUserState };
 };
+
