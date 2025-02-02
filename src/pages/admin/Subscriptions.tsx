@@ -21,14 +21,29 @@ const Subscriptions = () => {
         .from("warranties")
         .select(`
           id,
+          user_id,
+          purchase_date,
           warranty_start,
           warranty_end,
+          status,
+          created_at,
+          updated_at,
+          approval_status,
+          approved_by_id,
+          approved_at,
+          address_id,
+          warranty_type_id,
           users!warranties_user_id_fkey (
             full_name,
             email
           ),
           warranty_types (
-            name
+            id,
+            name,
+            description,
+            active,
+            created_at,
+            updated_at
           )
         `)
         .eq("status", "active")

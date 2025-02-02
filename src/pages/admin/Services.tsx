@@ -17,11 +17,18 @@ const Services = () => {
         .from("services")
         .select(`
           id,
+          warranty_id,
+          user_id,
           service_type,
           status,
           scheduled_date,
           completed_date,
+          notes,
+          created_at,
+          updated_at,
+          warranty_service_id,
           warranties (
+            id,
             warranty_types (
               name
             )

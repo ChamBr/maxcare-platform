@@ -1,24 +1,14 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
-interface ServiceRequest {
-  id: string;
-  created_at: string;
-  service_type: string;
-  status: string;
-  user_id: string;
-  users: {
-    full_name: string | null;
-    email: string | null;
-  };
-}
+import { Service } from "@/types/services";
 
 export const useServiceRequests = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [requests, setRequests] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -50,8 +40,18 @@ export const useServiceRequests = () => {
     const { data, error } = await supabase
       .from("services")
       .select(`
-        *,
-        users!services_user_id_fkey (
+        id,
+        warranty_id,
+        user_id,
+        service_type,
+        status,
+        scheduled_date,
+        completed_date,
+        notes,
+        created_at,
+        updated_at,
+        warranty_service_id,
+        users (
           full_name,
           email
         )
