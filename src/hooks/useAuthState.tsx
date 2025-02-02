@@ -42,6 +42,8 @@ export const useAuthState = () => {
 
     const initializeAuth = async () => {
       try {
+        // Força uma atualização da sessão ao inicializar
+        await supabase.auth.refreshSession();
         const { data: { session } } = await supabase.auth.getSession();
         
         if (mounted) {
@@ -62,8 +64,15 @@ export const useAuthState = () => {
 
     initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
+      
+      console.log("Auth state changed:", event, session);
+      
+      if (event === 'SIGNED_OUT') {
+        clearUserState();
+        return;
+      }
       
       setSession(session);
       if (session?.user) {
