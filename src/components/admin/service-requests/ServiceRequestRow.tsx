@@ -1,20 +1,11 @@
+
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-interface ServiceRequest {
-  id: string;
-  created_at: string;
-  service_type: string;
-  status: string;
-  user: {
-    full_name: string | null;
-    email: string;
-  };
-}
+import { Service } from "@/types/services";
 
 interface ServiceRequestRowProps {
-  request: ServiceRequest;
+  request: Service;
   onStatusUpdate: (requestId: string, newStatus: string) => void;
 }
 
@@ -39,8 +30,8 @@ export const ServiceRequestRow = ({ request, onStatusUpdate }: ServiceRequestRow
       </TableCell>
       <TableCell>
         <div>
-          <p className="font-medium">{request.user.full_name || "N/A"}</p>
-          <p className="text-sm text-gray-500">{request.user.email}</p>
+          <p className="font-medium">{request.users?.full_name || "N/A"}</p>
+          <p className="text-sm text-gray-500">{request.users?.email}</p>
         </div>
       </TableCell>
       <TableCell>{request.service_type}</TableCell>

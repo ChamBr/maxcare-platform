@@ -1,8 +1,4 @@
 
-import { Database } from "@/integrations/supabase/types";
-
-type Tables = Database['public']['Tables'];
-
 export interface Service {
   id: string;
   warranty_id: string;

@@ -14,7 +14,7 @@ const Subscriptions = () => {
   const [search, setSearch] = useState("");
   const [selectedWarrantyId, setSelectedWarrantyId] = useState<string | null>(null);
 
-  const { data: warranties, isLoading } = useQuery<Warranty[]>({
+  const { data: warranties = [], isLoading } = useQuery<Warranty[]>({
     queryKey: ["active-warranties"],
     queryFn: async () => {
       const { data, error } = await supabase
