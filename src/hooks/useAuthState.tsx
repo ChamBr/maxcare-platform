@@ -34,58 +34,40 @@ export const useAuthState = () => {
       }
     } catch (error) {
       console.error("Erro ao verificar papel do usuário:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    let mounted = true;
-
     const initializeAuth = async () => {
       try {
-        // Força uma atualização da sessão ao inicializar
-        await supabase.auth.refreshSession();
         const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
         
-        if (mounted) {
-          setSession(session);
-          if (session?.user) {
-            await checkUserRole(session.user.id);
-          } else {
-            clearUserState();
-          }
+        if (session) {
+          await checkUserRole(session.user.id);
+        } else {
+          clearUserState();
         }
       } catch (error) {
         console.error("Erro ao inicializar autenticação:", error);
-        if (mounted) clearUserState();
-      } finally {
-        if (mounted) setIsLoading(false);
+        clearUserState();
       }
     };
 
     initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-      
-      console.log("Auth state changed:", event, session);
-      
-      if (event === 'SIGNED_OUT') {
-        clearUserState();
-        return;
-      }
-      
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
-      if (session?.user) {
+      if (session) {
         await checkUserRole(session.user.id);
       } else {
         clearUserState();
       }
     });
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   return { isStaff, session, userRole, isLoading, clearUserState };
