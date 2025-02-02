@@ -1,21 +1,10 @@
+
 import { useState } from "react";
 import { Download, ArrowUp, ArrowDown } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
-interface Warranty {
-  id: string;
-  warranty_start: string;
-  warranty_end: string;
-  users: {
-    full_name: string | null;
-    email: string;
-  } | null;
-  warranty_types: {
-    name: string;
-  } | null;
-}
+import { Warranty } from "@/types/services";
 
 interface WarrantiesTableProps {
   warranties: Warranty[];
