@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -14,40 +15,36 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
 
   const handleLogout = async () => {
     try {
-      // Primeiro tenta fazer logout no Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        console.error("Erro ao fazer logout no Supabase:", error);
-        // Mesmo com erro, continua com o logout local
+        console.error("Erro ao fazer logout:", error);
+        toast({
+          variant: "destructive",
+          title: "Erro ao fazer logout",
+          description: error.message,
+        });
+        return;
       }
 
-      // Limpa todos os tokens do localStorage
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('sb-')) {
-          localStorage.removeItem(key);
-        }
-      });
-
-      // Limpa o estado e redireciona
+      // Limpa o estado local
       onLogout();
+      
       toast({
         title: "Logout realizado com sucesso",
         description: "Você foi desconectado da sua conta",
       });
-      navigate("/login");
+      
+      // Redireciona para a página de login
+      navigate("/login", { replace: true });
       
     } catch (error: any) {
       console.error("Erro ao fazer logout:", error);
-      
-      // Mesmo com erro, garante que o usuário seja desconectado localmente
-      onLogout();
       toast({
         variant: "destructive",
         title: "Erro ao fazer logout",
-        description: "Ocorreu um erro ao tentar desconectar, mas você foi desconectado localmente.",
+        description: "Ocorreu um erro inesperado ao tentar desconectar.",
       });
-      navigate("/login");
     }
   };
 
