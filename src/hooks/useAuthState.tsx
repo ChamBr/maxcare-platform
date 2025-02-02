@@ -34,40 +34,49 @@ export const useAuthState = () => {
       }
     } catch (error) {
       console.error("Erro ao verificar papel do usuário:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    let mounted = true;
+
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
         
-        if (session) {
-          await checkUserRole(session.user.id);
-        } else {
-          clearUserState();
+        if (mounted) {
+          setSession(session);
+          if (session?.user) {
+            await checkUserRole(session.user.id);
+          } else {
+            clearUserState();
+          }
         }
       } catch (error) {
         console.error("Erro ao inicializar autenticação:", error);
-        clearUserState();
+        if (mounted) clearUserState();
+      } finally {
+        if (mounted) setIsLoading(false);
       }
     };
 
     initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
+      
       setSession(session);
-      if (session) {
+      if (session?.user) {
         await checkUserRole(session.user.id);
       } else {
         clearUserState();
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return { isStaff, session, userRole, isLoading, clearUserState };

@@ -1,5 +1,6 @@
+
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -9,49 +10,58 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
-        if (!session) {
+        if (!session && mounted) {
           toast({
             title: "Autenticação necessária",
             description: "Por favor, faça login para acessar esta página",
             variant: "destructive",
           });
-          navigate("/login");
+          navigate("/login", { state: { from: location.pathname } });
           return;
         }
         
-        setIsAuthenticated(true);
+        if (mounted) setIsAuthenticated(true);
       } catch (error) {
         console.error("Erro ao verificar autenticação:", error);
-        navigate("/login");
+        if (mounted) navigate("/login", { state: { from: location.pathname } });
       } finally {
-        setIsLoading(false);
+        if (mounted) setIsLoading(false);
       }
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+
       if (!session) {
-        navigate("/login");
+        setIsAuthenticated(false);
+        navigate("/login", { state: { from: location.pathname } });
+      } else {
+        setIsAuthenticated(true);
       }
     });
 
     checkAuth();
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, location, toast]);
 
   if (isLoading) {
-    return null; // ou um componente de loading
+    return null;
   }
 
   return isAuthenticated ? <>{children}</> : null;
