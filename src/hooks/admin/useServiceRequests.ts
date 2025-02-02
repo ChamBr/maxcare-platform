@@ -9,9 +9,9 @@ interface ServiceRequest {
   service_type: string;
   status: string;
   user_id: string;
-  user: {
+  users: {
     full_name: string | null;
-    email: string;
+    email: string | null;
   };
 }
 
@@ -51,7 +51,7 @@ export const useServiceRequests = () => {
       .from("services")
       .select(`
         *,
-        user:user_id (
+        users!services_user_id_fkey (
           full_name,
           email
         )
@@ -100,8 +100,8 @@ export const useServiceRequests = () => {
   }, []);
 
   const filteredRequests = requests.filter(request => 
-    request.user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    request.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    request.users?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    request.users?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     request.service_type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

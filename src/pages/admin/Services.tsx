@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,26 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { PageWrapper } from "@/components/layout/PageWrapper";
-
-interface Service {
-  id: string;
-  service_type: string;
-  status: string;
-  scheduled_date: string | null;
-  completed_date: string | null;
-  warranties: {
-    warranty_types: {
-      name: string;
-    };
-  };
-  users: {
-    full_name: string;
-    email: string;
-  };
-}
+import { Service } from "@/types/services";
 
 const Services = () => {
-  const { data: services, isLoading } = useQuery({
+  const { data: services, isLoading } = useQuery<Service[]>({
     queryKey: ["admin-services"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -41,7 +26,7 @@ const Services = () => {
               name
             )
           ),
-          users (
+          users!services_user_id_fkey (
             full_name,
             email
           )
@@ -49,7 +34,7 @@ const Services = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as Service[];
+      return data;
     },
   });
 
@@ -79,7 +64,7 @@ const Services = () => {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-xl">
-                    {service.warranties.warranty_types.name}
+                    {service.warranties?.warranty_types?.name}
                   </CardTitle>
                   <Badge variant={getStatusColor(service.status)}>
                     {service.status}
@@ -88,7 +73,7 @@ const Services = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-2">
-                  <p><strong>Cliente:</strong> {service.users.full_name}</p>
+                  <p><strong>Cliente:</strong> {service.users?.full_name}</p>
                   <p><strong>Tipo de Serviço:</strong> {service.service_type}</p>
                   {service.scheduled_date && (
                     <p>

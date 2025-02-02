@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Download } from "lucide-react";
@@ -7,12 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { WarrantiesTable } from "@/components/admin/warranties/WarrantiesTable";
 import { WarrantyDetails } from "@/components/admin/warranties/WarrantyDetails";
+import { Warranty } from "@/types/services";
 
 const Subscriptions = () => {
   const [search, setSearch] = useState("");
   const [selectedWarrantyId, setSelectedWarrantyId] = useState<string | null>(null);
 
-  const { data: warranties, isLoading } = useQuery({
+  const { data: warranties, isLoading } = useQuery<Warranty[]>({
     queryKey: ["active-warranties"],
     queryFn: async () => {
       const { data, error } = await supabase
