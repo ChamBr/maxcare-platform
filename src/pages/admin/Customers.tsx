@@ -14,6 +14,13 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { WarrantyDetails } from "@/components/admin/warranties/WarrantyDetails";
 
 type WarrantyBase = {
   id: string;
@@ -33,6 +40,8 @@ type CustomerWithWarranty = User & {
 const Customers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterActive, setFilterActive] = useState<boolean | null>(null);
+  const [selectedWarrantyId, setSelectedWarrantyId] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const { data: customers, isLoading } = useQuery({
     queryKey: ["customers"],
@@ -78,6 +87,11 @@ const Customers = () => {
     if (filterActive === null) return matchesSearch;
     return matchesSearch && customer.has_active_warranty === filterActive;
   });
+
+  const handleViewDetails = (warrantyId: string) => {
+    setSelectedWarrantyId(warrantyId);
+    setSheetOpen(true);
+  };
 
   if (isLoading) return <div>Carregando...</div>;
 
@@ -134,7 +148,13 @@ const Customers = () => {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right space-x-2">
-                  <Button size="sm" variant="outline">View</Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => customer.warranties?.[0]?.id && handleViewDetails(customer.warranties[0].id)}
+                  >
+                    View
+                  </Button>
                   <Button size="sm">New Warranty</Button>
                 </TableCell>
               </TableRow>
@@ -142,6 +162,20 @@ const Customers = () => {
           </TableBody>
         </Table>
       </div>
+
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent className="w-[90vw] sm:max-w-[600px]">
+          <SheetHeader>
+            <SheetTitle>Customer Details</SheetTitle>
+          </SheetHeader>
+          {selectedWarrantyId && (
+            <WarrantyDetails 
+              warrantyId={selectedWarrantyId}
+              onBack={() => setSheetOpen(false)}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
