@@ -20,6 +20,7 @@ export const useAuthState = () => {
     setSession(null);
     saveSessionToCookie(null);
     localStorage.clear();
+    sessionStorage.clear();
     setIsLoading(false);
     setRetryCount(0);
   }, [setSession, setRetryCount, saveSessionToCookie]);
@@ -44,7 +45,12 @@ export const useAuthState = () => {
       console.log("Sessão atualizada com sucesso");
       setSession(currentSession);
       saveSessionToCookie(currentSession);
-      await checkUserRole(currentSession.user.id);
+      
+      // Verificar o papel do usuário apenas se tivermos uma sessão válida
+      if (currentSession.user?.id) {
+        await checkUserRole(currentSession.user.id);
+      }
+      
       setRetryCount(0);
 
     } catch (error) {
@@ -94,7 +100,9 @@ export const useAuthState = () => {
         if (newSession) {
           setSession(newSession);
           saveSessionToCookie(newSession);
-          await checkUserRole(newSession.user.id);
+          if (newSession.user?.id) {
+            await checkUserRole(newSession.user.id);
+          }
         }
         setIsLoading(false);
       }

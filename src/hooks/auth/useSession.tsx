@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 
 const SESSION_COOKIE_NAME = "maxcare_session";
@@ -21,7 +21,7 @@ export const useSession = () => {
     
     if (!currentSession) {
       console.log("Removendo cookie de sessão");
-      Cookies.remove(SESSION_COOKIE_NAME, { path: '/' });
+      Cookies.remove(SESSION_COOKIE_NAME, { path: '/', domain: window.location.hostname });
       return;
     }
 
@@ -31,7 +31,7 @@ export const useSession = () => {
         expires: SESSION_EXPIRY_HOURS / 24,
         path: '/',
         secure: true,
-        sameSite: 'lax'
+        sameSite: 'strict'
       });
       console.log("Cookie de sessão salvo com sucesso");
     } catch (error) {
@@ -39,21 +39,15 @@ export const useSession = () => {
     }
   };
 
-  const getSessionFromCookie = () => {
-    try {
-      const sessionCookie = Cookies.get(SESSION_COOKIE_NAME);
-      console.log("Lendo cookie de sessão:", sessionCookie ? "Encontrado" : "Não encontrado");
-      return sessionCookie ? JSON.parse(sessionCookie) : null;
-    } catch (error) {
-      console.error("Erro ao ler sessão do cookie:", error);
-      return null;
+  useEffect(() => {
+    if (session) {
+      saveSessionToCookie(session);
     }
-  };
+  }, [session]);
 
   return {
     session,
     setSession,
-    saveSessionToCookie,
-    getSessionFromCookie
+    saveSessionToCookie
   };
 };

@@ -29,22 +29,23 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
         throw error;
       }
 
-      // Limpar todo o localStorage
+      // Executar callback de logout primeiro
+      onLogout();
+
+      // Limpar storage e cookies após o callback
       localStorage.clear();
+      sessionStorage.clear();
       
-      // Limpar todos os cookies
+      // Limpar cookies de forma mais robusta
       const cookies = document.cookie.split(";");
       for (let i = 0; i < cookies.length; i++) {
         const cookie = cookies[i];
         const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
       }
 
       console.log("Logout realizado com sucesso");
-      
-      // Executar callback de logout
-      onLogout();
       
       // Mostrar mensagem de sucesso
       toast({
