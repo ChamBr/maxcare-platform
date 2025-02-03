@@ -32,7 +32,8 @@ type WarrantyBase = {
 
 type CustomerWithWarranty = User & {
   has_active_warranty: boolean;
-  warranties_count: number;
+  active_warranties_count: number;
+  addresses_count: number;
   warranties?: WarrantyBase[];
   phone?: string | null;
 };
@@ -46,6 +47,15 @@ const Customers = () => {
   const { data: customers, isLoading } = useQuery({
     queryKey: ["customers"],
     queryFn: async () => {
+      // First get customer IDs
+      const { data: customerIds } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "customer");
+
+      if (!customerIds) return [];
+
+      // Get customer details with warranties and addresses count
       const { data: users, error } = await supabase
         .from("users")
         .select(`
@@ -56,14 +66,10 @@ const Customers = () => {
             warranty_end,
             status,
             approval_status
-          )
+          ),
+          addresses:addresses(count)
         `)
-        .in("id", (
-          await supabase
-            .from("user_roles")
-            .select("user_id")
-            .eq("role", "customer")
-        ).data?.map(row => row.user_id) || []);
+        .in("id", customerIds.map(row => row.user_id));
 
       if (error) throw error;
 
@@ -74,7 +80,12 @@ const Customers = () => {
           w.approval_status === 'approved' &&
           new Date(w.warranty_end) > new Date()
         ) || false,
-        warranties_count: user.warranties?.length || 0
+        active_warranties_count: user.warranties?.filter((w: WarrantyBase) =>
+          w.status === 'active' && 
+          w.approval_status === 'approved' &&
+          new Date(w.warranty_end) > new Date()
+        ).length || 0,
+        addresses_count: user.addresses?.count || 0
       }));
     }
   });
@@ -130,7 +141,8 @@ const Customers = () => {
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
-              <TableHead>Warranties</TableHead>
+              <TableHead>Active Warranties</TableHead>
+              <TableHead>Addresses</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -141,7 +153,8 @@ const Customers = () => {
                 <TableCell>{customer.full_name || "N/A"}</TableCell>
                 <TableCell>{customer.email}</TableCell>
                 <TableCell>{customer.phone || "N/A"}</TableCell>
-                <TableCell>{customer.warranties_count}</TableCell>
+                <TableCell>{customer.active_warranties_count}</TableCell>
+                <TableCell>{customer.addresses_count}</TableCell>
                 <TableCell>
                   <Badge variant={customer.has_active_warranty ? "success" : "secondary"}>
                     {customer.has_active_warranty ? "Active" : "Inactive"}
