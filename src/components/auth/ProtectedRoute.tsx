@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -61,8 +60,11 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       }
     };
 
+    // Configura o listener para mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
+
+      console.log("Protected route auth state changed:", event, session);
 
       if (event === 'SIGNED_OUT' || !session) {
         setIsAuthenticated(false);
@@ -72,11 +74,21 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       }
     });
 
+    // Adiciona listener para visibilidade da página
+    const handleVisibilityChange = async () => {
+      if (!document.hidden) {
+        console.log("Page became visible, checking auth...");
+        await checkAuth();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     checkAuth();
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [navigate, toast]);
 
