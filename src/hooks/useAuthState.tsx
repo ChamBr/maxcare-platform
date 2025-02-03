@@ -10,12 +10,16 @@ export const useAuthState = () => {
   const [userRole, setUserRole] = useState<string>("customer");
   const [isLoading, setIsLoading] = useState(true);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRY_ATTEMPTS = 3;
+  const RETRY_DELAY = 1000; // 1 segundo
 
   const clearUserState = useCallback(() => {
     setIsStaff(false);
     setUserRole("customer");
     setSession(null);
     setIsLoading(false);
+    setRetryCount(0);
   }, []);
 
   const checkUserRole = useCallback(async (userId: string) => {
@@ -40,31 +44,77 @@ export const useAuthState = () => {
     }
   }, []);
 
-  const refreshSession = useCallback(async () => {
+  const refreshSession = useCallback(async (retryAttempt = 0) => {
     if (!isOnline) {
       console.log("Offline - aguardando conexão para atualizar sessão");
       return;
     }
 
-    console.log("Refreshing session...");
+    console.log(`Tentativa ${retryAttempt + 1} de atualizar sessão...`);
+    
     try {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      console.log("Session refresh result:", currentSession ? "Session found" : "No session");
+      const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error("Erro ao obter sessão:", error);
+        throw error;
+      }
+
+      console.log("Resultado da atualização:", currentSession ? "Sessão encontrada" : "Sem sessão");
       
       if (!currentSession) {
+        if (retryAttempt < MAX_RETRY_ATTEMPTS) {
+          console.log(`Aguardando ${RETRY_DELAY}ms para tentar novamente...`);
+          setTimeout(() => refreshSession(retryAttempt + 1), RETRY_DELAY * (retryAttempt + 1));
+          return;
+        }
         clearUserState();
         return;
       }
 
-      setSession(currentSession);
-      await checkUserRole(currentSession.user.id);
+      // Verificar se o token está próximo de expirar (30 minutos ou menos)
+      const expiresAt = new Date((currentSession.expires_at || 0) * 1000);
+      const thirtyMinutesFromNow = new Date(Date.now() + 30 * 60 * 1000);
+
+      if (expiresAt < thirtyMinutesFromNow) {
+        console.log("Token próximo de expirar, renovando...");
+        const { data: { session: refreshedSession }, error: refreshError } = 
+          await supabase.auth.refreshSession();
+
+        if (refreshError) {
+          console.error("Erro ao renovar token:", refreshError);
+          throw refreshError;
+        }
+
+        if (refreshedSession) {
+          setSession(refreshedSession);
+          await checkUserRole(refreshedSession.user.id);
+        }
+      } else {
+        setSession(currentSession);
+        await checkUserRole(currentSession.user.id);
+      }
+
+      setRetryCount(0); // Reset do contador de tentativas após sucesso
     } catch (error) {
       console.error("Erro ao atualizar sessão:", error);
-      clearUserState();
+      setRetryCount(prev => prev + 1);
+      
+      if (retryCount < MAX_RETRY_ATTEMPTS) {
+        console.log(`Tentativa ${retryCount + 1} de ${MAX_RETRY_ATTEMPTS}`);
+        setTimeout(refreshSession, RETRY_DELAY * (retryCount + 1));
+      } else {
+        clearUserState();
+        toast({
+          title: "Erro de autenticação",
+          description: "Não foi possível atualizar sua sessão. Por favor, faça login novamente.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [checkUserRole, clearUserState, isOnline]);
+  }, [checkUserRole, clearUserState, isOnline, retryCount, toast]);
 
   useEffect(() => {
     let mounted = true;
@@ -73,7 +123,7 @@ export const useAuthState = () => {
     const handleAuthChange = async (event: any, newSession: any) => {
       if (!mounted) return;
 
-      console.log("Auth state changed:", event);
+      console.log("Estado de autenticação alterado:", event);
 
       if (event === 'SIGNED_OUT' || !newSession) {
         clearUserState();
@@ -90,30 +140,30 @@ export const useAuthState = () => {
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && mounted) {
-        console.log("Page became visible - refreshing session");
+        console.log("Página visível - atualizando sessão");
         if (refreshTimeoutId) clearTimeout(refreshTimeoutId);
-        refreshTimeoutId = setTimeout(refreshSession, 100);
+        refreshTimeoutId = setTimeout(() => refreshSession(), 100);
       }
     };
 
     const handleOnline = () => {
-      console.log("Connection restored - refreshing session");
+      console.log("Conexão restaurada - atualizando sessão");
       setIsOnline(true);
       refreshSession();
     };
 
     const handleOffline = () => {
-      console.log("Connection lost");
+      console.log("Conexão perdida");
       setIsOnline(false);
     };
 
-    // Initial session check
+    // Verificação inicial da sessão
     refreshSession();
 
-    // Set up auth listener
+    // Configuração dos listeners de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
 
-    // Set up visibility and connectivity listeners
+    // Configuração dos listeners de visibilidade e conectividade
     window.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
