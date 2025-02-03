@@ -7,12 +7,20 @@ const SESSION_EXPIRY_HOURS = 1;
 
 export const useSession = () => {
   const [session, setSession] = useState<any>(() => {
-    const sessionCookie = Cookies.get(SESSION_COOKIE_NAME);
-    return sessionCookie ? JSON.parse(sessionCookie) : null;
+    try {
+      const sessionCookie = Cookies.get(SESSION_COOKIE_NAME);
+      return sessionCookie ? JSON.parse(sessionCookie) : null;
+    } catch (error) {
+      console.error("Erro ao ler sessão inicial do cookie:", error);
+      return null;
+    }
   });
 
   const saveSessionToCookie = (currentSession: any) => {
+    console.log("Salvando sessão em cookie:", currentSession ? "Presente" : "Nula");
+    
     if (!currentSession) {
+      console.log("Removendo cookie de sessão");
       Cookies.remove(SESSION_COOKIE_NAME);
       return;
     }
@@ -22,8 +30,9 @@ export const useSession = () => {
       Cookies.set(SESSION_COOKIE_NAME, sessionData, {
         expires: SESSION_EXPIRY_HOURS / 24,
         secure: true,
-        sameSite: 'lax' // Mudando para 'lax' para permitir navegação
+        sameSite: 'lax'
       });
+      console.log("Cookie de sessão salvo com sucesso");
     } catch (error) {
       console.error("Erro ao salvar sessão no cookie:", error);
     }
@@ -32,6 +41,7 @@ export const useSession = () => {
   const getSessionFromCookie = () => {
     try {
       const sessionCookie = Cookies.get(SESSION_COOKIE_NAME);
+      console.log("Lendo cookie de sessão:", sessionCookie ? "Encontrado" : "Não encontrado");
       return sessionCookie ? JSON.parse(sessionCookie) : null;
     } catch (error) {
       console.error("Erro ao ler sessão do cookie:", error);

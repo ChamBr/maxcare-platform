@@ -20,19 +20,16 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
 
     try {
       setIsLoading(true);
+      console.log("Iniciando processo de logout");
+      
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error("Erro ao fazer logout:", error);
-        toast({
-          variant: "destructive",
-          title: "Erro ao fazer logout",
-          description: error.message,
-        });
-        return;
+        throw error;
       }
 
-      // Limpa o estado local
+      console.log("Logout realizado com sucesso");
       onLogout();
       
       toast({
@@ -40,7 +37,7 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
         description: "Você foi desconectado da sua conta",
       });
       
-      // Redireciona para a página de login
+      // Redireciona para a página de login com replace para evitar voltar ao estado anterior
       navigate("/login", { replace: true });
       
     } catch (error: any) {
@@ -48,7 +45,7 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
       toast({
         variant: "destructive",
         title: "Erro ao fazer logout",
-        description: "Ocorreu um erro inesperado ao tentar desconectar.",
+        description: error.message || "Ocorreu um erro inesperado ao tentar desconectar.",
       });
     } finally {
       setIsLoading(false);

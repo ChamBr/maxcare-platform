@@ -16,14 +16,27 @@ export const useAuthState = () => {
   const { isOnline } = useConnectionState();
 
   const clearUserState = useCallback(() => {
+    console.log("Limpando estado do usuário");
     setSession(null);
+    saveSessionToCookie(null);
     setIsLoading(false);
     setRetryCount(0);
-  }, [setSession, setRetryCount]);
+  }, [setSession, setRetryCount, saveSessionToCookie]);
 
   const refreshSession = useCallback(async (retryAttempt = 0) => {
+    if (!isOnline) {
+      console.log("Offline: usando sessão em cache");
+      const cachedSession = getSessionFromCookie();
+      if (cachedSession) {
+        setSession(cachedSession);
+        await checkUserRole(cachedSession.user.id);
+      }
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      console.log(`Tentando atualizar sessão... (tentativa ${retryAttempt + 1})`);
+      console.log(`Atualizando sessão... (tentativa ${retryAttempt + 1})`);
       
       const { data: { session: currentSession }, error } = await supabase.auth.getSession();
       
@@ -32,26 +45,24 @@ export const useAuthState = () => {
         throw error;
       }
 
-      console.log("Sessão atual:", currentSession ? "Encontrada" : "Não encontrada");
-      
       if (!currentSession) {
+        console.log("Nenhuma sessão encontrada");
         const cachedSession = getSessionFromCookie();
         if (cachedSession) {
           console.log("Usando sessão em cache");
           setSession(cachedSession);
           await checkUserRole(cachedSession.user.id);
-          setIsLoading(false);
-          return;
+        } else {
+          clearUserState();
         }
-        clearUserState();
         return;
       }
 
+      console.log("Sessão atualizada com sucesso");
       setSession(currentSession);
       saveSessionToCookie(currentSession);
       await checkUserRole(currentSession.user.id);
       setRetryCount(0);
-      console.log("Sessão atualizada com sucesso");
 
     } catch (error) {
       console.error("Erro ao atualizar sessão:", error);
@@ -85,7 +96,8 @@ export const useAuthState = () => {
     retryCount,
     setRetryCount,
     setSession,
-    toast
+    toast,
+    isOnline
   ]);
 
   useEffect(() => {
@@ -96,7 +108,7 @@ export const useAuthState = () => {
 
       console.log("Estado de autenticação alterado:", event);
 
-      if (event === 'SIGNED_OUT' || !newSession) {
+      if (event === 'SIGNED_OUT') {
         clearUserState();
         return;
       }
@@ -111,8 +123,6 @@ export const useAuthState = () => {
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
-
-    // Verificação inicial da sessão
     refreshSession();
 
     return () => {
