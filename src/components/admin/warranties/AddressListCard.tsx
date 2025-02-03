@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Check, AlertCircle, XOctagon } from "lucide-react";
 
 interface Address {
   id: string;
@@ -24,16 +25,31 @@ export const AddressListCard = ({
   selectedAddressId, 
   onAddressSelect 
 }: AddressListCardProps) => {
-  const getWarrantyStatusColor = (status: string | undefined) => {
+  const getWarrantyStatusBadge = (status: string | undefined) => {
     switch (status) {
       case 'approved':
-        return 'success';
+        return (
+          <Badge variant="success" className="h-5 text-xs whitespace-nowrap">
+            <Check className="w-3 h-3 mr-1" />
+            Aprovado
+          </Badge>
+        );
       case 'pending':
-        return 'blue';
+        return (
+          <Badge variant="blue" className="h-5 text-xs whitespace-nowrap">
+            <AlertCircle className="w-3 h-3 mr-1" />
+            Pendente
+          </Badge>
+        );
       case 'rejected':
-        return 'red';
+        return (
+          <Badge variant="red" className="h-5 text-xs whitespace-nowrap">
+            <XOctagon className="w-3 h-3 mr-1" />
+            Rejeitado
+          </Badge>
+        );
       default:
-        return 'secondary';
+        return null;
     }
   };
 
@@ -64,17 +80,8 @@ export const AddressListCard = ({
                     {address.city}, {address.state_code}
                   </p>
                 </div>
-                <div className="flex flex-col gap-1">
-                  {address.has_active_warranty && (
-                    <Badge variant="secondary" className="h-5 text-xs whitespace-nowrap">
-                      Garantia Ativa
-                    </Badge>
-                  )}
-                  {address.warranty_status && (
-                    <Badge variant={getWarrantyStatusColor(address.warranty_status)} className="h-5 text-xs whitespace-nowrap">
-                      {address.warranty_status}
-                    </Badge>
-                  )}
+                <div>
+                  {address.warranty_status && getWarrantyStatusBadge(address.warranty_status)}
                 </div>
               </div>
             </div>
