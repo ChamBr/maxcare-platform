@@ -1,7 +1,6 @@
 
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthState } from "@/hooks/useAuthState";
@@ -16,15 +15,25 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { session, isLoading } = useAuthState();
 
   useEffect(() => {
-    // Se não houver sessão após carregar, redireciona para o login
-    if (!isLoading && !session) {
-      toast({
-        title: "Autenticação necessária",
-        description: "Por favor, faça login para acessar esta página",
-        variant: "destructive",
-      });
-      navigate("/login");
-    }
+    let timeoutId: NodeJS.Timeout;
+
+    const checkAuth = () => {
+      if (!isLoading && !session) {
+        toast({
+          title: "Autenticação necessária",
+          description: "Por favor, faça login para acessar esta página",
+          variant: "destructive",
+        });
+        navigate("/login");
+      }
+    };
+
+    // Verifica autenticação com um pequeno delay para evitar redirecionamentos prematuros
+    timeoutId = setTimeout(checkAuth, 100);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [session, isLoading, navigate, toast]);
 
   if (isLoading) {

@@ -39,16 +39,10 @@ export const useAuthState = () => {
     }
   };
 
-  const initializeAuth = async () => {
+  const refreshSession = async () => {
     try {
-      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
       
-      if (sessionError) {
-        console.error("Erro ao obter sessão:", sessionError);
-        clearUserState();
-        return;
-      }
-
       if (!currentSession) {
         clearUserState();
         return;
@@ -56,16 +50,33 @@ export const useAuthState = () => {
 
       setSession(currentSession);
       await checkUserRole(currentSession.user.id);
-    } catch (error) {
-      console.error("Erro ao inicializar autenticação:", error);
-      clearUserState();
-    } finally {
       setIsLoading(false);
+    } catch (error) {
+      console.error("Erro ao atualizar sessão:", error);
+      clearUserState();
     }
   };
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log("Página visível - verificando sessão");
+        refreshSession();
+      }
+    };
+
+    const handleOnline = () => {
+      console.log("Conexão restabelecida - verificando sessão");
+      refreshSession();
+    };
+
+    const handleFocus = () => {
+      console.log("Janela em foco - verificando sessão");
+      refreshSession();
+    };
 
     // Configura o listener para mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
@@ -86,11 +97,19 @@ export const useAuthState = () => {
       }
     });
 
-    initializeAuth();
+    // Inicializa autenticação e configura listeners
+    refreshSession();
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('focus', handleFocus);
 
     // Cleanup
     return () => {
       mounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('focus', handleFocus);
       subscription.unsubscribe();
     };
   }, []);
