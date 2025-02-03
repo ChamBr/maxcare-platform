@@ -51,18 +51,21 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
 
       if (addressesError) throw addressesError;
 
-      const { data: activeWarranties, error: warrantiesError } = await supabase
+      const { data: warranties, error: warrantiesError } = await supabase
         .from("warranties")
-        .select("id, address_id")
-        .eq("user_id", customerData.user_id)
-        .eq("status", "active")
-        .eq("approval_status", "approved");
+        .select("id, address_id, status, approval_status")
+        .eq("user_id", customerData.user_id);
 
       if (warrantiesError) throw warrantiesError;
 
       return addressesData.map(address => ({
         ...address,
-        has_active_warranty: activeWarranties.some(w => w.address_id === address.id)
+        has_active_warranty: warranties.some(w => 
+          w.address_id === address.id && 
+          w.status === 'active' && 
+          w.approval_status === 'approved'
+        ),
+        warranty_status: warranties.find(w => w.address_id === address.id)?.approval_status
       }));
     },
     enabled: !!customerData?.user_id,
