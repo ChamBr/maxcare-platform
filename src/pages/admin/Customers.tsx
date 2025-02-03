@@ -15,9 +15,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
+type WarrantyBase = {
+  id: string;
+  warranty_start: string;
+  warranty_end: string;
+  status: string;
+  approval_status: string;
+};
+
 type CustomerWithWarranty = User & {
   has_active_warranty: boolean;
   warranties_count: number;
+  warranties?: WarrantyBase[];
 };
 
 const Customers = () => {
@@ -43,13 +52,13 @@ const Customers = () => {
 
       if (error) throw error;
 
-      return users.map((user: any) => ({
+      return (users as any[]).map((user): CustomerWithWarranty => ({
         ...user,
-        has_active_warranty: user.warranties?.some((w: any) => 
+        has_active_warranty: user.warranties?.some((w: WarrantyBase) => 
           w.status === 'active' && 
           w.approval_status === 'approved' &&
           new Date(w.warranty_end) > new Date()
-        ),
+        ) || false,
         warranties_count: user.warranties?.length || 0
       }));
     }
