@@ -8,7 +8,6 @@ import { WarrantyServicesTable } from "@/components/services/WarrantyServicesTab
 import { WarrantyRequestedServicesTable } from "@/components/services/WarrantyRequestedServicesTable";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
-import { Address } from "@/types/address";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -165,76 +164,82 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
         </div>
       </div>
 
+      {/* Primeira linha: Info do Cliente e Endereços lado a lado */}
       <div className="grid gap-4 md:grid-cols-2">
-        {/* Coluna da Esquerda */}
-        <div className="space-y-4">
-          {/* Informações do Cliente - Compacto */}
-          <Card className="shadow-sm">
-            <CardHeader className="p-4">
-              <CardTitle className="text-lg">Informações do Cliente</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 pt-0 grid gap-2">
-              <div>
-                <p className="font-medium text-base">{customerData?.users?.full_name}</p>
-                <p className="text-sm text-muted-foreground">{customerData?.users?.email}</p>
-                <p className="text-sm text-muted-foreground">{customerData?.users?.phone || "Não informado"}</p>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Informações do Cliente - Lado Esquerdo */}
+        <Card className="shadow-sm">
+          <CardHeader className="p-4">
+            <CardTitle className="text-lg">Informações do Cliente</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <div className="space-y-2">
+              <p className="font-medium">{customerData?.users?.full_name}</p>
+              <p className="text-sm text-muted-foreground">{customerData?.users?.email}</p>
+              <p className="text-sm text-muted-foreground">{customerData?.users?.phone || "Não informado"}</p>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Lista de Endereços - Mais Compacta */}
-          <Card className="shadow-sm">
-            <CardHeader className="p-4">
-              <CardTitle className="text-lg">Endereços</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <div className="space-y-2">
-                {addresses?.map((address) => (
-                  <div
-                    key={address.id}
-                    className={cn(
-                      "p-3 rounded-md border cursor-pointer transition-colors",
-                      selectedAddressId === address.id ? "border-primary bg-primary/5" : "hover:bg-accent",
-                      "relative"
-                    )}
-                    onClick={() => setSelectedAddressId(address.id)}
-                  >
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="flex-1 text-left">
-                        <p className="text-sm font-medium">
-                          {address.street_address}
-                          {address.apt_suite_unit && `, ${address.apt_suite_unit}`}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {address.city}, {address.state_code}
-                        </p>
-                      </div>
-                      {address.has_active_warranty && (
-                        <Badge variant="secondary" className="h-5 text-xs whitespace-nowrap">
-                          Garantia Ativa
-                        </Badge>
-                      )}
+        {/* Endereços - Lado Direito */}
+        <Card className="shadow-sm">
+          <CardHeader className="p-4">
+            <CardTitle className="text-lg">Endereços</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <div className="space-y-2 max-h-[150px] overflow-y-auto">
+              {addresses?.map((address) => (
+                <div
+                  key={address.id}
+                  className={cn(
+                    "p-2 rounded-md border cursor-pointer transition-colors",
+                    selectedAddressId === address.id ? "border-primary bg-primary/5" : "hover:bg-accent",
+                    "relative"
+                  )}
+                  onClick={() => setSelectedAddressId(address.id)}
+                >
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex-1 text-sm">
+                      <p className="font-medium">
+                        {address.street_address}
+                        {address.apt_suite_unit && `, ${address.apt_suite_unit}`}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {address.city}, {address.state_code}
+                      </p>
                     </div>
+                    {address.has_active_warranty && (
+                      <Badge variant="secondary" className="h-5 text-xs whitespace-nowrap">
+                        Garantia Ativa
+                      </Badge>
+                    )}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Coluna da Direita - Serviços */}
-        <div className="space-y-4">
-          {selectedAddressId && warrantyServices?.warranty && (
-            <Card className="shadow-sm">
-              <CardHeader className="p-4">
-                <CardTitle className="text-lg flex items-center justify-between">
+      {/* Segunda linha: Serviços */}
+      {selectedAddressId && (
+        <Card className="shadow-sm">
+          <CardHeader className="p-4">
+            <CardTitle className="text-lg flex items-center justify-between">
+              {warrantyServices?.warranty ? (
+                <>
                   <span>Serviços Disponíveis</span>
                   <Badge variant="outline" className="ml-2">
                     {warrantyServices.warranty.warranty_types.name}
                   </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0 space-y-4">
+                </>
+              ) : (
+                <span>Endereço sem Garantia Ativa</span>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            {warrantyServices?.warranty ? (
+              <div className="space-y-4">
                 <WarrantyServicesTable 
                   services={warrantyServices.services || []}
                   warrantyId={warrantyServices.warranty.id}
@@ -249,27 +254,20 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
                     </div>
                   </>
                 )}
-              </CardContent>
-            </Card>
-          )}
-
-          {selectedAddressId && !warrantyServices?.warranty && (
-            <Card className="shadow-sm">
-              <CardHeader className="p-4">
-                <CardTitle className="text-lg">Endereço sem Garantia Ativa</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
+              </div>
+            ) : (
+              <div>
                 <p className="text-sm text-muted-foreground mb-4">
                   Este endereço não possui uma garantia ativa. Você pode cadastrar uma nova garantia para este endereço.
                 </p>
                 <Button size="sm">
                   Cadastrar Nova Garantia
                 </Button>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
