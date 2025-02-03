@@ -3,6 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Check, AlertCircle, XOctagon } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Address {
   id: string;
@@ -29,24 +35,48 @@ export const AddressListCard = ({
     switch (status) {
       case 'approved':
         return (
-          <Badge variant="success" className="h-5 text-xs whitespace-nowrap">
-            <Check className="w-3 h-3 mr-1" />
-            Aprovado
-          </Badge>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="success" className="h-5 w-5 p-0 flex items-center justify-center">
+                  <Check className="w-3 h-3" />
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Aprovado</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
       case 'pending':
         return (
-          <Badge variant="blue" className="h-5 text-xs whitespace-nowrap">
-            <AlertCircle className="w-3 h-3 mr-1" />
-            Pendente
-          </Badge>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="blue" className="h-5 w-5 p-0 flex items-center justify-center">
+                  <AlertCircle className="w-3 h-3" />
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Pendente</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
       case 'rejected':
         return (
-          <Badge variant="red" className="h-5 text-xs whitespace-nowrap">
-            <XOctagon className="w-3 h-3 mr-1" />
-            Rejeitado
-          </Badge>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="red" className="h-5 w-5 p-0 flex items-center justify-center">
+                  <XOctagon className="w-3 h-3" />
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Rejeitado</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
       default:
         return null;
