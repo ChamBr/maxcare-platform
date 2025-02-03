@@ -99,6 +99,19 @@ const Customers = () => {
     }
   });
 
+  const getWarrantyStatusColor = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return 'success';
+      case 'pending':
+        return 'blue';
+      case 'rejected':
+        return 'red';
+      default:
+        return 'secondary';
+    }
+  };
+
   const filteredCustomers = customers?.filter(customer => {
     const matchesSearch = 
       customer.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -153,6 +166,7 @@ const Customers = () => {
               <TableHead>Active Warranties</TableHead>
               <TableHead>Addresses</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Warranty Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -168,6 +182,13 @@ const Customers = () => {
                   <Badge variant={customer.has_active_warranty ? "success" : "secondary"}>
                     {customer.has_active_warranty ? "Active" : "Inactive"}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  {customer.warranties && customer.warranties.length > 0 && (
+                    <Badge variant={getWarrantyStatusColor(customer.warranties[0].approval_status)}>
+                      {customer.warranties[0].approval_status}
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button 
