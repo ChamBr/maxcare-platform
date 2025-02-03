@@ -2,14 +2,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft } from "lucide-react";
-import { WarrantyServicesTable } from "@/components/services/WarrantyServicesTable";
-import { WarrantyRequestedServicesTable } from "@/components/services/WarrantyRequestedServicesTable";
-import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { CustomerInfoCard } from "./CustomerInfoCard";
+import { AddressListCard } from "./AddressListCard";
+import { ServicesSectionCard } from "./ServicesSectionCard";
 
 interface WarrantyDetailsProps {
   warrantyId: string;
@@ -166,107 +164,20 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
 
       {/* Primeira linha: Info do Cliente e Endereços lado a lado */}
       <div className="grid gap-4 md:grid-cols-2">
-        {/* Informações do Cliente - Lado Esquerdo */}
-        <Card className="shadow-sm">
-          <CardHeader className="p-4">
-            <CardTitle className="text-lg">Informações do Cliente</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="space-y-2">
-              <p className="font-medium">{customerData?.users?.full_name}</p>
-              <p className="text-sm text-muted-foreground">{customerData?.users?.email}</p>
-              <p className="text-sm text-muted-foreground">{customerData?.users?.phone || "Não informado"}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Endereços - Lado Direito */}
-        <Card className="shadow-sm">
-          <CardHeader className="p-4">
-            <CardTitle className="text-lg">Endereços</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="space-y-2 max-h-[150px] overflow-y-auto">
-              {addresses?.map((address) => (
-                <div
-                  key={address.id}
-                  className={cn(
-                    "p-2 rounded-md border cursor-pointer transition-colors",
-                    selectedAddressId === address.id ? "border-primary bg-primary/5" : "hover:bg-accent",
-                    "relative"
-                  )}
-                  onClick={() => setSelectedAddressId(address.id)}
-                >
-                  <div className="flex justify-between items-start gap-2">
-                    <div className="flex-1 text-sm">
-                      <p className="font-medium">
-                        {address.street_address}
-                        {address.apt_suite_unit && `, ${address.apt_suite_unit}`}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {address.city}, {address.state_code}
-                      </p>
-                    </div>
-                    {address.has_active_warranty && (
-                      <Badge variant="secondary" className="h-5 text-xs whitespace-nowrap">
-                        Garantia Ativa
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <CustomerInfoCard customer={customerData?.users} />
+        <AddressListCard 
+          addresses={addresses || []}
+          selectedAddressId={selectedAddressId}
+          onAddressSelect={setSelectedAddressId}
+        />
       </div>
 
       {/* Segunda linha: Serviços */}
       {selectedAddressId && (
-        <Card className="shadow-sm">
-          <CardHeader className="p-4">
-            <CardTitle className="text-lg flex items-center justify-between">
-              {warrantyServices?.warranty ? (
-                <>
-                  <span>Serviços Disponíveis</span>
-                  <Badge variant="outline" className="ml-2">
-                    {warrantyServices.warranty.warranty_types.name}
-                  </Badge>
-                </>
-              ) : (
-                <span>Endereço sem Garantia Ativa</span>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            {warrantyServices?.warranty ? (
-              <div className="space-y-4">
-                <WarrantyServicesTable 
-                  services={warrantyServices.services || []}
-                  warrantyId={warrantyServices.warranty.id}
-                />
-
-                {requestedServices && requestedServices.length > 0 && (
-                  <>
-                    <Separator className="my-4" />
-                    <div>
-                      <h3 className="text-sm font-medium mb-3">Serviços Solicitados</h3>
-                      <WarrantyRequestedServicesTable services={requestedServices} />
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : (
-              <div>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Este endereço não possui uma garantia ativa. Você pode cadastrar uma nova garantia para este endereço.
-                </p>
-                <Button size="sm">
-                  Cadastrar Nova Garantia
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <ServicesSectionCard 
+          warrantyServices={warrantyServices}
+          requestedServices={requestedServices}
+        />
       )}
     </div>
   );
