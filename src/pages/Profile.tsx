@@ -1,6 +1,6 @@
 
 import { UserCircle, MapPin } from "lucide-react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 
 const Profile = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { userRole } = useAuthState();
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<Address | undefined>();
@@ -78,6 +79,7 @@ const Profile = () => {
       if (error) throw error;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       toast({
         title: "Perfil atualizado",
         description: "Suas informações foram atualizadas com sucesso.",
@@ -111,11 +113,11 @@ const Profile = () => {
       if (error) throw error;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
       toast({
         title: "Endereço atualizado",
         description: "Endereço principal foi atualizado com sucesso.",
       });
-      refetchAddresses();
     },
     onError: (error: Error) => {
       console.error("Error updating primary address:", error);
@@ -135,7 +137,7 @@ const Profile = () => {
   const handleAddressFormSuccess = () => {
     setShowAddressForm(false);
     setSelectedAddress(undefined);
-    refetchAddresses();
+    queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
   };
 
   const handleAddressFormCancel = () => {
