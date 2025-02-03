@@ -55,7 +55,7 @@ const Customers = () => {
 
       if (!customerIds) return [];
 
-      // Get customer details with warranties and addresses count
+      // Get customer details with warranties
       const { data: users, error } = await supabase
         .from("users")
         .select(`
@@ -66,27 +66,36 @@ const Customers = () => {
             warranty_end,
             status,
             approval_status
-          ),
-          addresses:addresses(count)
+          )
         `)
         .in("id", customerIds.map(row => row.user_id));
 
       if (error) throw error;
 
-      return (users as any[]).map((user): CustomerWithWarranty => ({
-        ...user,
-        has_active_warranty: user.warranties?.some((w: WarrantyBase) => 
-          w.status === 'active' && 
-          w.approval_status === 'approved' &&
-          new Date(w.warranty_end) > new Date()
-        ) || false,
-        active_warranties_count: user.warranties?.filter((w: WarrantyBase) =>
-          w.status === 'active' && 
-          w.approval_status === 'approved' &&
-          new Date(w.warranty_end) > new Date()
-        ).length || 0,
-        addresses_count: user.addresses?.count || 0
-      }));
+      // Get addresses count for each user
+      const addressPromises = users.map(async (user) => {
+        const { count } = await supabase
+          .from("addresses")
+          .select("*", { count: 'exact', head: true })
+          .eq("user_id", user.id);
+        
+        return {
+          ...user,
+          has_active_warranty: user.warranties?.some((w: WarrantyBase) => 
+            w.status === 'active' && 
+            w.approval_status === 'approved' &&
+            new Date(w.warranty_end) > new Date()
+          ) || false,
+          active_warranties_count: user.warranties?.filter((w: WarrantyBase) =>
+            w.status === 'active' && 
+            w.approval_status === 'approved' &&
+            new Date(w.warranty_end) > new Date()
+          ).length || 0,
+          addresses_count: count || 0
+        };
+      });
+
+      return Promise.all(addressPromises);
     }
   });
 
