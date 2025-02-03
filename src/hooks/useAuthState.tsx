@@ -2,6 +2,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import Cookies from "js-cookie";
+
+const SESSION_COOKIE_NAME = "maxcare_session";
+const SESSION_EXPIRY_HOURS = 1;
 
 export const useAuthState = () => {
   const { toast } = useToast();
@@ -12,7 +16,7 @@ export const useAuthState = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [retryCount, setRetryCount] = useState(0);
   const MAX_RETRY_ATTEMPTS = 3;
-  const RETRY_DELAY = 1000; // 1 segundo
+  const RETRY_DELAY = 1000;
 
   const clearUserState = useCallback(() => {
     setIsStaff(false);
@@ -20,6 +24,25 @@ export const useAuthState = () => {
     setSession(null);
     setIsLoading(false);
     setRetryCount(0);
+    Cookies.remove(SESSION_COOKIE_NAME);
+  }, []);
+
+  const saveSessionToCookie = useCallback((currentSession: any) => {
+    if (!currentSession) {
+      Cookies.remove(SESSION_COOKIE_NAME);
+      return;
+    }
+
+    Cookies.set(SESSION_COOKIE_NAME, JSON.stringify(currentSession), {
+      expires: SESSION_EXPIRY_HOURS / 24, // Converter horas para dias
+      secure: true,
+      sameSite: 'strict'
+    });
+  }, []);
+
+  const getSessionFromCookie = useCallback(() => {
+    const sessionCookie = Cookies.get(SESSION_COOKIE_NAME);
+    return sessionCookie ? JSON.parse(sessionCookie) : null;
   }, []);
 
   const checkUserRole = useCallback(async (userId: string) => {
@@ -46,7 +69,14 @@ export const useAuthState = () => {
 
   const refreshSession = useCallback(async (retryAttempt = 0) => {
     if (!isOnline) {
-      console.log("Offline - aguardando conexão para atualizar sessão");
+      console.log("Offline - usando sessão do cookie se disponível");
+      const cachedSession = getSessionFromCookie();
+      if (cachedSession) {
+        setSession(cachedSession);
+        await checkUserRole(cachedSession.user.id);
+        setIsLoading(false);
+        return;
+      }
       return;
     }
 
@@ -63,7 +93,11 @@ export const useAuthState = () => {
       console.log("Resultado da atualização:", currentSession ? "Sessão encontrada" : "Sem sessão");
       
       if (!currentSession) {
-        if (retryAttempt < MAX_RETRY_ATTEMPTS) {
+        const cachedSession = getSessionFromCookie();
+        if (cachedSession && retryAttempt < MAX_RETRY_ATTEMPTS) {
+          console.log("Usando sessão em cache enquanto tenta reconectar");
+          setSession(cachedSession);
+          await checkUserRole(cachedSession.user.id);
           console.log(`Aguardando ${RETRY_DELAY}ms para tentar novamente...`);
           setTimeout(() => refreshSession(retryAttempt + 1), RETRY_DELAY * (retryAttempt + 1));
           return;
@@ -72,7 +106,6 @@ export const useAuthState = () => {
         return;
       }
 
-      // Verificar se o token está próximo de expirar (30 minutos ou menos)
       const expiresAt = new Date((currentSession.expires_at || 0) * 1000);
       const thirtyMinutesFromNow = new Date(Date.now() + 30 * 60 * 1000);
 
@@ -88,19 +121,26 @@ export const useAuthState = () => {
 
         if (refreshedSession) {
           setSession(refreshedSession);
+          saveSessionToCookie(refreshedSession);
           await checkUserRole(refreshedSession.user.id);
         }
       } else {
         setSession(currentSession);
+        saveSessionToCookie(currentSession);
         await checkUserRole(currentSession.user.id);
       }
 
-      setRetryCount(0); // Reset do contador de tentativas após sucesso
+      setRetryCount(0);
     } catch (error) {
       console.error("Erro ao atualizar sessão:", error);
       setRetryCount(prev => prev + 1);
       
-      if (retryCount < MAX_RETRY_ATTEMPTS) {
+      const cachedSession = getSessionFromCookie();
+      if (cachedSession && retryCount < MAX_RETRY_ATTEMPTS) {
+        console.log("Usando sessão em cache durante erro");
+        setSession(cachedSession);
+        await checkUserRole(cachedSession.user.id);
+      } else if (retryCount < MAX_RETRY_ATTEMPTS) {
         console.log(`Tentativa ${retryCount + 1} de ${MAX_RETRY_ATTEMPTS}`);
         setTimeout(refreshSession, RETRY_DELAY * (retryCount + 1));
       } else {
@@ -114,7 +154,7 @@ export const useAuthState = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [checkUserRole, clearUserState, isOnline, retryCount, toast]);
+  }, [checkUserRole, clearUserState, isOnline, retryCount, toast, getSessionFromCookie, saveSessionToCookie]);
 
   useEffect(() => {
     let mounted = true;
@@ -133,6 +173,7 @@ export const useAuthState = () => {
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         setIsLoading(true);
         setSession(newSession);
+        saveSessionToCookie(newSession);
         await checkUserRole(newSession.user.id);
         setIsLoading(false);
       }
@@ -140,7 +181,12 @@ export const useAuthState = () => {
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && mounted) {
-        console.log("Página visível - atualizando sessão");
+        console.log("Página visível - verificando sessão em cache primeiro");
+        const cachedSession = getSessionFromCookie();
+        if (cachedSession) {
+          setSession(cachedSession);
+          checkUserRole(cachedSession.user.id);
+        }
         if (refreshTimeoutId) clearTimeout(refreshTimeoutId);
         refreshTimeoutId = setTimeout(() => refreshSession(), 100);
       }
@@ -153,17 +199,25 @@ export const useAuthState = () => {
     };
 
     const handleOffline = () => {
-      console.log("Conexão perdida");
+      console.log("Conexão perdida - usando cache");
       setIsOnline(false);
+      const cachedSession = getSessionFromCookie();
+      if (cachedSession) {
+        setSession(cachedSession);
+        checkUserRole(cachedSession.user.id);
+      }
     };
 
     // Verificação inicial da sessão
+    const cachedSession = getSessionFromCookie();
+    if (cachedSession) {
+      setSession(cachedSession);
+      checkUserRole(cachedSession.user.id);
+    }
     refreshSession();
 
-    // Configuração dos listeners de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
 
-    // Configuração dos listeners de visibilidade e conectividade
     window.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -176,7 +230,8 @@ export const useAuthState = () => {
       window.removeEventListener('offline', handleOffline);
       subscription.unsubscribe();
     };
-  }, [checkUserRole, clearUserState, refreshSession]);
+  }, [checkUserRole, clearUserState, refreshSession, saveSessionToCookie, getSessionFromCookie]);
 
   return { isStaff, session, userRole, isLoading, isOnline, clearUserState };
 };
+
