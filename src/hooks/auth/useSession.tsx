@@ -21,7 +21,8 @@ export const useSession = () => {
     
     if (!currentSession) {
       console.log("Removendo cookie de sessão");
-      Cookies.remove(SESSION_COOKIE_NAME);
+      Cookies.remove(SESSION_COOKIE_NAME, { path: '/' });
+      localStorage.removeItem(SESSION_COOKIE_NAME);
       return;
     }
 
@@ -29,9 +30,11 @@ export const useSession = () => {
       const sessionData = JSON.stringify(currentSession);
       Cookies.set(SESSION_COOKIE_NAME, sessionData, {
         expires: SESSION_EXPIRY_HOURS / 24,
+        path: '/',
         secure: true,
         sameSite: 'lax'
       });
+      localStorage.setItem(SESSION_COOKIE_NAME, sessionData);
       console.log("Cookie de sessão salvo com sucesso");
     } catch (error) {
       console.error("Erro ao salvar sessão no cookie:", error);
@@ -40,7 +43,7 @@ export const useSession = () => {
 
   const getSessionFromCookie = () => {
     try {
-      const sessionCookie = Cookies.get(SESSION_COOKIE_NAME);
+      const sessionCookie = Cookies.get(SESSION_COOKIE_NAME) || localStorage.getItem(SESSION_COOKIE_NAME);
       console.log("Lendo cookie de sessão:", sessionCookie ? "Encontrado" : "Não encontrado");
       return sessionCookie ? JSON.parse(sessionCookie) : null;
     } catch (error) {

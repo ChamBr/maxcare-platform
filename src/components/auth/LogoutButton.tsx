@@ -29,6 +29,14 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
         throw error;
       }
 
+      // Limpar o localStorage e cookies relacionados à sessão
+      localStorage.clear();
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+
       console.log("Logout realizado com sucesso");
       onLogout();
       
@@ -37,7 +45,6 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
         description: "Você foi desconectado da sua conta",
       });
       
-      // Redireciona para a página de login com replace para evitar voltar ao estado anterior
       navigate("/login", { replace: true });
       
     } catch (error: any) {
@@ -45,7 +52,7 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
       toast({
         variant: "destructive",
         title: "Erro ao fazer logout",
-        description: error.message || "Ocorreu um erro inesperado ao tentar desconectar.",
+        description: "Ocorreu um erro ao tentar desconectar. Tente novamente.",
       });
     } finally {
       setIsLoading(false);

@@ -17,6 +17,7 @@ export const useAuthState = () => {
 
   const clearUserState = useCallback(() => {
     console.log("Limpando estado do usuário");
+    localStorage.clear();
     setSession(null);
     saveSessionToCookie(null);
     setIsLoading(false);
@@ -24,17 +25,6 @@ export const useAuthState = () => {
   }, [setSession, setRetryCount, saveSessionToCookie]);
 
   const refreshSession = useCallback(async (retryAttempt = 0) => {
-    if (!isOnline) {
-      console.log("Offline: usando sessão em cache");
-      const cachedSession = getSessionFromCookie();
-      if (cachedSession) {
-        setSession(cachedSession);
-        await checkUserRole(cachedSession.user.id);
-      }
-      setIsLoading(false);
-      return;
-    }
-
     try {
       console.log(`Atualizando sessão... (tentativa ${retryAttempt + 1})`);
       
@@ -47,18 +37,11 @@ export const useAuthState = () => {
 
       if (!currentSession) {
         console.log("Nenhuma sessão encontrada");
-        const cachedSession = getSessionFromCookie();
-        if (cachedSession) {
-          console.log("Usando sessão em cache");
-          setSession(cachedSession);
-          await checkUserRole(cachedSession.user.id);
-        } else {
-          clearUserState();
-        }
+        clearUserState();
         return;
       }
 
-      console.log("Sessão atualizada com sucesso");
+      console.log("Sessão atualizada com sucesso:", currentSession);
       setSession(currentSession);
       saveSessionToCookie(currentSession);
       await checkUserRole(currentSession.user.id);
@@ -66,13 +49,8 @@ export const useAuthState = () => {
 
     } catch (error) {
       console.error("Erro ao atualizar sessão:", error);
-      const cachedSession = getSessionFromCookie();
       
-      if (cachedSession && shouldRetry(retryCount)) {
-        console.log("Usando sessão em cache durante recuperação");
-        setSession(cachedSession);
-        await checkUserRole(cachedSession.user.id);
-      } else if (shouldRetry(retryCount)) {
+      if (shouldRetry(retryCount)) {
         setRetryCount(prev => prev + 1);
         setTimeout(() => refreshSession(retryCount + 1), getRetryDelay(retryCount));
       } else {
@@ -89,15 +67,13 @@ export const useAuthState = () => {
   }, [
     checkUserRole,
     clearUserState,
-    getSessionFromCookie,
-    saveSessionToCookie,
     shouldRetry,
     getRetryDelay,
     retryCount,
     setRetryCount,
     setSession,
-    toast,
-    isOnline
+    saveSessionToCookie,
+    toast
   ]);
 
   useEffect(() => {
@@ -115,14 +91,18 @@ export const useAuthState = () => {
 
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         setIsLoading(true);
-        setSession(newSession);
-        saveSessionToCookie(newSession);
-        await checkUserRole(newSession.user.id);
+        if (newSession) {
+          setSession(newSession);
+          saveSessionToCookie(newSession);
+          await checkUserRole(newSession.user.id);
+        }
         setIsLoading(false);
       }
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
+    
+    // Inicialização
     refreshSession();
 
     return () => {
