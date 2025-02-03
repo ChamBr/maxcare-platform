@@ -1,7 +1,9 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -14,44 +16,76 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        setIsLoading(true);
+        const { data: { session }, error } = await supabase.auth.getSession();
         
+        if (error) {
+          console.error("Erro ao verificar sessão:", error);
+          if (mounted) {
+            setIsAuthenticated(false);
+            navigate("/login");
+          }
+          return;
+        }
+
         if (!session) {
-          toast({
-            title: "Autenticação necessária",
-            description: "Por favor, faça login para acessar esta página",
-            variant: "destructive",
-          });
-          navigate("/login");
+          if (mounted) {
+            setIsAuthenticated(false);
+            toast({
+              title: "Autenticação necessária",
+              description: "Por favor, faça login para acessar esta página",
+              variant: "destructive",
+            });
+            navigate("/login");
+          }
           return;
         }
         
-        setIsAuthenticated(true);
+        if (mounted) {
+          setIsAuthenticated(true);
+        }
       } catch (error) {
         console.error("Erro ao verificar autenticação:", error);
-        navigate("/login");
+        if (mounted) {
+          setIsAuthenticated(false);
+          navigate("/login");
+        }
       } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+
+      if (event === 'SIGNED_OUT' || !session) {
+        setIsAuthenticated(false);
         navigate("/login");
+      } else if (event === 'SIGNED_IN') {
+        setIsAuthenticated(true);
       }
     });
 
     checkAuth();
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, toast]);
 
   if (isLoading) {
-    return null; // ou um componente de loading
+    return (
+      <div className="p-4">
+        <Skeleton className="h-[200px] w-full" />
+      </div>
+    );
   }
 
   return isAuthenticated ? <>{children}</> : null;
