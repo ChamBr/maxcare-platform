@@ -13,6 +13,7 @@ import AdminUsers from "@/pages/admin/Users";
 import AdminServices from "@/pages/admin/Services";
 import AdminNotifications from "@/pages/admin/Notifications";
 import AdminSettings from "@/pages/admin/Settings";
+import AdminCustomers from "@/pages/admin/Customers";
 import Logs from "@/pages/admin/Logs";
 import Subscriptions from "@/pages/admin/Subscriptions";
 import ServiceRequests from "@/pages/admin/ServiceRequests";
@@ -56,6 +57,7 @@ export const AppRoutes = () => {
             <PageWrapper showBreadcrumbs>
               <Routes>
                 <Route index element={<Dashboard />} />
+                <Route path="customers" element={<AdminCustomers />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="services" element={<AdminServices />} />
                 <Route path="notifications" element={<AdminNotifications />} />
