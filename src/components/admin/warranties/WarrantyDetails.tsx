@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -16,21 +17,21 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
   const { data: warranty, isLoading } = useQuery({
     queryKey: ["warranty-details", warrantyId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: warrantyData, error: warrantyError } = await supabase
         .from("warranties")
         .select(`
           *,
           users!warranties_user_id_fkey (
             full_name,
             email,
-            phone
-          ),
-          addresses (
-            street_address,
-            apt_suite_unit,
-            city,
-            state_code,
-            zip_code
+            phone,
+            addresses (
+              street_address,
+              apt_suite_unit,
+              city,
+              state_code,
+              zip_code
+            )
           ),
           warranty_types (
             id,
@@ -40,8 +41,20 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
         .eq("id", warrantyId)
         .single();
 
-      if (error) throw error;
-      return data;
+      if (warrantyError) throw warrantyError;
+
+      // Adicionar endereço principal do usuário aos dados da garantia
+      const { data: primaryAddress } = await supabase
+        .from("addresses")
+        .select("*")
+        .eq("user_id", warrantyData.user_id)
+        .eq("is_primary", true)
+        .single();
+
+      return {
+        ...warrantyData,
+        primary_address: primaryAddress
+      };
     },
   });
 
@@ -126,16 +139,22 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
 
         <Card>
           <CardHeader>
-            <CardTitle>Endereço</CardTitle>
+            <CardTitle>Endereço Principal</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>
-              {warranty.addresses?.street_address}
-              {warranty.addresses?.apt_suite_unit && `, ${warranty.addresses.apt_suite_unit}`}
-            </p>
-            <p>
-              {warranty.addresses?.city}, {warranty.addresses?.state_code} - {warranty.addresses?.zip_code}
-            </p>
+            {warranty.primary_address ? (
+              <>
+                <p>
+                  {warranty.primary_address.street_address}
+                  {warranty.primary_address.apt_suite_unit && `, ${warranty.primary_address.apt_suite_unit}`}
+                </p>
+                <p>
+                  {warranty.primary_address.city}, {warranty.primary_address.state_code} - {warranty.primary_address.zip_code}
+                </p>
+              </>
+            ) : (
+              <p>Nenhum endereço principal cadastrado</p>
+            )}
           </CardContent>
         </Card>
       </div>
