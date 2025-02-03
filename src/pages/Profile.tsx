@@ -6,10 +6,13 @@ import { ProfileSection } from "@/components/profile/ProfileSection";
 import { AddressSection } from "@/components/profile/AddressSection";
 import { ProfileInfo } from "@/components/profile/ProfileInfo";
 import { AddressDialog } from "@/components/profile/AddressDialog";
+import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { useAuthState } from "@/hooks/useAuthState";
-import { Badge } from "@/components/ui/badge";
 import { useProfileData } from "@/hooks/useProfileData";
-import { getRoleBadgeVariant } from "@/utils/getRoleBadgeVariant";
+
+interface HandleActionProps {
+  address?: Address;
+}
 
 const Profile = () => {
   const { userRole } = useAuthState();
@@ -42,10 +45,7 @@ const Profile = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-6">
-        <h1 className="text-2xl font-bold">Perfil</h1>
-        <Badge variant={getRoleBadgeVariant(userRole)}>{userRole}</Badge>
-      </div>
+      <ProfileHeader userRole={userRole} />
 
       <div className="grid gap-4 md:grid-cols-2">
         <ProfileSection title="Informações Pessoais" icon={<UserCircle className="h-5 w-5" />}>
