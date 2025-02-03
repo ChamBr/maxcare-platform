@@ -10,6 +10,7 @@ interface Address {
   city: string;
   state_code: string;
   has_active_warranty?: boolean;
+  warranty_status?: string;
 }
 
 interface AddressListCardProps {
@@ -23,6 +24,19 @@ export const AddressListCard = ({
   selectedAddressId, 
   onAddressSelect 
 }: AddressListCardProps) => {
+  const getWarrantyStatusColor = (status: string | undefined) => {
+    switch (status) {
+      case 'approved':
+        return 'success';
+      case 'pending':
+        return 'blue';
+      case 'rejected':
+        return 'red';
+      default:
+        return 'secondary';
+    }
+  };
+
   return (
     <Card className="shadow-sm">
       <CardHeader className="p-4">
@@ -50,11 +64,18 @@ export const AddressListCard = ({
                     {address.city}, {address.state_code}
                   </p>
                 </div>
-                {address.has_active_warranty && (
-                  <Badge variant="secondary" className="h-5 text-xs whitespace-nowrap">
-                    Garantia Ativa
-                  </Badge>
-                )}
+                <div className="flex flex-col gap-1">
+                  {address.has_active_warranty && (
+                    <Badge variant="secondary" className="h-5 text-xs whitespace-nowrap">
+                      Garantia Ativa
+                    </Badge>
+                  )}
+                  {address.warranty_status && (
+                    <Badge variant={getWarrantyStatusColor(address.warranty_status)} className="h-5 text-xs whitespace-nowrap">
+                      {address.warranty_status}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
           ))}
