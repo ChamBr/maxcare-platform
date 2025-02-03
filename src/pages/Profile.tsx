@@ -1,6 +1,6 @@
 
 import { UserCircle, MapPin } from "lucide-react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 const Profile = () => {
   const { toast } = useToast();
   const { userRole } = useAuthState();
+  const queryClient = useQueryClient();
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<Address | undefined>();
 
@@ -82,6 +83,8 @@ const Profile = () => {
         title: "Perfil atualizado",
         description: "Suas informações foram atualizadas com sucesso.",
       });
+      // Invalida o cache e força um novo fetch dos dados do perfil
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
     },
     onError: (error: Error) => {
       console.error("Error updating profile:", error);
