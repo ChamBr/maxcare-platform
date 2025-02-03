@@ -15,25 +15,14 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { session, isLoading } = useAuthState();
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-
-    const checkAuth = () => {
-      if (!isLoading && !session) {
-        toast({
-          title: "Autenticação necessária",
-          description: "Por favor, faça login para acessar esta página",
-          variant: "destructive",
-        });
-        navigate("/login");
-      }
-    };
-
-    // Verifica autenticação com um pequeno delay para evitar redirecionamentos prematuros
-    timeoutId = setTimeout(checkAuth, 100);
-
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
+    if (!isLoading && !session) {
+      toast({
+        title: "Autenticação necessária",
+        description: "Por favor, faça login para acessar esta página",
+        variant: "destructive",
+      });
+      navigate("/login");
+    }
   }, [session, isLoading, navigate, toast]);
 
   if (isLoading) {
