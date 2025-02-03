@@ -27,6 +27,7 @@ type CustomerWithWarranty = User & {
   has_active_warranty: boolean;
   warranties_count: number;
   warranties?: WarrantyBase[];
+  phone?: string | null;
 };
 
 const Customers = () => {
@@ -48,7 +49,12 @@ const Customers = () => {
             approval_status
           )
         `)
-        .eq("role", "customer");
+        .in("id", (
+          await supabase
+            .from("user_roles")
+            .select("user_id")
+            .eq("role", "customer")
+        ).data?.map(row => row.user_id) || []);
 
       if (error) throw error;
 
