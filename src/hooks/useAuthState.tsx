@@ -128,5 +128,5 @@ export const useAuthState = () => {
     };
   }, [checkUserRole, clearUserState, refreshSession]);
 
-  return { isStaff, session, userRole, isLoading, isOnline };
+  return { isStaff, session, userRole, isLoading, isOnline, clearUserState };
 };
