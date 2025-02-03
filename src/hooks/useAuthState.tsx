@@ -11,15 +11,15 @@ export const useAuthState = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const { isStaff, userRole, checkUserRole } = useUserRole();
-  const { session, setSession, saveSessionToCookie, getSessionFromCookie } = useSession();
+  const { session, setSession, saveSessionToCookie } = useSession();
   const { retryCount, setRetryCount, shouldRetry, getRetryDelay } = useAuthRetry();
   const { isOnline } = useConnectionState();
 
   const clearUserState = useCallback(() => {
     console.log("Limpando estado do usuário");
-    localStorage.clear();
     setSession(null);
     saveSessionToCookie(null);
+    localStorage.clear();
     setIsLoading(false);
     setRetryCount(0);
   }, [setSession, setRetryCount, saveSessionToCookie]);
@@ -41,7 +41,7 @@ export const useAuthState = () => {
         return;
       }
 
-      console.log("Sessão atualizada com sucesso:", currentSession);
+      console.log("Sessão atualizada com sucesso");
       setSession(currentSession);
       saveSessionToCookie(currentSession);
       await checkUserRole(currentSession.user.id);

@@ -29,22 +29,30 @@ export const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
         throw error;
       }
 
-      // Limpar o localStorage e cookies relacionados à sessão
+      // Limpar todo o localStorage
       localStorage.clear();
-      document.cookie.split(";").forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-      });
+      
+      // Limpar todos os cookies
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      }
 
       console.log("Logout realizado com sucesso");
+      
+      // Executar callback de logout
       onLogout();
       
+      // Mostrar mensagem de sucesso
       toast({
         title: "Logout realizado com sucesso",
         description: "Você foi desconectado da sua conta",
       });
       
+      // Redirecionar para a página de login
       navigate("/login", { replace: true });
       
     } catch (error: any) {
