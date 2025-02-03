@@ -2,70 +2,24 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import Cookies from "js-cookie";
-
-const SESSION_COOKIE_NAME = "maxcare_session";
-const SESSION_EXPIRY_HOURS = 1;
+import { useSession } from "./auth/useSession";
+import { useUserRole } from "./auth/useUserRole";
+import { useAuthRetry } from "./auth/useAuthRetry";
+import { useConnectionState } from "./auth/useConnectionState";
 
 export const useAuthState = () => {
   const { toast } = useToast();
-  const [isStaff, setIsStaff] = useState(false);
-  const [session, setSession] = useState<any>(null);
-  const [userRole, setUserRole] = useState<string>("customer");
   const [isLoading, setIsLoading] = useState(true);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [retryCount, setRetryCount] = useState(0);
-  const MAX_RETRY_ATTEMPTS = 3;
-  const RETRY_DELAY = 1000;
+  const { isStaff, userRole, checkUserRole } = useUserRole();
+  const { session, setSession, saveSessionToCookie, getSessionFromCookie } = useSession();
+  const { retryCount, setRetryCount, shouldRetry, getRetryDelay } = useAuthRetry();
+  const { isOnline } = useConnectionState();
 
   const clearUserState = useCallback(() => {
-    setIsStaff(false);
-    setUserRole("customer");
     setSession(null);
     setIsLoading(false);
     setRetryCount(0);
-    Cookies.remove(SESSION_COOKIE_NAME);
-  }, []);
-
-  const saveSessionToCookie = useCallback((currentSession: any) => {
-    if (!currentSession) {
-      Cookies.remove(SESSION_COOKIE_NAME);
-      return;
-    }
-
-    Cookies.set(SESSION_COOKIE_NAME, JSON.stringify(currentSession), {
-      expires: SESSION_EXPIRY_HOURS / 24, // Converter horas para dias
-      secure: true,
-      sameSite: 'strict'
-    });
-  }, []);
-
-  const getSessionFromCookie = useCallback(() => {
-    const sessionCookie = Cookies.get(SESSION_COOKIE_NAME);
-    return sessionCookie ? JSON.parse(sessionCookie) : null;
-  }, []);
-
-  const checkUserRole = useCallback(async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Erro ao verificar papel do usuário:", error);
-        return;
-      }
-
-      if (data) {
-        setUserRole(data.role);
-        setIsStaff(["dev", "admin"].includes(data.role));
-      }
-    } catch (error) {
-      console.error("Erro ao verificar papel do usuário:", error);
-    }
-  }, []);
+  }, [setSession, setRetryCount]);
 
   const refreshSession = useCallback(async (retryAttempt = 0) => {
     if (!isOnline) {
@@ -94,12 +48,12 @@ export const useAuthState = () => {
       
       if (!currentSession) {
         const cachedSession = getSessionFromCookie();
-        if (cachedSession && retryAttempt < MAX_RETRY_ATTEMPTS) {
+        if (cachedSession && shouldRetry(retryAttempt)) {
           console.log("Usando sessão em cache enquanto tenta reconectar");
           setSession(cachedSession);
           await checkUserRole(cachedSession.user.id);
-          console.log(`Aguardando ${RETRY_DELAY}ms para tentar novamente...`);
-          setTimeout(() => refreshSession(retryAttempt + 1), RETRY_DELAY * (retryAttempt + 1));
+          console.log(`Aguardando ${getRetryDelay(retryAttempt)}ms para tentar novamente...`);
+          setTimeout(() => refreshSession(retryAttempt + 1), getRetryDelay(retryAttempt));
           return;
         }
         clearUserState();
@@ -136,13 +90,13 @@ export const useAuthState = () => {
       setRetryCount(prev => prev + 1);
       
       const cachedSession = getSessionFromCookie();
-      if (cachedSession && retryCount < MAX_RETRY_ATTEMPTS) {
+      if (cachedSession && shouldRetry(retryCount)) {
         console.log("Usando sessão em cache durante erro");
         setSession(cachedSession);
         await checkUserRole(cachedSession.user.id);
-      } else if (retryCount < MAX_RETRY_ATTEMPTS) {
-        console.log(`Tentativa ${retryCount + 1} de ${MAX_RETRY_ATTEMPTS}`);
-        setTimeout(refreshSession, RETRY_DELAY * (retryCount + 1));
+      } else if (shouldRetry(retryCount)) {
+        console.log(`Tentativa ${retryCount + 1}`);
+        setTimeout(() => refreshSession(), getRetryDelay(retryCount));
       } else {
         clearUserState();
         toast({
@@ -154,7 +108,19 @@ export const useAuthState = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [checkUserRole, clearUserState, isOnline, retryCount, toast, getSessionFromCookie, saveSessionToCookie]);
+  }, [
+    checkUserRole, 
+    clearUserState, 
+    isOnline, 
+    retryCount, 
+    toast, 
+    getSessionFromCookie, 
+    saveSessionToCookie,
+    shouldRetry,
+    getRetryDelay,
+    setRetryCount,
+    setSession
+  ]);
 
   useEffect(() => {
     let mounted = true;
@@ -192,22 +158,6 @@ export const useAuthState = () => {
       }
     };
 
-    const handleOnline = () => {
-      console.log("Conexão restaurada - atualizando sessão");
-      setIsOnline(true);
-      refreshSession();
-    };
-
-    const handleOffline = () => {
-      console.log("Conexão perdida - usando cache");
-      setIsOnline(false);
-      const cachedSession = getSessionFromCookie();
-      if (cachedSession) {
-        setSession(cachedSession);
-        checkUserRole(cachedSession.user.id);
-      }
-    };
-
     // Verificação inicial da sessão
     const cachedSession = getSessionFromCookie();
     if (cachedSession) {
@@ -219,19 +169,14 @@ export const useAuthState = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
 
     window.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
 
     return () => {
       mounted = false;
       if (refreshTimeoutId) clearTimeout(refreshTimeoutId);
       window.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
       subscription.unsubscribe();
     };
-  }, [checkUserRole, clearUserState, refreshSession, saveSessionToCookie, getSessionFromCookie]);
+  }, [checkUserRole, clearUserState, refreshSession, saveSessionToCookie, getSessionFromCookie, setSession]);
 
   return { isStaff, session, userRole, isLoading, isOnline, clearUserState };
 };
-
