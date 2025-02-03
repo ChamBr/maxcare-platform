@@ -9,6 +9,7 @@ export const useAuthState = () => {
   const [session, setSession] = useState<any>(null);
   const [userRole, setUserRole] = useState<string>("customer");
   const [isLoading, setIsLoading] = useState(true);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const clearUserState = useCallback(() => {
     setIsStaff(false);
@@ -40,6 +41,11 @@ export const useAuthState = () => {
   }, []);
 
   const refreshSession = useCallback(async () => {
+    if (!isOnline) {
+      console.log("Offline - aguardando conexão para atualizar sessão");
+      return;
+    }
+
     console.log("Refreshing session...");
     try {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
@@ -58,7 +64,7 @@ export const useAuthState = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [checkUserRole, clearUserState]);
+  }, [checkUserRole, clearUserState, isOnline]);
 
   useEffect(() => {
     let mounted = true;
@@ -84,9 +90,21 @@ export const useAuthState = () => {
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && mounted) {
+        console.log("Page became visible - refreshing session");
         if (refreshTimeoutId) clearTimeout(refreshTimeoutId);
         refreshTimeoutId = setTimeout(refreshSession, 100);
       }
+    };
+
+    const handleOnline = () => {
+      console.log("Connection restored - refreshing session");
+      setIsOnline(true);
+      refreshSession();
+    };
+
+    const handleOffline = () => {
+      console.log("Connection lost");
+      setIsOnline(false);
     };
 
     // Initial session check
@@ -95,16 +113,20 @@ export const useAuthState = () => {
     // Set up auth listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
 
-    // Set up visibility listener
+    // Set up visibility and connectivity listeners
     window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
     return () => {
       mounted = false;
       if (refreshTimeoutId) clearTimeout(refreshTimeoutId);
       window.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
       subscription.unsubscribe();
     };
   }, [checkUserRole, clearUserState, refreshSession]);
 
-  return { isStaff, session, userRole, isLoading, clearUserState };
+  return { isStaff, session, userRole, isLoading, isOnline };
 };
