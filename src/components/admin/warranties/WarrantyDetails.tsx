@@ -38,20 +38,35 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
 
       if (warrantyError) throw warrantyError;
 
-      // Em seguida, buscar o endereço principal do usuário
-      const { data: primaryAddress, error: addressError } = await supabase
+      // Buscar o endereço da garantia
+      const { data: warrantyAddress, error: addressError } = await supabase
         .from("addresses")
         .select("*")
-        .eq("user_id", warrantyData.users.id)
-        .eq("is_primary", true)
+        .eq("id", warrantyData.address_id)
         .maybeSingle();
 
       if (addressError) throw addressError;
 
-      // Retornar os dados combinados
+      // Se não encontrou o endereço da garantia, buscar qualquer endereço do usuário
+      if (!warrantyAddress) {
+        const { data: userAddress, error: userAddressError } = await supabase
+          .from("addresses")
+          .select("*")
+          .eq("user_id", warrantyData.users.id)
+          .limit(1)
+          .maybeSingle();
+
+        if (userAddressError) throw userAddressError;
+
+        return {
+          ...warrantyData,
+          address: userAddress
+        };
+      }
+
       return {
         ...warrantyData,
-        primary_address: primaryAddress
+        address: warrantyAddress
       };
     },
   });
@@ -80,9 +95,9 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
   });
 
   const { data: availableServices } = useQuery({
-    queryKey: ["available-warranty-services", warranty?.warranty_type_id],
+    queryKey: ["available-warranty-services", warranty?.warranty_type_id, warranty?.address_id],
     queryFn: async () => {
-      if (!warranty?.warranty_type_id) return [];
+      if (!warranty?.warranty_type_id || !warranty?.address_id) return [];
       
       const { data, error } = await supabase
         .from("warranty_type_services")
@@ -101,7 +116,7 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
       if (error) throw error;
       return data;
     },
-    enabled: !!warranty?.warranty_type_id,
+    enabled: !!warranty?.warranty_type_id && !!warranty?.address_id,
   });
 
   if (isLoading) {
@@ -137,21 +152,21 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
 
         <Card>
           <CardHeader>
-            <CardTitle>Endereço Principal</CardTitle>
+            <CardTitle>Endereço da Garantia</CardTitle>
           </CardHeader>
           <CardContent>
-            {warranty.primary_address ? (
+            {warranty.address ? (
               <>
                 <p>
-                  {warranty.primary_address.street_address}
-                  {warranty.primary_address.apt_suite_unit && `, ${warranty.primary_address.apt_suite_unit}`}
+                  {warranty.address.street_address}
+                  {warranty.address.apt_suite_unit && `, ${warranty.address.apt_suite_unit}`}
                 </p>
                 <p>
-                  {warranty.primary_address.city}, {warranty.primary_address.state_code} - {warranty.primary_address.zip_code}
+                  {warranty.address.city}, {warranty.address.state_code} - {warranty.address.zip_code}
                 </p>
               </>
             ) : (
-              <p>Nenhum endereço principal cadastrado</p>
+              <p>Nenhum endereço encontrado</p>
             )}
           </CardContent>
         </Card>
