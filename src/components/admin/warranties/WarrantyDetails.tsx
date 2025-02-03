@@ -17,21 +17,16 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
   const { data: warranty, isLoading } = useQuery({
     queryKey: ["warranty-details", warrantyId],
     queryFn: async () => {
+      // Primeiro, buscar os dados da garantia com informações básicas do usuário
       const { data: warrantyData, error: warrantyError } = await supabase
         .from("warranties")
         .select(`
           *,
           users!warranties_user_id_fkey (
+            id,
             full_name,
             email,
-            phone,
-            addresses (
-              street_address,
-              apt_suite_unit,
-              city,
-              state_code,
-              zip_code
-            )
+            phone
           ),
           warranty_types (
             id,
@@ -43,14 +38,17 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
 
       if (warrantyError) throw warrantyError;
 
-      // Adicionar endereço principal do usuário aos dados da garantia
-      const { data: primaryAddress } = await supabase
+      // Em seguida, buscar o endereço principal do usuário
+      const { data: primaryAddress, error: addressError } = await supabase
         .from("addresses")
         .select("*")
-        .eq("user_id", warrantyData.user_id)
+        .eq("user_id", warrantyData.users.id)
         .eq("is_primary", true)
-        .single();
+        .maybeSingle();
 
+      if (addressError) throw addressError;
+
+      // Retornar os dados combinados
       return {
         ...warrantyData,
         primary_address: primaryAddress
