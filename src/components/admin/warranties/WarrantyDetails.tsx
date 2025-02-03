@@ -54,7 +54,6 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
 
       if (addressesError) throw addressesError;
 
-      // Buscar garantias ativas para cada endereço
       const { data: activeWarranties, error: warrantiesError } = await supabase
         .from("warranties")
         .select("id, address_id")
@@ -64,7 +63,6 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
 
       if (warrantiesError) throw warrantiesError;
 
-      // Marcar endereços que têm garantias ativas
       return addressesData.map(address => ({
         ...address,
         has_active_warranty: activeWarranties.some(w => w.address_id === address.id)
@@ -78,7 +76,6 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
     queryFn: async () => {
       if (!selectedAddressId) return null;
 
-      // Primeiro, verificar se existe uma garantia ativa para este endereço
       const { data: activeWarranty, error: warrantyError } = await supabase
         .from("warranties")
         .select(`
@@ -98,7 +95,6 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
 
       if (!activeWarranty) return null;
 
-      // Se existe uma garantia ativa, buscar os serviços disponíveis
       const { data: services, error: servicesError } = await supabase
         .from("warranty_type_services")
         .select(`
@@ -151,102 +147,129 @@ export const WarrantyDetails = ({ warrantyId, onBack }: WarrantyDetailsProps) =>
   }
 
   return (
-    <div className="space-y-6">
-      <Button 
-        variant="ghost" 
-        onClick={onBack}
-        className="mb-4"
-      >
-        <ChevronLeft className="mr-2 h-4 w-4" />
-        Voltar
-      </Button>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-4">
+        <Button 
+          variant="ghost" 
+          onClick={onBack}
+          className="h-8"
+        >
+          <ChevronLeft className="mr-2 h-4 w-4" />
+          Voltar
+        </Button>
 
-      {/* Customer Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Informações do Cliente</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <p><strong>Nome:</strong> {customerData?.users?.full_name}</p>
-          <p><strong>Email:</strong> {customerData?.users?.email}</p>
-          <p><strong>Telefone:</strong> {customerData?.users?.phone || "Não informado"}</p>
-        </CardContent>
-      </Card>
+        <div className="flex items-center space-x-2">
+          <Badge variant="outline" className="h-6">
+            Cliente #{customerData?.users?.id?.slice(-4)}
+          </Badge>
+        </div>
+      </div>
 
-      {/* Address Selection */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Endereços Cadastrados</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {addresses?.map((address) => (
-              <div
-                key={address.id}
-                className={cn(
-                  "p-4 rounded-lg border cursor-pointer transition-colors",
-                  selectedAddressId === address.id ? "border-primary bg-primary/5" : "hover:bg-accent",
-                  "relative"
-                )}
-                onClick={() => setSelectedAddressId(address.id)}
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-medium">
-                      {address.street_address}
-                      {address.apt_suite_unit && `, ${address.apt_suite_unit}`}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {address.city}, {address.state_code} - {address.zip_code}
-                    </p>
-                  </div>
-                  {address.has_active_warranty && (
-                    <Badge className="ml-2">Garantia Ativa</Badge>
-                  )}
-                </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Coluna da Esquerda */}
+        <div className="space-y-4">
+          {/* Informações do Cliente - Compacto */}
+          <Card className="shadow-sm">
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg">Informações do Cliente</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 grid gap-2">
+              <div>
+                <p className="font-medium text-base">{customerData?.users?.full_name}</p>
+                <p className="text-sm text-muted-foreground">{customerData?.users?.email}</p>
+                <p className="text-sm text-muted-foreground">{customerData?.users?.phone || "Não informado"}</p>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
 
-      {/* Available Services */}
-      {selectedAddressId && warrantyServices?.warranty && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Serviços Disponíveis - {warrantyServices.warranty.warranty_types.name}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <WarrantyServicesTable 
-              services={warrantyServices.services || []}
-              warrantyId={warrantyServices.warranty.id}
-            />
+          {/* Lista de Endereços - Mais Compacta */}
+          <Card className="shadow-sm">
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg">Endereços</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="space-y-2">
+                {addresses?.map((address) => (
+                  <div
+                    key={address.id}
+                    className={cn(
+                      "p-3 rounded-md border cursor-pointer transition-colors",
+                      selectedAddressId === address.id ? "border-primary bg-primary/5" : "hover:bg-accent",
+                      "relative"
+                    )}
+                    onClick={() => setSelectedAddressId(address.id)}
+                  >
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-medium">
+                          {address.street_address}
+                          {address.apt_suite_unit && `, ${address.apt_suite_unit}`}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {address.city}, {address.state_code}
+                        </p>
+                      </div>
+                      {address.has_active_warranty && (
+                        <Badge variant="secondary" className="h-5 text-xs whitespace-nowrap">
+                          Garantia Ativa
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            <Separator />
+        {/* Coluna da Direita - Serviços */}
+        <div className="space-y-4">
+          {selectedAddressId && warrantyServices?.warranty && (
+            <Card className="shadow-sm">
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg flex items-center justify-between">
+                  <span>Serviços Disponíveis</span>
+                  <Badge variant="outline" className="ml-2">
+                    {warrantyServices.warranty.warranty_types.name}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 space-y-4">
+                <WarrantyServicesTable 
+                  services={warrantyServices.services || []}
+                  warrantyId={warrantyServices.warranty.id}
+                />
 
-            <div>
-              <h3 className="text-lg font-medium mb-4">Serviços Solicitados</h3>
-              <WarrantyRequestedServicesTable services={requestedServices || []} />
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                {requestedServices && requestedServices.length > 0 && (
+                  <>
+                    <Separator className="my-4" />
+                    <div>
+                      <h3 className="text-sm font-medium mb-3">Serviços Solicitados</h3>
+                      <WarrantyRequestedServicesTable services={requestedServices} />
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
-      {selectedAddressId && !warrantyServices?.warranty && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Endereço sem Garantia Ativa</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Este endereço não possui uma garantia ativa. Você pode cadastrar uma nova garantia para este endereço.
-            </p>
-            <Button>
-              Cadastrar Nova Garantia
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+          {selectedAddressId && !warrantyServices?.warranty && (
+            <Card className="shadow-sm">
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg">Endereço sem Garantia Ativa</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Este endereço não possui uma garantia ativa. Você pode cadastrar uma nova garantia para este endereço.
+                </p>
+                <Button size="sm">
+                  Cadastrar Nova Garantia
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
