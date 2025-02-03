@@ -1,123 +1,59 @@
-
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { useSession } from "./auth/useSession";
-import { useUserRole } from "./auth/useUserRole";
-import { useAuthRetry } from "./auth/useAuthRetry";
-import { useConnectionState } from "./auth/useConnectionState";
 
 export const useAuthState = () => {
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-  const { isStaff, userRole, checkUserRole } = useUserRole();
-  const { session, setSession, saveSessionToCookie } = useSession();
-  const { retryCount, setRetryCount, shouldRetry, getRetryDelay } = useAuthRetry();
-  const { isOnline } = useConnectionState();
+  const [isStaff, setIsStaff] = useState(false);
+  const [session, setSession] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string>("customer");
 
-  const clearUserState = useCallback(() => {
-    console.log("Limpando estado do usuário");
+  const clearUserState = () => {
+    setIsStaff(false);
+    setUserRole("customer");
     setSession(null);
-    saveSessionToCookie(null);
-    localStorage.clear();
-    sessionStorage.clear();
-    setIsLoading(false);
-    setRetryCount(0);
-  }, [setSession, setRetryCount, saveSessionToCookie]);
+  };
 
-  const refreshSession = useCallback(async (retryAttempt = 0) => {
+  const checkUserRole = async (userId: string) => {
     try {
-      console.log(`Atualizando sessão... (tentativa ${retryAttempt + 1})`);
-      
-      const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error("Erro ao obter sessão:", error);
-        throw error;
-      }
+      const { data: roles, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .single();
 
-      if (!currentSession) {
-        console.log("Nenhuma sessão encontrada");
-        clearUserState();
-        return;
-      }
+      if (error) throw error;
 
-      console.log("Sessão atualizada com sucesso");
-      setSession(currentSession);
-      saveSessionToCookie(currentSession);
-      
-      // Verificar o papel do usuário apenas se tivermos uma sessão válida
-      if (currentSession.user?.id) {
-        await checkUserRole(currentSession.user.id);
+      if (roles) {
+        setUserRole(roles.role);
+        setIsStaff(["dev", "admin"].includes(roles.role));
       }
-      
-      setRetryCount(0);
-
     } catch (error) {
-      console.error("Erro ao atualizar sessão:", error);
-      
-      if (shouldRetry(retryCount)) {
-        setRetryCount(prev => prev + 1);
-        setTimeout(() => refreshSession(retryCount + 1), getRetryDelay(retryCount));
-      } else {
-        clearUserState();
-        toast({
-          title: "Erro de autenticação",
-          description: "Não foi possível atualizar sua sessão. Por favor, faça login novamente.",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setIsLoading(false);
+      console.error("Erro ao verificar papel do usuário:", error);
     }
-  }, [
-    checkUserRole,
-    clearUserState,
-    shouldRetry,
-    getRetryDelay,
-    retryCount,
-    setRetryCount,
-    setSession,
-    saveSessionToCookie,
-    toast
-  ]);
+  };
 
   useEffect(() => {
-    let mounted = true;
-
-    const handleAuthChange = async (event: any, newSession: any) => {
-      if (!mounted) return;
-
-      console.log("Estado de autenticação alterado:", event);
-
-      if (event === 'SIGNED_OUT') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        checkUserRole(session.user.id);
+      } else {
         clearUserState();
-        return;
       }
+    });
 
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        setIsLoading(true);
-        if (newSession) {
-          setSession(newSession);
-          saveSessionToCookie(newSession);
-          if (newSession.user?.id) {
-            await checkUserRole(newSession.user.id);
-          }
-        }
-        setIsLoading(false);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        checkUserRole(session.user.id);
+      } else {
+        clearUserState();
       }
-    };
+    });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
-    
-    // Inicialização
-    refreshSession();
+    return () => subscription.unsubscribe();
+  }, []);
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [checkUserRole, clearUserState, refreshSession, saveSessionToCookie, setSession]);
-
-  return { isStaff, session, userRole, isLoading, isOnline, clearUserState };
+  return { isStaff, session, userRole, clearUserState };
 };

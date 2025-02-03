@@ -1,10 +1,19 @@
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ServiceRequestRow } from "./ServiceRequestRow";
-import { Service } from "@/types/services";
+
+interface ServiceRequest {
+  id: string;
+  created_at: string;
+  service_type: string;
+  status: string;
+  user: {
+    full_name: string | null;
+    email: string;
+  };
+}
 
 interface ServiceRequestsTableProps {
-  requests: Service[];
+  requests: ServiceRequest[];
   onStatusUpdate: (requestId: string, newStatus: string) => void;
 }
 

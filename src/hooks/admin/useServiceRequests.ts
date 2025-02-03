@@ -1,14 +1,24 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Service } from "@/types/services";
+
+interface ServiceRequest {
+  id: string;
+  created_at: string;
+  service_type: string;
+  status: string;
+  user_id: string;
+  user: {
+    full_name: string | null;
+    email: string;
+  };
+}
 
 export const useServiceRequests = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [requests, setRequests] = useState<Service[]>([]);
+  const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -40,18 +50,8 @@ export const useServiceRequests = () => {
     const { data, error } = await supabase
       .from("services")
       .select(`
-        id,
-        warranty_id,
-        user_id,
-        service_type,
-        status,
-        scheduled_date,
-        completed_date,
-        notes,
-        created_at,
-        updated_at,
-        warranty_service_id,
-        users (
+        *,
+        user:user_id (
           full_name,
           email
         )
@@ -100,8 +100,8 @@ export const useServiceRequests = () => {
   }, []);
 
   const filteredRequests = requests.filter(request => 
-    request.users?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    request.users?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    request.user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    request.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     request.service_type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

@@ -1,11 +1,7 @@
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useAuthState } from "@/hooks/useAuthState";
-import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -14,37 +10,49 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { session, isLoading, isOnline } = useAuthState();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && !session) {
-      toast({
-        title: "Autenticação necessária",
-        description: "Por favor, faça login para acessar esta página",
-        variant: "destructive",
-      });
-      navigate("/login");
-    }
-  }, [session, isLoading, navigate, toast]);
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          toast({
+            title: "Autenticação necessária",
+            description: "Por favor, faça login para acessar esta página",
+            variant: "destructive",
+          });
+          navigate("/login");
+          return;
+        }
+        
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error("Erro ao verificar autenticação:", error);
+        navigate("/login");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate("/login");
+      }
+    });
+
+    checkAuth();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   if (isLoading) {
-    return (
-      <div className="p-4">
-        <Skeleton className="h-[200px] w-full" />
-      </div>
-    );
+    return null; // ou um componente de loading
   }
 
-  if (!isOnline) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Você está offline. Algumas funcionalidades podem não estar disponíveis.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  return session ? <>{children}</> : null;
+  return isAuthenticated ? <>{children}</> : null;
 };

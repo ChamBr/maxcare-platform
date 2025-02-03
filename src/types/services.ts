@@ -1,3 +1,6 @@
+import { Database } from "@/integrations/supabase/types";
+
+type Tables = Database['public']['Tables'];
 
 export interface Service {
   id: string;
@@ -24,10 +27,6 @@ export interface Service {
     warranty_types?: {
       name: string;
     };
-  };
-  users?: {
-    full_name: string | null;
-    email: string | null;
   };
 }
 
@@ -57,9 +56,5 @@ export interface Warranty {
     street_address: string;
     city: string;
     state_code: string;
-  };
-  users?: {
-    full_name: string | null;
-    email: string | null;
   };
 }

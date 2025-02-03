@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Download } from "lucide-react";
@@ -8,42 +7,26 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { WarrantiesTable } from "@/components/admin/warranties/WarrantiesTable";
 import { WarrantyDetails } from "@/components/admin/warranties/WarrantyDetails";
-import { Warranty } from "@/types/services";
 
 const Subscriptions = () => {
   const [search, setSearch] = useState("");
   const [selectedWarrantyId, setSelectedWarrantyId] = useState<string | null>(null);
 
-  const { data: warranties = [], isLoading } = useQuery<Warranty[]>({
+  const { data: warranties, isLoading } = useQuery({
     queryKey: ["active-warranties"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("warranties")
         .select(`
           id,
-          user_id,
-          purchase_date,
           warranty_start,
           warranty_end,
-          status,
-          created_at,
-          updated_at,
-          approval_status,
-          approved_by_id,
-          approved_at,
-          address_id,
-          warranty_type_id,
           users!warranties_user_id_fkey (
             full_name,
             email
           ),
           warranty_types (
-            id,
-            name,
-            description,
-            active,
-            created_at,
-            updated_at
+            name
           )
         `)
         .eq("status", "active")
