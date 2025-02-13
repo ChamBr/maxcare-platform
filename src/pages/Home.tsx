@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Shield, Brush, Wrench, Percent, CheckCircle } from "lucide-react";
 const Home = () => {
   const navigate = useNavigate();
-  return <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-x-hidden py-0 mx-0 my-[-50px]">
+  return <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-x-hidden py-0 mx-0 my-[-60px]">
       <div className="container mx-auto px-4 lg:py-16 py-[84px]">
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
