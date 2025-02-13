@@ -1,13 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Shield, Brush, Wrench, Percent, CheckCircle } from "lucide-react";
-
 const Home = () => {
   const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-x-hidden">
-      <div className="container mx-auto px-4 py-8 lg:py-16">
+  return <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-x-hidden py-0 mx-0 my-[-50px]">
+      <div className="container mx-auto px-4 lg:py-16 py-[84px]">
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
           <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
@@ -49,19 +46,10 @@ const Home = () => {
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  size="lg"
-                  onClick={() => navigate("/register")}
-                  className="text-lg px-8"
-                >
+                <Button size="lg" onClick={() => navigate("/register")} className="text-lg px-8">
                   Get Protected Now
                 </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={() => navigate("/services")}
-                  className="text-lg px-8"
-                >
+                <Button size="lg" variant="outline" onClick={() => navigate("/services")} className="text-lg px-8">
                   Learn More
                 </Button>
               </div>
@@ -70,11 +58,7 @@ const Home = () => {
             {/* Right Image - Hidden on mobile, visible on lg screens */}
             <div className="flex-1 relative hidden lg:block">
               <div className="relative w-full aspect-square rounded-full overflow-hidden border-8 border-white shadow-xl">
-                <img
-                  src="/lovable-uploads/245cbed9-98b3-4196-a222-f311fc385aa2.png"
-                  alt="Professional working on countertop"
-                  className="w-full h-full object-cover"
-                />
+                <img src="/lovable-uploads/245cbed9-98b3-4196-a222-f311fc385aa2.png" alt="Professional working on countertop" className="w-full h-full object-cover" />
               </div>
               {/* Price Badge */}
               <div className="absolute top-4 right-4 bg-primary text-white rounded-full p-6 shadow-lg">
@@ -88,8 +72,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Home;
